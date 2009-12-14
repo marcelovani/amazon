@@ -5,25 +5,49 @@ function amazon_install() {
   drupal_install_schema('amazon');
 }
 
+/**
+ * implementation of hook_requirements to make sure we let them know about
+ * the requirement for amazon_aws_secret_access_key
+ * @param $phase
+ * @return unknown_type
+ */
+function amazon_requirements($phase) {
+  $secret_access_key=variable_get('amazon_aws_secret_access_key',"");
+  $api_key = variable_get('amazon_aws_access_key',"");
+  $requirement = array();
+  if (empty($secret_access_key) || empty($api_key)) {
+    drupal_set_message(t("The Amazon API must be configured with an Access Key ID and an Amazon AWS Secret Access Key to function. Go to !settings.",array("!settings"=>l(t("Amazon API Setttings"),'admin/settings/amazon'))));
+    $requirement['title'] = t("Amazon AWS Secret Access Key");
+    $requirement['severity'] = REQUIREMENT_WARNING;
+    $requirement['value'] = t("Not Set");
+    $requirement['description'] = t("The Amazon API must be configured with an Access Key ID and an Amazon AWS Secret Access Key to function. Go to !settings.",array("!settings"=>l(t("Amazon API Setttings"),'admin/settings/amazon')));
+    return array('amazon_aws_secret_access_key',$requirement);
+  }
+
+  return NULL;
+}
+
 function amazon_schema() {
   $schema['amazon_item'] = array(
     'fields' => array(
       'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
       'title' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
-      'detailpageurl' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
+      'detailpageurl' => array('type' => 'text'),
       'salesrank' => array('type' => 'int', 'unsigned' => TRUE),
-      'brand' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
-      'publisher' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
-      'manufacturer' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
-      'studio' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
-      'label' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
-      'binding' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
-      'releasedate' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'brand' => array('type' => 'varchar', 'length' => 64),
+      'publisher' => array('type' => 'varchar', 'length' => 64),
+      'manufacturer' => array('type' => 'varchar', 'length' => 64),
+      'mpn' => array('type' => 'varchar', 'length' => 128),
+      'studio' => array('type' => 'varchar', 'length' => 64),
+      'label' => array('type' => 'varchar', 'length' => 64),
+      'binding' => array('type' => 'varchar', 'length' => 64),
+      'releasedate' => array('type' => 'varchar', 'length' => 64),
       'listpriceamount' => array('type' => 'float', 'unsigned' => TRUE),
       'listpricecurrencycode' => array('type' => 'varchar', 'length' => 32),
       'listpriceformattedprice' => array('type' => 'varchar', 'length' => 32),
-      'productgroup' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
-      'producttypename' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
+      'productgroup' => array('type' => 'varchar', 'length' => 255),
+      'producttypename' => array('type' => 'varchar', 'length' => 255),
+      'invalid_asin' => array('type' => 'int', 'default' => 0),
       'timestamp' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
     ),
     'primary key' => array('asin'),
@@ -44,11 +68,11 @@ function amazon_schema() {
     'fields' => array(
       'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
       'size' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
-      'url' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'url' => array('type' => 'varchar', 'length' => 128, 'not null' => TRUE),
       'height' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
       'width' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
     ),
-    'primary key' => array('asin, size'),
+    'primary key' => array('asin', 'size'),
     'indexes' => array(
       'asin' => array('asin'),
     ),
@@ -73,7 +97,7 @@ function amazon_schema() {
       'module' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => 'amazon'),
       'delta' => array('type' => 'int', 'default' => 0),
     ),
-    'primary key' => array('vid, asin, module'),
+    'primary key' => array('vid', 'asin', 'module'),
     'indexes' => array(
       'nid' => array('nid'),
       'vid' => array('vid'),
@@ -85,10 +109,78 @@ function amazon_schema() {
   return $schema;
 }
 
+function amazon_update_6001() {
+  $ret = array();
+  db_add_column($ret, 'amazon_item', 'mpn', 'varchar(128)');
+  return $ret;
+}
+
+function amazon_update_6002() {
+  $ret = array();
+  // Make sure that primary keys are correct
+  db_drop_primary_key($ret, 'amazon_item_node');
+  db_add_primary_key($ret, 'amazon_item_node', array('vid', 'asin', 'module'));
+  db_drop_primary_key($ret, 'amazon_item_image');
+  db_add_primary_key($ret, 'amazon_item_image', array('asin', 'size'));
+  return $ret;
+}
+
+/**
+ * http://drupal.org/node/426786 - Allow longer image url fields.
+ */
+function amazon_update_6003() {
+  $ret = array();
+  db_change_field($ret, 'amazon_item_image', 'url', 'url',
+    array('type' => 'varchar', 'length' => 128, 'not null' => TRUE));
+  return $ret;
+}
+
+/**
+ * Ugly hack for those updating from amazon module in D5.
+ */
+function amazon_update_6004() {
+  $ret = array();
+
+  if (!db_table_exists('amazon_item')) {
+    drupal_install_schema('amazon');
+    $ret[] = array('success' => TRUE, 'query' => 'Force-installed Amazon module tables after botched D5 upgrade.');
+  }
+
+  return $ret;
+}
+
+function amazon_update_6005() {
+  $ret = array();
+  db_change_field($ret, 'amazon_item', 'detailpageurl', 'detailpageurl',
+    array('type' => 'text'));
+  db_change_field($ret, 'amazon_item', 'brand', 'brand',
+    array('type' => 'varchar', 'length' => 64));
+  db_change_field($ret, 'amazon_item', 'publisher', 'publisher',
+    array('type' => 'varchar', 'length' => 64));
+  db_change_field($ret, 'amazon_item', 'manufacturer', 'manufacturer',
+    array('type' => 'varchar', 'length' => 64));
+  db_change_field($ret, 'amazon_item', 'studio', 'studio',
+    array('type' => 'varchar', 'length' => 64));
+  db_change_field($ret, 'amazon_item', 'label', 'label',
+    array('type' => 'varchar', 'length' => 64));
+  db_change_field($ret, 'amazon_item', 'binding', 'binding',
+    array('type' => 'varchar', 'length' => 64));
+  db_change_field($ret, 'amazon_item', 'releasedate', 'releasedate',
+    array('type' => 'varchar', 'length' => 64));
+  db_change_field($ret, 'amazon_item', 'productgroup', 'productgroup',
+    array('type' => 'varchar', 'length' => 255));
+  db_change_field($ret, 'amazon_item', 'producttypename', 'producttypename',
+    array('type' => 'varchar', 'length' => 255));
+
+  return $ret;
+}
+
+function amazon_update_6006() {
+  $ret = array();
+  db_add_column($ret, 'amazon_item', 'invalid_asin', 'int',
+    array('default' => 0));
+  return $ret;
+}
 function amazon_uninstall() {
-  db_query("DROP TABLE {amazon_item}");
-  db_query("DROP TABLE {amazon_item_participant}");
-  db_query("DROP TABLE {amazon_item_image}");
-  db_query("DROP TABLE {amazon_item_editorial_review}");
-  db_query("DROP TABLE {amazon_item_node}");
+  drupal_uninstall_schema('amazon');
 }

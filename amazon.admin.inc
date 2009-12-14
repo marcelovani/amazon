@@ -41,9 +41,18 @@ function amazon_settings_form($form_state) {
 
   $form['amazon_aws_access_key'] = array(
     '#type' => 'textfield',
-    '#title' => t('Amazon API key'),
-    '#description' => t('Applications must use a unique key to access Amazon services. One is supplied with the Drupal Amazon API module by default, but developers building high-traffic custom modules on the Amazon API may want to enter a custom key here.'),
-    '#default_value' => variable_get('amazon_aws_access_key', '0CD9RCQYM0TBVH55NB82'),
+    '#title' => t('Amazon AWS Access Key ID'),
+    '#description' => t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See !more_info for information and a registration form.',array('!more_info'=>l(t('the AWS home page'),'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key',array('html'=>TRUE)))),
+    '#default_value' => variable_get('amazon_aws_access_key', ''),
+    '#required' => TRUE,
+  );
+
+  $form['amazon_aws_secret_access_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Amazon AWS Secret Access Key'),
+    '#description' => t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See !more_info for information and a registration form.',array('!more_info'=>l(t('the AWS home page'),'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key',array('html'=>TRUE)))),
+    '#default_value' => variable_get('amazon_aws_secret_access_key',""),
+    '#required' => TRUE,
   );
 
   // Now add the Javascript that does the fancy hide/show effects.
@@ -53,28 +62,8 @@ function amazon_settings_form($form_state) {
 }
 
 function amazon_storage_settings_form() {
-  $form['amazon_explain'] = array(
-    '#type' => 'markup',
-    '#value' => t("Storing Amazon product information in the Drupal database can speed up the display of commonly viewed products. In addition, stored product data can be included in content displayed by the Views module. On some sites, though, this functionality is unecessary and can be disabled."),
-  );
 
-  $form['amazon_cache'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Store Amazon data locally'),
-    '#default_value' => variable_get('amazon_cache', TRUE),
-  );
-
-  if (!variable_get('amazon_cache', TRUE)) {
-    $form['details']['#prefix'] = '<div id="amazon-storage-details" class="js-hide">';
-  }
-  else {
-   $form['details']['#prefix'] = '<div id="amazon-storage-details">';
-  }
-
-  $form['details']['#suffix'] = '</div>';
-
-  $period = array(0 => t('Never'));
-  $period += drupal_map_assoc(array(43200, 86400, 604800), 'format_interval');
+  $period = drupal_map_assoc(array(3600, 7200, 14400, 21600, 43200, 86400), 'format_interval');
   $form['details']['amazon_refresh_schedule'] = array(
     '#type' => 'select',
     '#title' => t('Amazon refresh schedule'),
@@ -95,7 +84,7 @@ function amazon_storage_settings_form() {
   );
 
   // Now add the Javascript that does the fancy hide/show effects.
-  drupal_add_js(drupal_get_path('module', 'amazon') .'/amazon-admin.js');
+  drupal_add_js(drupal_get_path('module', 'amazon') .'/amazon.admin.js');
 
   return system_settings_form($form);
 }
@@ -116,15 +105,11 @@ function amazon_test_form($form_state) {
   );
 
   if (isset($form_state['amazon_item'])) {
-    $form['item_themed'] = array(
-      '#type' => 'markup',
-      '#value' => theme('amazon_item', $form_state['amazon_item']),
-      '#weight' => 5,
-    );
-
+    $markup = theme('amazon_item', $form_state['amazon_item'], 'details');
+    $markup .= '<pre>'. print_r($form_state['amazon_item'], TRUE) .'</pre>';
     $form['item_data'] = array(
       '#type' => 'markup',
-      '#value' => dprint_r($form_state['amazon_item'], TRUE),
+      '#value' => $markup,
       '#weight' => 10,
     );
   }
@@ -132,16 +117,18 @@ function amazon_test_form($form_state) {
 }
 
 function amazon_test_form_submit($form, &$form_state) {
-  $items = amazon_item_lookup($form_state['values']['asin']);
-  if (is_array($items)) {
+  $items = amazon_item_lookup($form_state['values']['asin'], TRUE);
+  if (!empty($items) && is_array($items)) {
     $item = array_pop($items);
     amazon_item_delete($item['asin']);
-    amazon_item_save($item);
+    amazon_item_insert($item);
 
     // We could probably be sneaky and put the Amazon data in here directly,
     // but SimpleXML objects can't be serialized, and setting rebuild = TRUE
     // causes a serialization operation. Whoops.
     $form_state['amazon_item'] = $item;
     $form_state['rebuild'] = TRUE;
+  } else {
+    drupal_set_message(t("Test failed for this ASIN. Please check the !link for messages.", array('!link' => l(t("error log"), 'admin/reports/dblog'))));
   }
 }

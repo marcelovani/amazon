@@ -1,1 +1,35 @@
 $Id$
+
+6.x-1.x-BETA2 release
+
+- #608624 by rfay: Changed Test should detect and report invalid credentials
+- #622418 by rfay: Remove the option of not storing amazon data locally.
+
+18 October 2009: BETA-10 release
+================================
+- Minor changes to fix issues encountered during documentation and test of BETA-9
+
+18 October 2009: BETA-9 release  (Beta-8 had a problem and had to be replaced)
+===============================
+- #278034 by iva2k - Fix node-view CSS when there is more than one ASIN field
+- Add views handling for Amazon images, including linking.
+- #543990 by rfay - Fix bug where save didn't include Amazon database update
+- #353285 - Remove "NOT NULL" from database definition where Amazon might in fact not return information.
+- Added delete of amazon_item when related node is deleted.
+- #350320 - Allow HTML in title of Amazon item
+- #326963 by bangpound: Correct return values in hook_field()
+- #494648: Filtering by the contents of the ASIN field didn't work
+- #362884 by tomiyana: Change detailpageurl to TEXT because of long Japanes detailpageurls
+- amazon.module function documentation.
+- Improve consistency of data insert by always deleting item before insert.
+- #288119: Trim whitespace from ASIN in CCK field.
+- #437158: Date-related items are now supported in views as dates.
+- #510432: Make amazon_inline_item get preprocessed
+- #511008: Track and handle invalid ASINs. We now mark them as invalid_asin
+           in the amazon_item table, and some of the tpl.php files make note
+           of this. The invalid_asin is also available via views.
+- #598588: Many new filters are now available through [amazon ASIN detail].
+           Everything that is preprocessed in amazon_preprocess_amazon_item()
+           is available for use. For example, [amazon 0596515804 detailpageurl]
+- #595980: Added a demonstration module (requires features module) that provides
+           a CCK type and a view. 
