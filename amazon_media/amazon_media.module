@@ -100,6 +100,10 @@ function amazon_media_amazon_item_insert($item) {
       drupal_write_record('amazon_dvd', $item);
       break;
     case 'ABIS_MUSIC':
+      // Often the artist is an array.
+      if (is_array($item['artist'])) {
+        $item['artist'] = join(",", $item['artist']);
+      }
       drupal_write_record('amazon_music', $item);
       break;
     case 'CONSOLE_VIDEO_GAMES':

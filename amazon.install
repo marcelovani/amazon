@@ -1,10 +1,31 @@
 <?php
 // $Id$
 
+/**
+ * Implements hook_install.
+ */
 function amazon_install() {
   drupal_install_schema('amazon');
 }
 
+/**
+ * Implements hook_uninstall().
+ */
+function amazon_uninstall() {
+  drupal_uninstall_schema('amazon');
+  $variables = preg_split('/\s+/',
+    "amazon_media_data
+    amazon_locale
+    amazon_associate_setting
+    amazon_custom_associate_id
+    amazon_aws_access_key
+    amazon_aws_secret_access_key
+    amazon_refresh_schedule
+    amazon_core_data");
+  foreach ($variables as $var) {
+    variable_del($var);
+  }
+}
 /**
  * implementation of hook_requirements to make sure we let them know about
  * the requirement for amazon_aws_secret_access_key
@@ -177,10 +198,6 @@ function amazon_update_6005() {
 
 function amazon_update_6006() {
   $ret = array();
-  db_add_column($ret, 'amazon_item', 'invalid_asin', 'int',
-    array('default' => 0));
+  db_add_field($ret, 'amazon_item', 'invalid_asin', array('type' => 'int', 'default' => 0));
   return $ret;
-}
-function amazon_uninstall() {
-  drupal_uninstall_schema('amazon');
 }
