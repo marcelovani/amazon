@@ -247,16 +247,16 @@ function amazon_http_request($operation, $parameters = array(), $locale = NULL) 
   $url = $locale_data['url'] .'?'. $query_string;
   // Make the request and return a SimpleXML object.
   $results = drupal_http_request($url, array(), 'GET');
-  if ($results->code == '200') {
+  if ($results->code == 200) {
     $xml = new SimpleXMLElement($results->data);
     return $xml;
   }
-  if ($results->code == '403') {
+  if ($results->code >= 400 && $results->code <= 500) {
     $xml = new SimpleXMLElement($results->data);
-    watchdog('amazon', "Access denied accessing Amazon's AWS service: %code, %message", array('%code' => (string)$xml->Error->Code, '%message' => (string)$xml->Error->Message));
+    watchdog('amazon', "HTTP code %http_code accessing Amazon's AWS service: %code, %message", array('%http_code' => $results->code, '%code' => (string)$xml->Error->Code, '%message' => (string)$xml->Error->Message));
     return FALSE;
   }
-  watchdog('amazon', "Error accessing Amazon AWS web service. result code=%code, error=%error", array('%code' => $results->code, '%error' => $results->error));
+  watchdog('amazon', "Error accessing Amazon AWS web service. HTTP result code=%code, error=%error", array('%code' => $results->code, '%error' => $results->error));
   return FALSE;
 }
 
@@ -646,12 +646,9 @@ function _amazon_default_locales() {
 }
 
 function amazon_get_associate_id() {
-  switch (variable_get('amazon_associate_setting', 'author')) {
+  switch (variable_get('amazon_associate_setting', 'association')) {
     case 'association':
       return 'drupal0a-20';
-      break;
-    case 'author':
-      return 'viaposit-20';
       break;
     case 'custom':
       return variable_get('amazon_custom_associate_id', '');

@@ -20,7 +20,6 @@ function amazon_settings_form($form_state) {
     '#default_value' => variable_get('amazon_associate_setting', 'association'),
     '#options' => array(
       'association' => t('Use the Drupal Association\'s associate ID'),
-      'author' => t('Use the module developer\'s associate ID'),
       'custom' => t('Use your own associate ID'),
       'none' => t('Do not use any associate ID')
     ),
@@ -35,7 +34,7 @@ function amazon_settings_form($form_state) {
     '#prefix' => '<div id="amazon-associate-id-wrapper">',
     '#suffix' => '</div>',
   );
-  if (variable_get('amazon_associate_setting', 'author') != 'custom') {
+  if (variable_get('amazon_associate_setting', 'association') != 'custom') {
     $form['amazon_custom_associate_id']['#prefix'] = '<div id="amazon-associate-id-wrapper" class="js-hide">';
   }
 

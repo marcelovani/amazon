@@ -201,3 +201,12 @@ function amazon_update_6006() {
   db_add_field($ret, 'amazon_item', 'invalid_asin', array('type' => 'int', 'default' => 0));
   return $ret;
 }
+
+function amazon_update_6007() {
+  $ret = array();
+  if (variable_get('amazon_associate_setting', 'associate') == 'author') {
+    variable_del('amazon_associate_setting');  // go with the default.
+    $ret[] = array('success' => TRUE, 'query' => t('Replaced "author" Amazon associate setting with the default.'));
+  }
+  return $ret;
+}
