@@ -22,7 +22,7 @@ function amazon_media_schema() {
       'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
       'regioncode' => array('type' => 'int'),
       'runningtime' => array('type' => 'int'),
-      'audiencerating' => array('type' => 'varchar', 'length' => 32),
+      'audiencerating' => array('type' => 'varchar', 'length' => 64),
       'aspectratio' => array('type' => 'varchar', 'length' => 16),
       'theatricalreleasedate' => array('type' => 'varchar', 'length' => 32),
     ),
@@ -60,4 +60,14 @@ function amazon_media_uninstall() {
   db_query("DROP TABLE {amazon_dvd}");
   db_query("DROP TABLE {amazon_music}");
   db_query("DROP TABLE {amazon_software}");
+}
+
+
+function amazon_media_update_6001() {
+  $ret = array();
+
+  $field = array('type' => 'varchar', 'length' => 64);
+  db_change_field($ret, 'amazon_dvd', 'audiencerating', 'theatricalreleasedate', $field);
+
+  return $ret;
 }

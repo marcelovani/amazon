@@ -1,7 +1,7 @@
 $Id$
 
 6.x-1.x-BETA2 release
-
+- #659728 by rfay: Move active development to HEAD
 - #608624 by rfay: Changed Test should detect and report invalid credentials
 - #622418 by rfay: Remove the option of not storing amazon data locally.
 
