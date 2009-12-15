@@ -1,7 +1,8 @@
 $Id$
 
-6.x-1.x-BETA2 release
+6.x-1.x-RC2 release
 =====================
+- #609388 by rfay: Make Amazon item title sortable in views, check other fields.
 - #622076 by rfay: invalid_asin filter should be a boolean filter or at least numeric.
 - #608782 by rfay: hook_update_6006() needs to use db_add_field() not db_add_column().
 - #608780 by rfay: hook_uninstall() does not uninstall all schemas and variables.

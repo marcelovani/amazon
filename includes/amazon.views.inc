@@ -104,6 +104,7 @@ function amazon_views_data() {
       'handler' => 'views_handler_field_amazon_title',
       'click sortable' => TRUE,
      ),
+    'sort' => array('handler' => 'views_handler_sort'),
   );
 
   // detailpageurl
