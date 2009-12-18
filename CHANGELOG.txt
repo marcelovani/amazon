@@ -2,6 +2,7 @@ $Id$
 
 6.x-1.x-RC2 release
 =====================
+- #661560 by rfay: PHP 5.3 compatibility fix
 - #660670 by rfay: Remove option of using author's Amazon associate ID.
 - #609388 by rfay: Make Amazon item title sortable in views, check other fields.
 - #622076 by rfay: invalid_asin filter should be a boolean filter or at least numeric.
