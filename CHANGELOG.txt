@@ -1,5 +1,9 @@
 $Id$
 
+6.x-1.x-RC3 release
+===================
+- [#590360] Postgresql compatibility fix.
+
 6.x-1.x-RC2 release
 =====================
 - #661560 by rfay: PHP 5.3 compatibility fix
