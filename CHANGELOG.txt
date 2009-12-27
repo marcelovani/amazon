@@ -2,7 +2,8 @@ $Id$
 
 6.x-1.x-RC3 release
 ===================
-- [#590360] Postgresql compatibility fix.
+- [#608784] by rfay: Better filter tips in amazon_filter module.
+- [#590360] by rfay: Postgresql compatibility fix.
 
 6.x-1.x-RC2 release
 =====================
