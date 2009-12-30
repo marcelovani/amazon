@@ -7,10 +7,14 @@ function aat_legacy_install() {
     $select  = "SELECT a.nid, a.asin FROM {amazonnode} a ";
     $select .= "WHERE a.ntype IN ('amazon', 'amazon_node')";
 
-    $insert = "INSERT INTO {amazon_item_node} (nid, vid, asin, module) VALUES (%d, %d, '%s', '%s')";
     $results = db_query($select);
+
+    $insert = "INSERT INTO {amazon_item_node} (nid, vid, asin, module) VALUES (%d, %d, '%s', '%s')";
+    $i = 0;
     while ($asin = db_fetch_object($results)) {
-      db_query($insert, $asin['nid'], -1, $asin['asin'], 'aat_legacy');
+      db_query($insert, $asin->nid, -1, $asin->asin, 'aat_legacy');
+      $i++;
     }
+    drupal_set_message(t("Imported %num records from legacy amazon_node table into amazon_item_node table", array('%num' => $i)));
   }
 }

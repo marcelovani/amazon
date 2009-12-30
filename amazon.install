@@ -118,7 +118,7 @@ function amazon_schema() {
       'module' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => 'amazon'),
       'delta' => array('type' => 'int', 'default' => 0),
     ),
-    'primary key' => array('vid', 'asin', 'module'),
+    'primary key' => array('nid', 'asin', 'module'),
     'indexes' => array(
       'nid' => array('nid'),
       'vid' => array('vid'),
@@ -139,8 +139,6 @@ function amazon_update_6001() {
 function amazon_update_6002() {
   $ret = array();
   // Make sure that primary keys are correct
-  db_drop_primary_key($ret, 'amazon_item_node');
-  db_add_primary_key($ret, 'amazon_item_node', array('vid', 'asin', 'module'));
   db_drop_primary_key($ret, 'amazon_item_image');
   db_add_primary_key($ret, 'amazon_item_image', array('asin', 'size'));
   return $ret;
@@ -218,5 +216,20 @@ function amazon_update_6008() {
   $ret = array();
   db_change_field($ret, 'amazon_item', 'listpriceamount', 'listpriceamount',
     array('type' => 'numeric'));
+  return $ret;
+}
+
+/**
+ * Change key on amazon_item_node (again).
+ *
+ * It looks like nid should be the correct portion of the key, since there
+ * is no vid coming in. In fact... There should be no vid.
+ *
+ * @return unknown_type
+ */
+function amazon_update_6009() {
+  $ret = array();
+  db_drop_primary_key($ret, 'amazon_item_node');
+  db_add_primary_key($ret, 'amazon_item_node', array('nid', 'asin', 'module'));
   return $ret;
 }

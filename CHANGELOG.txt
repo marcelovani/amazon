@@ -2,6 +2,7 @@ $Id$
 
 6.x-1.x-RC3 release
 ===================
+- [#541998] by rfay: Fixed aat_legacy module so it shows amazon_node items.
 - [#608784] by rfay: Better filter tips in amazon_filter module.
 - [#590360] by rfay: Postgresql compatibility fix.
 

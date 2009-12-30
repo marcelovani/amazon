@@ -1,7 +1,7 @@
 <?php
 // $Id$
 
-function amazon_node_info() {
+function aat_legacy_node_info() {
   return array(
     'amazon' => array(
       'name' => t('Amazon review'),
@@ -17,11 +17,12 @@ function amazon_node_info() {
       'locked' => TRUE,
     )
   );
+
 }
 
 function aat_legacy_load($node) {
   $asins = array();
-  $sql = "SELECT * FROM {amazon_item_node} ain WHERE ain.nid = %d ORDER BY delta ASC WHERE ain.module = 'aat_legacy'";
+  $sql = "SELECT * FROM {amazon_item_node} ain WHERE ain.nid = %d AND ain.module = 'aat_legacy'";
   $results = db_query($sql, $node->nid);
   while ($asin = db_fetch_array($results)) {
     $asins[$asin['asin']] = $asin;
@@ -34,9 +35,10 @@ function aat_legacy_view(&$node, $teaser = FALSE, $page = FALSE) {
   foreach ($asins as $asin) {
     $node->content['aat_legacy_items'][] = array(
       '#type' => 'markup',
-      '#value' => theme('amazon_item', theme('amazon_item', $product))
+      '#value' => theme('amazon_item', $asin)
     );
   }
+  return $node;
 }
 
 function aat_legacy_delete(&$node) {
