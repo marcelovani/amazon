@@ -130,9 +130,39 @@ function amazon_schema() {
   return $schema;
 }
 
+/**
+ * Update variables from legacy AAT module where possible. Add mpn field.
+ */
 function amazon_update_6001() {
   $ret = array();
   db_add_column($ret, 'amazon_item', 'mpn', 'varchar(128)');
+
+  // If the access key is not set, and there is a D5 amazontools access key, use it.
+  $d6_aws_access_key = variable_get('amazon_aws_access_key', "");
+  if (empty($d6_aws_access_key)) {
+    $old_access_key = variable_get('amazon_awsaccess_key', "");
+    if (!empty($old_access_key)) {
+      variable_set('amazon_aws_access_key', $old_access_key);
+      variable_del('amazon_awsaccess_key');
+      $ret[] = array('success' => TRUE, 'query' => 'Updated Amazon AWS Access Key from D5 AAT');
+    }
+  }
+  // Bring over the d5 associate id if possible.
+  $d6_associate_id = variable_get("amazon_custom_associate_id", "");
+  if (empty($d6_associate_id)) {
+    $associate_id = variable_get("amazon_associate_id", "");
+    if (!empty($associate_id)) {
+      variable_set('amazon_custom_associate_id', $associate_id);
+      variable_set('amazon_associate_setting', 'custom');
+      variable_del("amazon_associate_id");
+      $ret[] = array('success' => TRUE, 'query' => 'Updated Amazon Associate ID from D5 AAT');
+    }
+  }
+  if (is_numeric(variable_get('amazon_locale',"US"))) {
+    variable_del('amazon_locale');
+    drupal_set_message(t("The Amazon locale setting was invalid. Please visit the <a href='!url'>Amazon settings page</a> to correct it.", array('!url' => url('admin/settings/amazon'))));
+  }
+
   return $ret;
 }
 
