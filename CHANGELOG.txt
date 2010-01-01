@@ -2,8 +2,8 @@ $Id$
 
 6.x-1.x-RC3 release
 ===================
-- [#231612] by rfay: Fix upgrade path from D5 ASIN module.
-- [#541998] by rfay: Fixed aat_legacy module so it shows amazon_node items.
+- [#231612] by rfay: Fix upgrade path from D5 ASIN module. Also add upgrade path
+                     for AAT links and amazon nodes (which are the same thing)
 - [#608784] by rfay: Better filter tips in amazon_filter module.
 - [#590360] by rfay: Postgresql compatibility fix.
 
