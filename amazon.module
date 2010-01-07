@@ -251,8 +251,13 @@ function amazon_http_request($operation, $parameters = array(), $locale = NULL) 
     $xml = new SimpleXMLElement($results->data);
     return $xml;
   }
-  if ($results->code >= 400 && $results->code <= 500) {
-    $xml = new SimpleXMLElement($results->data);
+  if ($results->code >= 400 && $results->code < 500) {
+    try {
+      $xml = new SimpleXMLElement($results->data);
+    } catch (Exception $e) {
+      watchdog('amazon', "Error handling results: http_code=%http_code, data=%data.",array('%http_code' => $results->code, '%data' => (string)$results->data) );
+      return FALSE;
+    }
     watchdog('amazon', "HTTP code %http_code accessing Amazon's AWS service: %code, %message", array('%http_code' => $results->code, '%code' => (string)$xml->Error->Code, '%message' => (string)$xml->Error->Message));
     return FALSE;
   }
