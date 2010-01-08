@@ -2,6 +2,7 @@ $Id$
 
 6.x-1.x-RC3 release
 ===================
+- [#350320] by rfay: Fix Display of &amp;amp; (and possibly other special chars) isn't handled correctly. (Again)
 - [#231612] by rfay: Fix upgrade path from D5 ASIN module. Also add upgrade path
                      for AAT links and amazon nodes (which are the same thing)
 - [#608784] by rfay: Better filter tips in amazon_filter module.
