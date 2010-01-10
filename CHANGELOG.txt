@@ -2,6 +2,7 @@ $Id$
 
 6.x-1.x-RC3 release
 ===================
+- [#679860] by rfay:  User with 'administer amazon' permissions can not access ./admin/settings/amazon/test.
 - [#350320] by rfay: Fix Display of &amp;amp; (and possibly other special chars) isn't handled correctly. (Again)
 - [#231612] by rfay: Fix upgrade path from D5 ASIN module. Also add upgrade path
                      for AAT links and amazon nodes (which are the same thing)

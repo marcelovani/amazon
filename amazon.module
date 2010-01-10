@@ -47,7 +47,7 @@ function amazon_menu() {
     'page arguments' => array('amazon_test_form'),
     'file' => 'amazon.admin.inc',
     'access callback' => 'user_access',
-    'access arguments' => array('access devel information'),
+    'access arguments' => array('administer amazon'),
     'type' => MENU_LOCAL_TASK
   );
   $items['admin/settings/amazon/upgrade'] = array(
