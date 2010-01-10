@@ -135,11 +135,20 @@ function _asin_trim_items(&$items) {
     $items[$delta]['asin'] = trim($items[$delta]['asin']);
   }
 }
-function _asin_load_items($items) {
+
+/**
+ * Get an array of items from Amazon.com.
+ * @param $items
+ * @return unknown_type
+ */
+function _asin_load_items(&$items) {
   $asins = array();
   foreach ($items as $delta => $item) {
     if (!empty($item['asin'])) {
-      $asins[] = trim($item['asin']);
+      $asin = trim($item['asin']);
+      $asin = amazon_convert_to_asin($asin);
+      $asins[] = $asin;
+      $items[$delta]['asin'] = $asin; // Adjust in case we've changed it.
     }
   }
   return amazon_item_lookup($asins);
@@ -335,6 +344,7 @@ function asin_text_process($element, $edit, $form_state, $form) {
   $asin_key = $element['#columns'][0];
   if (!empty($element['#value'][$asin_key])) {
     $element['#value'][$asin_key] = trim($element['#value'][$asin_key]);
+    $element['#value'][$asin_key] = amazon_convert_to_asin($element['#value'][$asin_key]);
   }
   $element[$asin_key] = array(
     '#type' => 'textfield',

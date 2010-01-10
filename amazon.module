@@ -73,6 +73,9 @@ function amazon_perm() {
   return array('administer amazon');
 }
 
+/**
+ * Implementation of hook_theme().
+ */
 function amazon_theme() {
   $templates = array(
     'amazon_item' => array(
@@ -97,6 +100,9 @@ function amazon_theme() {
 }
 
 
+/**
+ * hook_preprocess: amazon_item.
+ */
 function amazon_preprocess_amazon_item(&$variables) {
 
   $item = $variables['item'];
@@ -565,6 +571,52 @@ function amazon_item_delete($asin) {
   db_query("DELETE FROM {amazon_item_editorial_review} WHERE asin = '%s'", $asin);
 }
 
+/**
+ * Try to turn a non-asin into an ASIN where possible.
+ *
+ * If the received input appears to be an EAN (ISBN-13) or an Amazon.com/de/uk
+ * link, then this tries to convert it into an ASIN.
+ * @param $input
+ * @return
+ *   An ASIN if possible. Otherwise whatever was passed in,
+ *   after removing dashes.
+ */
+function amazon_convert_to_asin($input) {
+  $input = preg_replace('/-/','',$input); // Remove dashes.
+  if (preg_match('/^https?:/', $input)) {
+    $parts = preg_split('/\//', $input);
+    $asin = $parts[5]; // 6th section of split, right after /dp/
+    return $asin;
+  }
+  // Attempt conversion of 13-digit ASIN by doing an Amazon lookup.
+  if (strlen($input) == 13 && is_numeric($input)) {
+    $asin = amazon_ean_to_asin($input);
+    return $asin;
+  }
+  return $input;
+}
+
+/**
+ * Given an EAN (ISBN-13), try to get Amazon to give it to us.
+ * @param $ean
+ *   The EAN, ISBN-13 value
+ * @return
+ *   The asin, or NULL if unsuccessful.
+ * @see https://affiliate-program.amazon.com/gp/associates/help/t5/a16?ie=UTF8&pf_rd_t=501&pf_rd_m=ATVPDKIKX0DER&pf_rd_p=&pf_rd_s=assoc-center-2&pf_rd_r=&pf_rd_i=assoc_glossary
+ */
+function amazon_ean_to_asin($ean) {
+  $asin = NULL;
+  $params = array(
+    'ItemId' => $ean,
+    'IdType' => 'EAN',
+    'SearchIndex' => 'Books',
+  );
+  $results = amazon_http_request('ItemLookup', $params);
+  if (!empty($results->Items->Item->ASIN)) {
+    $asin = (string)$results->Items->Item->ASIN;
+  }
+  return $asin;
+}
 /**
  * Utility functions for managing AmazonItem/Node relationships
  */

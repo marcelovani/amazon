@@ -58,6 +58,7 @@ function _amazon_filter_process_text($text) {
     $replace = array();
     foreach ($matches[0] as $key => $value) {
       $asin = $matches[1][$key];
+      $asin = amazon_convert_to_asin($asin);
       $action = $matches[2][$key];
       $items = amazon_item_lookup($asin);
       $item = "";
