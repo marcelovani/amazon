@@ -1,5 +1,10 @@
 $Id$
 
+6.x-1.x-RC4 release
+===================
+- [#288577] by rfay, reprise: Add 13-digit ISBN/EAN support to the admin test
+
+
 6.x-1.x-RC3 release
 ===================
 - [#288577] by rfay, tirsales, mleicester: Added 13 digit ISBNs / EAN support / converting to ASINs.

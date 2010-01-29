@@ -95,7 +95,7 @@ function amazon_test_form($form_state) {
   $form['asin'] = array(
     '#type' => 'textfield',
     '#title' => t('Amazon Product ID'),
-    '#description' => t('The ASIN of a product listed on Amazon.com. For books, this is generally the ISBN number.'),
+    '#description' => t('The ASIN, ISBN-10, or ISBN-13 of a product listed on Amazon.'),
     '#required' => TRUE,
   );
   $form['submit'] = array(
@@ -116,7 +116,10 @@ function amazon_test_form($form_state) {
 }
 
 function amazon_test_form_submit($form, &$form_state) {
-  $items = amazon_item_lookup($form_state['values']['asin'], TRUE);
+  $asin = $form_state['values']['asin'];
+  $asin = amazon_convert_to_asin($asin); // Normalize to an asin. ISBN-13 OK.
+
+  $items = amazon_item_lookup($asin, TRUE);
   if (!empty($items) && is_array($items)) {
     $item = array_pop($items);
     amazon_item_delete($item['asin']);
