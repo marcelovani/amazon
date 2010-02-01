@@ -18,7 +18,9 @@ function amazon_search_search($op = 'search', $keys = NULL, $skip_access_check =
     case 'search':
       if (user_access('access amazon search')) {
         $products = array();
-        $items = amazon_search_simple_search($keys);
+        $parameters = array();
+        drupal_alter('amazon_search_parameters', $parameters);
+        $items = amazon_search_simple_search($keys, $parameters);
         foreach ($items as $item) {
           $products[] = array(
             'title' => check_plain($item['title']),
