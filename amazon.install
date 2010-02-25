@@ -66,6 +66,12 @@ function amazon_schema() {
       'listpriceamount' => array('type' => 'numeric'),
       'listpricecurrencycode' => array('type' => 'varchar', 'length' => 32),
       'listpriceformattedprice' => array('type' => 'varchar', 'length' => 32),
+      'lowestpriceamount' => array('type' => 'numeric'),
+      'lowestpricecurrencycode' => array('type' => 'varchar', 'length' => 32),
+      'lowestpriceformattedprice' => array('type' => 'varchar', 'length' => 32),
+      'amazonpriceamount' => array('type' => 'numeric'),
+      'amazonpricecurrencycode' => array('type' => 'varchar', 'length' => 32),
+      'amazonpriceformattedprice' => array('type' => 'varchar', 'length' => 32),
       'productgroup' => array('type' => 'varchar', 'length' => 255),
       'producttypename' => array('type' => 'varchar', 'length' => 255),
       'invalid_asin' => array('type' => 'int', 'default' => 0),
@@ -105,9 +111,19 @@ function amazon_schema() {
       'source' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
       'content' => array('type' => 'text'),
     ),
-    'primary key' => array('asin', 'source'),
+    'indexes' => array('asin' => array('asin')),
   );
 
+  $schema['amazon_item_customer_review'] = array(
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'rating' => array('type' => 'numeric'),
+      'date' => array('type' => 'varchar', 'length' => 11),
+      'summary' => array('type' => 'text'),
+      'content' => array('type' => 'text'),
+    ),
+    'indexes' => array('asin' => array('asin')),
+  );
 
   $schema['amazon_item_node'] = array(
     'fields' => array(
@@ -255,11 +271,47 @@ function amazon_update_6008() {
  * It looks like nid should be the correct portion of the key, since there
  * is no vid coming in. In fact... There should be no vid.
  *
- * @return unknown_type
  */
 function amazon_update_6009() {
   $ret = array();
   db_drop_primary_key($ret, 'amazon_item_node');
   db_add_primary_key($ret, 'amazon_item_node', array('nid', 'asin', 'module'));
+  return $ret;
+}
+
+
+/**
+ * Change key on editorial reviews, since it shouldn't be primary.
+ */
+function amazon_update_6010() {
+  $ret = array();
+  db_drop_primary_key($ret, 'amazon_item_editorial_review');
+  db_add_index($ret, 'amazon_item_editorial_review', 'amazon_item_editorial_review', array('asin'));
+  return $ret;
+}
+
+/**
+ * Add Customer Reviews table so we can handle that.
+ * @return unknown_type
+ */
+function amazon_update_6011() {
+  $schema = amazon_schema();
+  if (!db_table_exists('amazon_item_customer_review')) {
+    db_create_table($ret, 'amazon_item_customer_review', $schema['amazon_item_customer_review']);
+  }
+  return $ret;
+}
+
+/**
+ * Add new elements to the amazon_item table: Lowest price, etc.
+ * @return unknown_type
+ */
+function amazon_update_6012() {
+  db_add_field($ret, 'amazon_item', 'lowestpriceamount', array('type' => 'numeric'));
+  db_add_field($ret, 'amazon_item', 'lowestpricecurrencycode', array('type' => 'numeric'));
+  db_add_field($ret, 'amazon_item', 'lowestpriceformattedprice', array('type' => 'varchar', 'length' => 32));
+  db_add_field($ret, 'amazon_item', 'amazonpriceamount', array('type' => 'numeric'));
+  db_add_field($ret, 'amazon_item', 'amazonpricecurrencycode', array('type' => 'numeric'));
+  db_add_field($ret, 'amazon_item', 'amazonpriceformattedprice', array('type' => 'varchar', 'length' => 32));
   return $ret;
 }

@@ -79,6 +79,7 @@ function amazon_storage_settings_form() {
       'creators' => t('Book authors, film actors, etc.'),
       'images' => t('Product images'),
       'editorial_reviews' => t('Editorial reviews'),
+      'customer_reviews' => t('Customer reviews'),
     ),
   );
 

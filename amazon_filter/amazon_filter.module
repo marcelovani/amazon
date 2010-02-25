@@ -13,8 +13,10 @@ function amazon_filter_filter_tips($delta, $format, $long = FALSE) {
     return t('Get Amazon product data using [amazon ASIN selector], for example, [amazon 0399155341 thumbnail],
     [amazon 0399155341 full], or [amazon 0399155341 inline].
     In addition, you can grab various data items from the item description using selectors like
-    author, title, asin, detailpageurl, salesrank, publisher, manufacturer, studio,
+    author, title, asin, isbn, ean, detailpageurl, salesrank, publisher, manufacturer, studio,
     label, binding, listpriceamount, listpricecurrencycode, listpriceformattedprice,
+    lowestpriceamount, lowestpricecurrencycode, lowestpriceformattedprice,
+    amazonpriceamount, amazonpricecurrencycode, amazonpriceformattedprice,
     productgroup, producttypename, invalid_asin, deweydecimalnumber, edition, numberofpages,
     publicationyear, type, releaseyear, publicationyear, smallimage, smallimageurl, smallimageheight,
     smallimagewidth, mediumimage, mediumimageurl, mediumimageheight, mediumimagewidth,

@@ -130,9 +130,16 @@ function amazon_views_data() {
   _amazon_make_simple_text_field($data, 'amazon_item', 'producttypename', 'Product type name', 'The Amazon internal product-type code for the product.');
 
   _amazon_make_simple_date_field($data, 'amazon_item', 'releasedate', 'Release date', 'The release date of the product.');
-  _amazon_make_simple_text_field($data, 'amazon_item', 'listpriceformattedprice', 'List price', 'The current list price of the item. (Unformatted)');
+  _amazon_make_simple_number_field($data, 'amazon_item', 'listpriceamount', 'List price (numeric)', 'The current sales ranking of the product on Amazon.com.');
+  _amazon_make_simple_text_field($data, 'amazon_item', 'listpriceformattedprice', 'List price (formatted)', 'The current list price of the item.');
+  _amazon_make_simple_number_field($data, 'amazon_item', 'lowestpriceamount', 'Lowest price (numeric)', 'The current lowest price offered on Amazon.');
+  _amazon_make_simple_text_field($data, 'amazon_item', 'lowestpriceformattedprice', 'Lowest price (formatted)', 'The lowest available price.');
+  _amazon_make_simple_number_field($data, 'amazon_item', 'amazonpriceamount', 'Amazon Price (numeric)', "Amazon's current price for the item");
+  _amazon_make_simple_text_field($data, 'amazon_item', 'amazonpriceformattedprice', 'Amazon price (formatted)', "Amazon's current price for the item.");
   _amazon_make_simple_boolean_field($data, 'amazon_item', 'invalid_asin', 'Invalid ASIN', 'If nonzero, the ASIN is invalid or discontinued by Amazon');
   unset($data['amazon_item']['listpriceformattedprice']['argument']);
+    unset($data['amazon_item']['lowestformattedprice']['argument']);
+    unset($data['amazon_item']['amazonpriceformattedprice']['argument']);
 
   // Define the base group of this table. Fields that don't
   // have a group defined will go into this field by default.
@@ -192,6 +199,31 @@ function amazon_views_data() {
       'click sortable' => FALSE,
     ),
   );
+
+
+  $data['amazon_item_editorial_review']['table']['group']  = t('Amazon');
+  $data['amazon_item_editorial_review']['table']['join'] = array(
+    // editorial review links to amazon_item directly via asin.
+    'amazon_item' => array(
+      'left_field' => 'asin',
+      'field' => 'asin',
+    ),
+  );
+  _amazon_make_simple_text_field($data, 'amazon_item_editorial_review', 'source', 'Editorial review source', 'The source of this editorial review. Since there may be more than one review for each product, your view will produce one row per review.');
+  _amazon_make_simple_text_field($data, 'amazon_item_editorial_review', 'content', 'Editorial content', 'Content of an editorial review. Since there may be more than one review for each product, your view will produce one row per review.');
+
+  $data['amazon_item_customer_review']['table']['group']  = t('Amazon');
+  $data['amazon_item_customer_review']['table']['join'] = array(
+    // customer review links to amazon_item directly via asin.
+    'amazon_item' => array(
+      'left_field' => 'asin',
+      'field' => 'asin',
+    ),
+  );
+  _amazon_make_simple_number_field($data, 'amazon_item_customer_review', 'rating', 'Customer Rating', "Numeric rating of this product. Since there is normally more than one review for each product, your view will produce one row per review.");
+  _amazon_make_simple_date_field($data, 'amazon_item_customer_review', 'date', 'Customer Rating Date', 'Date the product was rated. Since there is normally more than one review for each product, your view will produce one row per review.');
+  _amazon_make_simple_text_field($data, 'amazon_item_customer_review', 'summary', 'Customer Review Summary', 'Summary of the review. Since there is normally more than one review for each product, your view will produce one row per review.');
+  _amazon_make_simple_text_field($data, 'amazon_item_customer_review', 'content', 'Customer Review Content', 'Customer review content. Since there is normally more than one review for each product, your view will produce one row per review.');
 
   return $data;
 }
