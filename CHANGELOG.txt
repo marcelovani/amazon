@@ -2,6 +2,7 @@ $Id$
 
 6.x-1.x-RC4 release
 ===================
+- [#671686] by rfay: Fixed Amazon module localization errors.
 - [#609448] by rfay: Added rel="nofollow" to detailpageurl links
 - [#609448] by rfay: Added Feature: Add customer reviews and ratings to Amazon information retrieved.
 - [#556414] by rfay, stratosgear: Provide Amazon.com price or lowest price or both.

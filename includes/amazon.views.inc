@@ -230,8 +230,8 @@ function amazon_views_data() {
 
 function _amazon_make_simple_boolean_field(&$data, $table, $column, $title, $help = '') {
   $data[$table][$column] = array(
-    'title' => t($title), // The item it appears as on the UI,
-    'help' => t($help), // The help that appears on the UI,
+    'title' => $title, // The item it appears as on the UI,
+    'help' => $help, // The help that appears on the UI,
      // Information for displaying a title as a field
     'field' => array(
       'field' => $column, // the real field
@@ -246,8 +246,8 @@ function _amazon_make_simple_boolean_field(&$data, $table, $column, $title, $hel
 
 function _amazon_make_simple_text_field(&$data, $table, $column, $title, $help = '') {
   $data[$table][$column] = array(
-    'title' => t($title), // The item it appears as on the UI,
-    'help' => t($help), // The help that appears on the UI,
+    'title' => $title, // The item it appears as on the UI,
+    'help' => $help, // The help that appears on the UI,
      // Information for displaying a title as a field
     'field' => array(
       'field' => $column, // the real field
@@ -262,8 +262,8 @@ function _amazon_make_simple_text_field(&$data, $table, $column, $title, $help =
 
 function _amazon_make_simple_date_field(&$data, $table, $column, $title, $help = '') {
   $data[$table][$column] = array(
-    'title' => t($title), // The item it appears as on the UI,
-    'help' => t($help), // The help that appears on the UI,
+    'title' => $title, // The item it appears as on the UI,
+    'help' => $help, // The help that appears on the UI,
      // Information for displaying a title as a field
     'field' => array(
       'field' => $column, // the real field
@@ -278,8 +278,8 @@ function _amazon_make_simple_date_field(&$data, $table, $column, $title, $help =
 
 function _amazon_make_simple_number_field(&$data, $table, $column, $title, $help = '') {
   $data[$table][$column] = array(
-    'title' => t($title), // The item it appears as on the UI,
-    'help' => t($help), // The help that appears on the UI,
+    'title' => $title, // The item it appears as on the UI,
+    'help' => $help, // The help that appears on the UI,
      // Information for displaying a title as a field
     'field' => array(
       'field' => $column, // the real field
