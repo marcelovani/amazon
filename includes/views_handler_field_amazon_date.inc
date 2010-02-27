@@ -10,7 +10,7 @@ class views_handler_field_amazon_date extends views_handler_field_date {
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
-    $time = time();
+    $time = REQUEST_TIME;
     $form['date_format']['#options'] = array(
       'default' => format_date($time, 'custom', 'Y-m-d'),
       'custom' => t('Custom'),
@@ -29,7 +29,7 @@ class views_handler_field_amazon_date extends views_handler_field_date {
       return theme('views_nodate');
     }
     else {
-      $time_diff = time() - $value; // will be positive for a datetime in the past (ago), and negative for a datetime in the future (hence)
+      $time_diff = REQUEST_TIME - $value; // will be positive for a datetime in the past (ago), and negative for a datetime in the future (hence)
       switch ($format) {
         case 'custom':
           return format_date($value, $format, $custom_format);

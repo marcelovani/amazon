@@ -2,5 +2,14 @@ name = Amazon media
 description = Stores extended Amazon product information for books, music, DVDs, and software.
 package = Amazon
 dependencies[] = amazon
-core = 6.x
+core = 7.x
 php = 5.2
+
+files[] = amazon-item-book-details.tpl.php
+files[] = amazon-item-dvd-details.tpl.php
+files[] = amazon-item-software-details.tpl.php
+files[] = amazon-item-video-games-details.tpl.php
+files[] = amazon_media.install
+files[] = amazon_media.module
+files[] = amazon_media.theme.inc
+files[] = amazon_media.views.inc

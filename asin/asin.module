@@ -64,16 +64,16 @@ function asin_field_settings($op, $field) {
       $table_alias = content_views_tablename($field);
 
       // Filter: Add a 'many to one' filter.
-      $copy = $data[$table_alias][$field['field_name'] .'_asin'];
+      $copy = $data[$table_alias][$field['field_name'] . '_asin'];
       $copy['title'] = t('@label (!name) - Allowed values', array('@label' => $field['widget']['label'], '!name' => $field['field_name']));
       $copy['filter']['handler'] = 'views_handler_filter_many_to_one';
       unset($copy['field'], $copy['argument'], $copy['sort']);
-      $data[$table_alias][$field['field_name'] .'_value_many_to_one'] = $copy;
+      $data[$table_alias][$field['field_name'] . '_value_many_to_one'] = $copy;
       // Argument : swap the handler to the 'many to one' operator.
-      $data[$table_alias][$field['field_name'] .'_value']['argument']['handler'] = 'views_handler_argument_many_to_one';
+      $data[$table_alias][$field['field_name'] . '_value']['argument']['handler'] = 'views_handler_argument_many_to_one';
 
       // Add a relationship for related node.
-      $data[$table_alias][$field['field_name'] .'_asin']['relationship'] = array(
+      $data[$table_alias][$field['field_name'] . '_asin']['relationship'] = array(
         'base' => 'amazon_item',
         'field' => $db_info['columns']['asin']['column'],
         'handler' => 'views_handler_relationship',
@@ -100,7 +100,7 @@ function asin_field($op, &$node, $field, &$items, $teaser, $page) {
       foreach ($items as $delta => $item) {
         if (is_array($item)) {
           if (!empty($item['asin']) && empty($results[$item['asin']])) {
-            form_set_error($field['field_name'] .']['. $delta .'][asin', t('%name : No Amazon product with the ASIN "%id" could be located.', array('%name' => $field['widget']['label'], '%id' => $item['asin'])));
+            form_set_error($field['field_name'] . '][' . $delta . '][asin', t('%name : No Amazon product with the ASIN "%id" could be located.', array('%name' => $field['widget']['label'], '%id' => $item['asin'])));
           }
         }
       }
@@ -201,7 +201,7 @@ function theme_asin_formatter_default($element) {
   $asins = array();
   if (!empty($asin)) {
     $asins = amazon_item_lookup("$asin");
-    return theme('amazon_item', $asins["$asin"]);
+    return theme('amazon_item', array('item' => $asins["$asin"]));
   }
 }
 
@@ -213,7 +213,7 @@ function theme_asin_formatter_thumbnail($element) {
   $asin = trim($element['#item']['asin']);
   if (!empty($asin)) {
     $asins = amazon_item_lookup("$asin");
-    return theme('amazon_item', $asins["$asin"], 'thumbnail');
+    return theme('amazon_item', array('item' => $asins["$asin"], 'style' => 'thumbnail'));
   }
 }
 
@@ -225,7 +225,7 @@ function theme_asin_formatter_details($element) {
   $asin = trim($element['#item']['asin']);
   if (!empty($asin)) {
     $asins = amazon_item_lookup(array($asin));
-    return theme('amazon_item', $asins["$asin"], 'details');
+    return theme('amazon_item', array('item' => $asins["$asin"], 'style' => 'details'));
   }
 }
 
@@ -236,11 +236,12 @@ function theme_asin_formatter_details($element) {
 function theme_asin_formatter_inline($element) {
   if ($asin = trim($element['#item']['asin'])) {
     $asins = amazon_item_lookup("$asin");
-    if (empty($asins[$asin])) { // DEBUG
+    if (empty($asins[$asin])) {
+ // DEBUG
       drupal_set_message("<pre>\$asins[$asin]=" . print_r($asins["$asin"], TRUE) .  "</pre>");
-      drupal_set_message("asin='$asin'; asins=".print_r($asins,TRUE));
+      drupal_set_message("asin='$asin'; asins=" . print_r($asins, TRUE));
     }
-    return theme('amazon_inline_item', $asins[$asin]);
+    return theme('amazon_inline_item', array('item' => $asins[$asin]));
   }
 }
 
@@ -369,12 +370,12 @@ function asin_text_validate($element, &$form_state) {
 
 
 function theme_asin_text($element) {
-  drupal_add_css(drupal_get_path('module', 'asin') .'/asin.css', 'module', 'all', FALSE);
+  drupal_add_css(drupal_get_path('module', 'asin') . '/asin.css', array('preprocess' => FALSE));
   $output = $element['#children'];
   if (!empty($element['#value']) && !empty($element['#value']['asin'])) {
     $asin = $element['#value']['asin'];
     if ($data = amazon_item_lookup(array($asin))) {
-      $output .= '<p class="asin-edit-title">'. check_plain($data[$asin]['title']) .'</p>';
+      $output .= '<p class="asin-edit-title">' . check_plain($data[$asin]['title']) . '</p>';
     }
   }
   return $output;

@@ -138,8 +138,8 @@ function amazon_views_data() {
   _amazon_make_simple_text_field($data, 'amazon_item', 'amazonpriceformattedprice', 'Amazon price (formatted)', "Amazon's current price for the item.");
   _amazon_make_simple_boolean_field($data, 'amazon_item', 'invalid_asin', 'Invalid ASIN', 'If nonzero, the ASIN is invalid or discontinued by Amazon');
   unset($data['amazon_item']['listpriceformattedprice']['argument']);
-    unset($data['amazon_item']['lowestformattedprice']['argument']);
-    unset($data['amazon_item']['amazonpriceformattedprice']['argument']);
+  unset($data['amazon_item']['lowestformattedprice']['argument']);
+  unset($data['amazon_item']['amazonpriceformattedprice']['argument']);
 
   // Define the base group of this table. Fields that don't
   // have a group defined will go into this field by default.

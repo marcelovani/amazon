@@ -1,6 +1,6 @@
 <?php
 $alt_theme = 'amazon_inline_item_' . _amazon_clean_type($item['producttypename']);
-if ($output = theme($alt_theme, $item)) {
+if ($output = theme($alt_theme, array('item' => $item))) {
   print $output;
 }
 else {

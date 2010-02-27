@@ -1,6 +1,6 @@
 <?php
 
-function amazon_settings_form($form_state) {
+function amazon_settings_form($form, &$form_state) {
   $cache = amazon_data_cache();
   $options = array();
   foreach ($cache['locales'] as $locale => $data) {
@@ -41,7 +41,7 @@ function amazon_settings_form($form_state) {
   $form['amazon_aws_access_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Amazon AWS Access Key ID'),
-    '#description' => t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See !more_info for information and a registration form.',array('!more_info'=>l(t('the AWS home page'),'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key',array('html'=>TRUE)))),
+    '#description' => t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See !more_info for information and a registration form.', array('!more_info' => l(t('the AWS home page'), 'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key', array('html' => TRUE)))),
     '#default_value' => variable_get('amazon_aws_access_key', ''),
     '#required' => TRUE,
   );
@@ -49,18 +49,18 @@ function amazon_settings_form($form_state) {
   $form['amazon_aws_secret_access_key'] = array(
     '#type' => 'textfield',
     '#title' => t('Amazon AWS Secret Access Key'),
-    '#description' => t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See !more_info for information and a registration form.',array('!more_info'=>l(t('the AWS home page'),'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key',array('html'=>TRUE)))),
-    '#default_value' => variable_get('amazon_aws_secret_access_key',""),
+    '#description' => t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See !more_info for information and a registration form.', array('!more_info' => l(t('the AWS home page'), 'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key', array('html' => TRUE)))),
+    '#default_value' => variable_get('amazon_aws_secret_access_key', ""),
     '#required' => TRUE,
   );
 
   // Now add the Javascript that does the fancy hide/show effects.
-  drupal_add_js(drupal_get_path('module', 'amazon') .'/amazon.admin.js');
+  drupal_add_js(drupal_get_path('module', 'amazon') . '/amazon.admin.js');
 
   return system_settings_form($form);
 }
 
-function amazon_storage_settings_form() {
+function amazon_storage_settings_form($form, &$form_state) {
 
   $period = drupal_map_assoc(array(3600, 7200, 14400, 21600, 43200, 86400), 'format_interval');
   $form['details']['amazon_refresh_schedule'] = array(
@@ -77,20 +77,23 @@ function amazon_storage_settings_form() {
     '#default_value' => variable_get('amazon_core_data', array('creators', 'images')),
     '#options' => array(
       'creators' => t('Book authors, film actors, etc.'),
-      'images' => t('Product images'),
+      'images' => t('Product image links'),
       'editorial_reviews' => t('Editorial reviews'),
       'customer_reviews' => t('Customer reviews'),
     ),
   );
 
   // Now add the Javascript that does the fancy hide/show effects.
-  drupal_add_js(drupal_get_path('module', 'amazon') .'/amazon.admin.js');
+  drupal_add_js(drupal_get_path('module', 'amazon') . '/amazon.admin.js');
 
   return system_settings_form($form);
 }
 
-
-function amazon_test_form($form_state) {
+/**
+ * Form for testing a single ASIN.
+ *
+ */
+function amazon_test_form($form, &$form_state) {
   $form = array();
 
   $form['asin'] = array(
@@ -105,11 +108,11 @@ function amazon_test_form($form_state) {
   );
 
   if (isset($form_state['amazon_item'])) {
-    $markup = theme('amazon_item', $form_state['amazon_item'], 'details');
-    $markup .= '<pre>'. print_r($form_state['amazon_item'], TRUE) .'</pre>';
+    $markup = theme('amazon_item', array('item' => $form_state['amazon_item'], 'style' => 'default'));
+    $markup .= '<pre>' . print_r($form_state['amazon_item'], TRUE) . '</pre>';
     $form['item_data'] = array(
       '#type' => 'markup',
-      '#value' => $markup,
+      '#markup' => $markup,
       '#weight' => 10,
     );
   }
@@ -131,7 +134,8 @@ function amazon_test_form_submit($form, &$form_state) {
     // causes a serialization operation. Whoops.
     $form_state['amazon_item'] = $item;
     $form_state['rebuild'] = TRUE;
-  } else {
+  }
+  else {
     drupal_set_message(t("Test failed for this ASIN. Please check the !link for messages.", array('!link' => l(t("error log"), 'admin/reports/dblog'))));
   }
 }

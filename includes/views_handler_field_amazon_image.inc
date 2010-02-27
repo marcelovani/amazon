@@ -103,22 +103,24 @@ class views_handler_field_amazon_image extends views_handler_field {
 
     // Choose presentation style
     if ($this->options['presentation_format'] == 'markup') {
-      $image = theme('image', $values->{$this->table_alias . '_url'}, NULL, NULL, $attributes, FALSE);
-    } else {
+      $image = theme('image', array('path' => $values->{$this->table_alias . '_url'}, 'alt' => NULL, 'title' => NULL, 'attributes' => $attributes, 'getsize' => FALSE));
+    }
+    else {
       $image = $values->{$this->table_alias . '_url'};
     }
-    switch($this->options['link_format']) {
+    switch ($this->options['link_format']) {
       case 'plain':
         return $image;
         break;
       case 'node':
-        return l($image, 'node/'. $values->nid, array('html' => TRUE));
+        return l($image, 'node/' . $values->nid, array('html' => TRUE));
         break;
       case 'amazon':
         if (!empty($values->{$this->aliases['detailpageurl']})) {
           $urlfield = $values->{$this->aliases['detailpageurl']};
           return l($image, $urlfield, array('html' => TRUE));
-        } else {
+        }
+        else {
           return $image;
         }
         break;

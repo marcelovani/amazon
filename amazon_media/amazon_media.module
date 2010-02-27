@@ -1,21 +1,31 @@
 <?php
+// $Id$
+/**
+ * @file
+ *   Provides additional behaviors and data type for amazon items which are
+ *   DVDs, software, video games, music, etc.
+ */
 
+/**
+ * Implements hook_theme().
+ *
+ */
 function amazon_media_theme() {
   $templates = array(
     'amazon_inline_item_dvd' => array(
-      'arguments' => array('item' => array()),
+      'variables' => array('item' => array()),
       'file' => 'amazon_media.theme.inc',
     ),
     'amazon_inline_item_software' => array(
-      'arguments' => array('item' => array()),
+      'variables' => array('item' => array()),
       'file' => 'amazon_media.theme.inc',
     ),
     'amazon_inline_item_video_games' => array(
-      'arguments' => array('item' => array()),
+      'variables' => array('item' => array()),
       'file' => 'amazon_media.theme.inc',
     ),
     'amazon_inline_item_console_video_games' => array(
-      'arguments' => array('item' => array()),
+      'variables' => array('item' => array()),
       'function' => 'theme_amazon_inline_item_video_games',
       'file' => 'amazon_media.theme.inc',
     ),
@@ -31,7 +41,7 @@ function amazon_media_theme_registry_alter(&$theme_registry) {
   if (!empty($theme_registry['amazon_item'])) {
     // We'll try our best to avoid stepping on theme template files.
     // God, how I hate template inheritance.
-    if (count($theme_registry['amazon_item']['theme paths']) > 1) {
+    if (!empty($theme_registry['amazon_item']['theme_paths']) && count($theme_registry['amazon_item']['theme paths']) > 1) {
       $theme = array_pop($theme_registry['amazon_item']['theme paths']);
     }
     $theme_registry['amazon_item']['theme paths'][] = drupal_get_path('module', 'amazon_media');
@@ -41,6 +51,11 @@ function amazon_media_theme_registry_alter(&$theme_registry) {
   }
 }
 
+/**
+ * Implements hook_preprocess.
+ *
+ * @param $variables
+ */
 function amazon_media_preprocess_amazon_item(&$variables) {
   if (!empty($variables['theatricalreleasedate'])) {
     $date = explode('-', $variables['theatricalreleasedate']);
@@ -66,65 +81,91 @@ function amazon_media_preprocess_amazon_item(&$variables) {
   );
 }
 
-
+/**
+ * Load and return additional information for an ASINI item.
+ * @param $item
+ *   The item requiring additions.
+ * @return
+ *   The added array elements, as an array.
+ */
 function amazon_media_amazon_item_load($item) {
-  switch ($item['producttypename']) {
-    case 'ABIS_BOOK':
-      $additions = db_fetch_array(db_query("SELECT * FROM {amazon_book} WHERE asin = '%s'", $item['asin']));
-      break;
-    case 'VIDEO_DVD':
-    case 'ABIS_DVD':
-      $additions = db_fetch_array(db_query("SELECT * FROM {amazon_dvd} WHERE asin = '%s'", $item['asin']));
-      break;
-    case 'ABIS_MUSIC':
-      $additions = db_fetch_array(db_query("SELECT * FROM {amazon_music} WHERE asin = '%s'", $item['asin']));
-      break;
-    case 'CONSOLE_VIDEO_GAMES':
-    case 'VIDEO_GAMES':
-    case 'SOFTWARE':
-      $additions = db_fetch_array(db_query("SELECT * FROM {amazon_software} WHERE asin = '%s'", $item['asin']));
-      break;
-  }
-  if (isset($additions)) {
-    return $additions;
-  }
-}
-
-function amazon_media_amazon_item_insert($item) {
-  switch ($item['producttypename']) {
-    case 'ABIS_BOOK':
-      drupal_write_record('amazon_book', $item);
-      break;
-    case 'VIDEO_DVD':
-    case 'ABIS_DVD':
-      drupal_write_record('amazon_dvd', $item);
-      break;
-    case 'ABIS_MUSIC':
-      // Often the artist is an array.
-      if (!empty($item['artist']) && is_array($item['artist'])) {
-        $item['artist'] = join(",", $item['artist']);
-      }
-      drupal_write_record('amazon_music', $item);
-      break;
-    case 'CONSOLE_VIDEO_GAMES':
-    case 'VIDEO_GAMES':
-    case 'SOFTWARE':
-      drupal_write_record('amazon_software', $item);
-      break;
-  }
-}
-
-function amazon_media_amazon_item_delete($asin) {
-  // This is pretty inefficient; we're going to thrash these tables
-  // every time a product gets deleted or updated. We'll solve it later.
-  db_query("DELETE FROM {amazon_book} WHERE asin = '%s'", $asin);
-  db_query("DELETE FROM {amazon_dvd} WHERE asin = '%s'", $asin);
-  db_query("DELETE FROM {amazon_music} WHERE asin = '%s'", $asin);
-  db_query("DELETE FROM {amazon_software} WHERE asin = '%s'", $asin);
+  $table = amazon_media_get_table_name($item);
+  $additions = db_query("SELECT * FROM {$table} WHERE asin = :asin",
+    array('asin' => $item['asin']))->fetchAssoc();
+  return $additions;
 }
 
 /**
- * Implementation of hook_views_api.
+ * Given an item, return the name of the table it's associated with.
+ * @param $item
+ *   populated amazon_item with $item['producttypename'] populated.
+ * @return
+ *   the name of the associated table.
+ */
+function amazon_media_get_table_name($item) {
+  static $names = array('ABIS_BOOK' => 'amazon_book',
+    'VIDEO_DVD' => 'amazon_dvd',
+    'ABIS_DVD' => 'amazon_dvd',
+    'ABIS_MUSIC' => 'amazon_music',
+    'CONSOLE_VIDEO_GAMES' => 'amazon_software',
+    'VIDEO_GAMES' => 'amazon_software',
+    'SOFTWARE' => 'amazon_software',
+  );
+  return $names[$item['producttypename']];
+}
+
+/**
+ * Insert the associated information into the related table.
+ * @param $item
+ *   Populated amazon item record.
+ */
+function amazon_media_amazon_item_insert($item) {
+  static $item_keys = NULL;
+  if (empty($item_keys)) {
+    require_once('amazon_media.install');
+    $schema = amazon_media_schema();
+    $item_keys = $schema;
+  }
+  $table = amazon_media_get_table_name($item);
+
+  // We need to present a record that only has the items in it used by
+  // this table.
+  $db_item = array_intersect_key($item, $item_keys[$table]['fields']);
+
+  try {
+    db_insert($table)
+    ->fields($db_item)
+    ->execute();
+  }
+  catch (Exception $e) {
+    amazon_db_error_watchdog("Failed to insert item into amazon table", $e);
+  }
+}
+
+/**
+ * Delete a record using the asin as key.
+ * @param $asin
+ *   the asin to delete.
+ */
+function amazon_media_amazon_item_delete($asin) {
+  // This is pretty inefficient; we're going to thrash these tables
+  // every time a product gets deleted or updated. We'll solve it later.
+  db_delete('amazon_book')
+    ->condition('asin', $asin)
+  ->execute();
+  db_delete('amazon_dvd')
+    ->condition('asin', $asin)
+  ->execute();
+  db_delete('amazon_music')
+    ->condition('asin', $asin)
+  ->execute();
+  db_delete('amazon_software')
+    ->condition('asin', $asin)
+  ->execute();
+}
+
+/**
+ * Implements hook_views_api.
  */
 function amazon_media_views_api() {
   return array('api' => 2);

@@ -38,12 +38,12 @@ class views_handler_field_amazon_title extends views_handler_field {
 
   function render($values) {
     $title = check_plain($values->{$this->field_alias});
-    switch($this->options['link_format']) {
+    switch ($this->options['link_format']) {
       case 'plain':
         return $title;
         break;
       case 'node':
-        return l($title, 'node/'. $values->nid, array('html' => TRUE));
+        return l($title, 'node/' . $values->nid, array('html' => TRUE));
         break;
       case 'amazon':
         return l($title, check_url($values->{$this->table_alias . '_detailpageurl'}), array('html' => TRUE));

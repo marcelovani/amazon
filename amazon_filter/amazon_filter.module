@@ -6,9 +6,9 @@
  */
 
 /**
- * Implementation of hook_filter_tips().
+ * Implements of hook_filter_tips().
  */
-function amazon_filter_filter_tips($delta, $format, $long = FALSE) {
+function _amazon_filter_tips($filter, $format, $long = FALSE) {
   if ($long) {
     return t('Get Amazon product data using [amazon ASIN selector], for example, [amazon 0399155341 thumbnail],
     [amazon 0399155341 full], or [amazon 0399155341 inline].
@@ -25,33 +25,32 @@ function amazon_filter_filter_tips($delta, $format, $long = FALSE) {
     For example, [amazon 0596515804 title] will provide the title of the item, and
     [amazon 0596515804 largeimage] will be replaced with an img tag giving the large image.
     A complete description of filters is <a href="http://drupal.org/node/595464#filters">on the Amazon module handbook page</a>.');
-  } else {
+  }
+  else {
     return t('Link to Amazon products with: [amazon product_id inline|full|thumbnail|datadescriptor]. Example: [amazon 1590597559 thumbnail] or [amazon 1590597559 author]. Details are <a href="http://drupal.org/node/595464#filters" target="_blank">on the Amazon module handbook page</a>.');
   }
 }
 
 /**
- * Implementation of hook_filter().
+ * Implements hook_filter_info().
  */
-function amazon_filter_filter($op, $delta = 0, $format = -1, $text = '') {
-  if ($op == 'list') {
-    return array(0 => t('Amazon filter'));
-  }
-
-  switch ($delta) {
-    case 0:
-      switch ($op) {
-        case 'description':
-          return t('Lets writers use the [amazon] tag to embed Amazon product information in text.');
-        case 'prepare':
-          return $text;
-        case 'process':
-          return _amazon_filter_process_text($text);
-      }
-      break;
-  }
+function amazon_filter_info() {
+  $filters['amazon'] = array(
+    'title' => t('Amazon filter'),
+    'description' => t('Provides access to many types of Amazon data. Simplest usage: [amazon ASIN inline], for example [amazon 0596515804 inline].'),
+    'process callback'  => '_amazon_filter_process_text',
+    'tips callback' => '_amazon_filter_tips',
+  );
+  return $filters;
 }
 
+/**
+ * Actual filter processing function - changes [amazon <whatever>] in text.
+ * @param $text
+ *   Text to be transformed.
+ * @return
+ *   The transformed text.
+ */
 function _amazon_filter_process_text($text) {
   $pattern = "/\[amazon +(.*?)(?: +(.*?))?\]/";
   $matches = array();
@@ -71,19 +70,23 @@ function _amazon_filter_process_text($text) {
         switch ($action) {
           case "":
           case 'inline':
-            $replace[] = theme('amazon_inline_item', $item);
+            $replace[] = theme('amazon_inline_item', array('item' =>$item));
             break;
 
-          case 'thumbnail': // Handle themeable cases, like thumbnail, full.
+          case 'thumbnail':
+ // Handle themeable cases, like thumbnail, full.
           case 'full':
-            $replace[] = theme('amazon_item', $item, $action);
+            $replace[] = theme('amazon_item', array('item' => $item, 'style' => $action));
             break;
 
-          default:  // Allow to use anything found in the item.
-            $replace[] = theme('amazon_detail', $item, $action);
+          default:
+ // Allow to use anything found in the item.
+            $replace[] = theme('amazon_detail', array('item' => $item, 'detail' => $action));
             break;
         }
-      } else { // error case
+      }
+      else {
+ // error case
         $replace[] = "<!-- The Amazon product '$asin' could not be found.-->";
       }
     }

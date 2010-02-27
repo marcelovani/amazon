@@ -1,38 +1,66 @@
 <?php
 // $Id$
 
+/**
+ * @file
+ * Sets up hook_search for Amazon items.
+ *
+ */
 
-function amazon_search_perm() {
-  return array('access amazon search');
+/**
+ * Implements hook_permission.
+ * @return unknown_type
+ */
+function amazon_search_permission() {
+  return array(
+    'access amazon search' =>  array(
+      'title' => t('Access Amazon Search'),
+      'description' => t('Perform searches on Amazon.'),
+  ),
+  );
 }
 
 /**
- * Implementation of hook_search(). Implements remote Amazon searching.
+ * Implements hook_search_access().
  */
-function amazon_search_search($op = 'search', $keys = NULL, $skip_access_check = FALSE) {
-  switch ($op) {
-    case 'name':
-      if ($skip_access_check || user_access('access amazon search')) {
-        return t('Amazon.com');
-      }
-    case 'search':
-      if (user_access('access amazon search')) {
-        $products = array();
-        $items = amazon_search_simple_search($keys);
-        foreach ($items as $item) {
-          $products[] = array(
-            'title' => check_plain($item['title']),
+function amazon_search_search_access() {
+  return user_access('access amazon search');
+}
+
+function amazon_search_search_info() {
+  return array(
+    'title' => 'Amazon',
+    'path' => 'amazon_search',
+  );
+}
+/**
+ * Implements hook_search(). Implements remote Amazon searching.
+ */
+function amazon_search_search_execute($keys = NULL) {
+  $products = array();
+  $items = amazon_search_simple_search($keys);
+  foreach ($items as $item) {
+    $products[] = array(
+            'title' => filter_xss($item['title']),
             'link' => check_url($item['detailpageurl']),
             'type' => check_plain($item['productgroup']),
             'user' => isset($item['participants']) ? implode(', ', $item['participants']) : '',
-            'snippet' => isset($item['editorialreviews']) ? check_markup($item['editorialreviews'][0]['content']) : '',
-          );
-        }
-        return $products;
-      }
+            'snippet' => isset($item['editorialreviews']) ? filter_xss($item['editorialreviews'][0]['content']) : '',
+    );
   }
+  return $products;
 }
 
+/**
+ * Perform the search.
+ *
+ * @param $keywords
+ *   Keywords to be provided to Amazon.
+ * @param $parameters
+ *   Optional extra parameters to be passed to the Amazon API.
+ * @return
+ *   Array of Amazon items.
+ */
 function amazon_search_simple_search($keywords = '', $parameters = array()) {
   $parameters += array(
     'ResponseGroup' => 'ItemAttributes,EditorialReview',
@@ -43,7 +71,7 @@ function amazon_search_simple_search($keywords = '', $parameters = array()) {
 
   $items = array();
   $results = amazon_http_request('ItemSearch', $parameters);
-  foreach($results->Items->Item as $xml) {
+  foreach ($results->Items->Item as $xml) {
     $item = amazon_item_clean_xml($xml);
     $items[$item['asin']] = $item;
   }

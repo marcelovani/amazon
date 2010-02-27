@@ -3,5 +3,9 @@ description = Provides a CCK field type for Amazon products.
 package = Amazon
 dependencies[] = amazon
 dependencies[] = content
-core = 6.x
+core = 7.x
 php = 5.2
+
+files[] = asin.d5-migrate.inc
+files[] = asin.install
+files[] = asin.module

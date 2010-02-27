@@ -3,5 +3,7 @@ description = Provides an API for searching Amazon product information, and inte
 package = Amazon
 dependencies[] = amazon
 dependencies[] = search
-core = 6.x
+core = 7.x
 php = 5.2
+
+files[] = amazon_search.module
