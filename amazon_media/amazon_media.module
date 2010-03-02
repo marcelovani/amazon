@@ -29,7 +29,23 @@ function amazon_media_theme() {
       'function' => 'theme_amazon_inline_item_video_games',
       'file' => 'amazon_media.theme.inc',
     ),
-  );
+    'amazon-item-book-details' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item-book-details',
+    ),
+    'amazon-item-dvd-details' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item-dvd-details',
+    ),
+    'amazon-item-software-details' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item-software-details',
+    ),
+    'amazon-item-video-games-details' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item-video-games-details',
+    ),
+    );
   return $templates;
 }
 
@@ -38,17 +54,17 @@ function amazon_media_theme() {
 // module's directory to the list of paths to search for when finding
 // amazon_item tpl's.
 function amazon_media_theme_registry_alter(&$theme_registry) {
-  if (!empty($theme_registry['amazon_item'])) {
-    // We'll try our best to avoid stepping on theme template files.
-    // God, how I hate template inheritance.
-    if (!empty($theme_registry['amazon_item']['theme_paths']) && count($theme_registry['amazon_item']['theme paths']) > 1) {
-      $theme = array_pop($theme_registry['amazon_item']['theme paths']);
-    }
-    $theme_registry['amazon_item']['theme paths'][] = drupal_get_path('module', 'amazon_media');
-    if (isset($theme)) {
-      $theme_registry['amazon_item']['theme paths'][] = $theme;
-    }
-  }
+  $theme_registry['amazon_item']['theme path'] = drupal_get_path('module', 'amazon_media');
+//  if (!empty($theme_registry['amazon_item'])) {
+//    // We'll try our best to avoid stepping on theme template files.
+//    if (!empty($theme_registry['amazon_item']['theme_paths']) && count($theme_registry['amazon_item']['theme paths']) > 1) {
+//      $theme = array_pop($theme_registry['amazon_item']['theme paths']);
+//    }
+//    $theme_registry['amazon_item']['theme paths'][] = drupal_get_path('module', 'amazon_media');
+//    if (isset($theme)) {
+//      $theme_registry['amazon_item']['theme paths'][] = $theme;
+//    }
+//  }
 }
 
 /**
@@ -82,7 +98,7 @@ function amazon_media_preprocess_amazon_item(&$variables) {
 }
 
 /**
- * Load and return additional information for an ASINI item.
+ * Load and return additional information for an Amazon item.
  * @param $item
  *   The item requiring additions.
  * @return
