@@ -11,6 +11,7 @@
  */
 
 function theme_amazon_item__dvd($item, $style = 'default') {
+  drupal_set_message('Theming with theme_amazon_item__dvd');
   $output = '';
   $type = $item['type'];
   switch ($style) {

@@ -83,24 +83,19 @@ function amazon_theme() {
     'amazon_inline_item' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-inline-item',
-      // Re-use the existing infrastructure.
-      'preprocess functions' => 'template_preprocess_amazon_item',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
-    // Allows use of whatever is provided in preprocessed $variables.
     'amazon_detail' => array(
       'variables' => array('item' => array(), 'detail' => NULL),
       'template' => 'amazon-item-detail',
       'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
-  );
 
-  // Templates provided at the module level have to be explicitly listed.
-  $templates += array(
-    'amazon_item_thumbnail' => array(
+  // All templates provided at the module level have to be explicitly listed.
+    'amazon_item_detail' => array(
       'variables' => array('item' => array()),
-      'template' => 'amazon-item-thumbnail',
+      'template' => 'amazon-item-detail',
       'preprocess functions' => array('template_preprocess_amazon_item'),
-
     ),
     'amazon_item_details' => array(
       'variables' => array('item' => array()),
@@ -110,6 +105,11 @@ function amazon_theme() {
     'amazon_item_default' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
+    ),
+    'amazon_item_thumbnail' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item-thumbnail',
       'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
 
@@ -229,16 +229,41 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
 
 }
 
-
+/**
+ * Convert a type like ABIS_whatever into just whatever.
+ * @param unknown_type $type
+ */
 function _amazon_clean_type($type) {
   return check_plain(strtolower(str_replace(array('ABIS_', 'CONSOLE_', 'VIDEO_', ' '), array('', '', '', '_'), $type)));
 }
 
+/**
+ * Create name of the extra css class for an item.
+ *
+ * @param $item
+ *   The amazon_item.
+ */
 function _amazon_item_classes($item) {
   return 'amazon-item amazon-item-' . str_replace('_', '-', _amazon_clean_type($item['producttypename']));
 }
 
 
+/**
+ * Create an issue an HTTP request to the Amazon API.
+ *
+ * Most of this is determined by the Amazon Product Advertising API.
+ * @see http://docs.amazonwebservices.com/AWSECommerceService/latest/DG/index.html?CHAP_response_elements.html
+ *
+ *
+ * @param $operation
+ *   Must be 'AWSECommerceService'
+ * @param $parameters
+ *   An associative array with the parameters for the API call.
+ * @param $locale
+ *   The (optional) locale, a 2-character Amazon locale indicator. This has
+ *   nothing to do with an actual locale - it's really shorthand for what
+ *   Amazon site to use.
+ */
 function amazon_http_request($operation, $parameters = array(), $locale = NULL) {
   if (!isset($locale)) {
     $locale = variable_get('amazon_locale', 'US');
@@ -456,7 +481,7 @@ function _amazon_load_child_data(&$item) {
   array('asin' => $item['asin']),
   array('fetch' => PDO::FETCH_ASSOC));
   foreach ($result as $participant) {
-    unset($participant['asin']);
+    // unset($participant['asin']);
     $item[$participant['type']][] = $participant['participant'];
     $item['participants'][] = $participant['participant'];
   }

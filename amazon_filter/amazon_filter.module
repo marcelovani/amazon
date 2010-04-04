@@ -73,14 +73,19 @@ function _amazon_filter_process_text($text) {
             $replace[] = theme('amazon_inline_item', array('item' =>$item));
             break;
 
-          case 'thumbnail':
- // Handle themeable cases, like thumbnail, full.
+          // Full is a synonym of 'details'.
           case 'full':
-            $replace[] = theme('amazon_item', array('item' => $item, 'style' => $action));
+          case 'details':
+            $replace[] = theme('amazon_item', array('item' => $item));
+            break;
+
+          // Handle themeable cases, like thumbnail.
+          case 'thumbnail':
+            $replace[] = theme('amazon_item_thumbnail', array('item' => $item));
             break;
 
           default:
- // Allow to use anything found in the item.
+            // Allow to use anything found in the item.
             $replace[] = theme('amazon_detail', array('item' => $item, 'detail' => $action));
             break;
         }

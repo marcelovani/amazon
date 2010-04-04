@@ -13,6 +13,7 @@
  * @{
  */
 
+
 /**
  * Implementation of hook_views_plugins
  */
@@ -89,6 +90,7 @@ function amazon_views_data() {
     'help' => t('The Amazon item type allows views of Amazon products saved on your site.'),
     'weight' => 10,
   );
+
 
   // ----------------------------------------------------------------
   // Fields

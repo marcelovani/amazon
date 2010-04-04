@@ -2,7 +2,7 @@ name = Amazon media
 description = Stores extended Amazon product information for books, music, DVDs, and software.
 package = Amazon
 dependencies[] = amazon
-core = 6.x
+core = 7.x
 php = 5.2
 
 files[] = amazon-item-book-details.tpl.php

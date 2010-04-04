@@ -8,7 +8,10 @@
 // $Id$
 
 function amazon_media_install() {
-  drupal_install_schema('amazon_media');
+  amazon_media_update_7002();  // Set system weight.
+}
+
+function amazon_media_uninstall() {
 }
 
 function amazon_media_schema() {
@@ -63,10 +66,11 @@ function amazon_media_schema() {
   return $schema;
 }
 
-function amazon_media_uninstall() {
-  db_query("DROP TABLE {amazon_book}");
-  db_query("DROP TABLE {amazon_dvd}");
-  db_query("DROP TABLE {amazon_music}");
-  db_query("DROP TABLE {amazon_software}");
+/**
+ * Set the weight on amazon_media to be higher than amazon.
+ *
+ * This allows amazon_media to override theme settings that amazon has done.
+ */
+function amazon_media_update_7002() {
+  db_query("UPDATE {system} SET weight = 10 WHERE name = 'amazon_media'");
 }
-

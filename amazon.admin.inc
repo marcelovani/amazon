@@ -1,5 +1,13 @@
 <?php
+// $Id$
 
+/**
+ * @file
+ * Amazon Admin pages.
+ */
+/**
+ * Basic Amazon settings form.
+ */
 function amazon_settings_form($form, &$form_state) {
   $cache = amazon_data_cache();
   $options = array();
@@ -14,9 +22,13 @@ function amazon_settings_form($form, &$form_state) {
     '#description' => t('Amazon.com uses separate product databases and Ecommerce features in different locales; pricing and availability information, as well as product categorization, differs from one locale to the next. Be sure to select the locale your site will be running in.'),
   );
 
-  $form['amazon_associate_setting'] = array(
-    '#type' => 'select',
+  $form['associate_setting'] = array(
+    '#type' => 'fieldset',
     '#title' => t('Amazon referral settings'),
+  );
+  $form['associate_setting']['amazon_associate_setting'] = array(
+    '#type' => 'select',
+    '#title' => t('What Amazon associate ID do you want to use?'),
     '#default_value' => variable_get('amazon_associate_setting', 'association'),
     '#options' => array(
       'association' => t('Use the Drupal Association\'s associate ID'),
@@ -26,17 +38,18 @@ function amazon_settings_form($form, &$form_state) {
     '#description' => t('Outgoing links to Amazon.com can include an associate ID code. When shoppers purchase Amazon products via one of those links, the associate ID is used to determine who should receive a referral bonus from Amazon.com.'),
   );
 
-  $form['amazon_custom_associate_id'] = array(
+  $form['associate_setting']['amazon_custom_associate_id'] = array(
     '#type' => 'textfield',
     '#title' => t('Your associate ID'),
     '#description' => t('Enter your own associate ID to receive referral bonuses when shoppers purchase Amazon products via your site.'),
     '#default_value' => variable_get('amazon_custom_associate_id', ''),
-    '#prefix' => '<div id="amazon-associate-id-wrapper">',
-    '#suffix' => '</div>',
+    '#states' => array(
+      'visible' => array(
+        "select[name=amazon_associate_setting]" => array('value' => 'custom'),
+      ),
+    ),
+
   );
-  if (variable_get('amazon_associate_setting', 'association') != 'custom') {
-    $form['amazon_custom_associate_id']['#prefix'] = '<div id="amazon-associate-id-wrapper" class="js-hide">';
-  }
 
   $form['amazon_aws_access_key'] = array(
     '#type' => 'textfield',
@@ -54,12 +67,12 @@ function amazon_settings_form($form, &$form_state) {
     '#required' => TRUE,
   );
 
-  // Now add the Javascript that does the fancy hide/show effects.
-  drupal_add_js(drupal_get_path('module', 'amazon') . '/amazon.admin.js');
-
   return system_settings_form($form);
 }
 
+/**
+ * Form to determine how long things get cached.
+ */
 function amazon_storage_settings_form($form, &$form_state) {
 
   $period = drupal_map_assoc(array(3600, 7200, 14400, 21600, 43200, 86400), 'format_interval');
@@ -82,9 +95,6 @@ function amazon_storage_settings_form($form, &$form_state) {
       'customer_reviews' => t('Customer reviews'),
     ),
   );
-
-  // Now add the Javascript that does the fancy hide/show effects.
-  drupal_add_js(drupal_get_path('module', 'amazon') . '/amazon.admin.js');
 
   return system_settings_form($form);
 }
