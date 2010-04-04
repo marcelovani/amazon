@@ -64,28 +64,6 @@ function asin_field_schema($field) {
 
 
 /**
- * Implements hook_field_validate()
- *
- * Checks each instance to see if it's valid on Amazon.
- */
-function asin_field_validate($entity_type, $entity, $field, $instance, $langcode, &$items, &$errors) {
-  foreach ($items as $delta => &$item) {
-    $asin = $item['asin'];
-    if (!empty($asin)) { // Only continue if the ASIN is populated.
-      $results = _asin_load_items($asin);
-      if (!empty($results)) {
-        $item['asin'] = key($results);
-      }
-      else {
-        $errors[$field['field_name']][$langcode][$delta][] = array(
-          'error' => t('No Amazon product with the ASIN "%id" could be located.', array('%id' => $item['asin'])),
-        );
-      }
-    }
-  }
-}
-
-/**
  * Trim spaces from the front/back of each ASIN in an array.
  *
  * @param $items
@@ -201,18 +179,46 @@ function asin_field_widget_form(&$form, &$form_state, $field, $instance, $langco
   $element = $base;
   $element['asin'] = $base + array(
     '#type' => 'textfield',
-    '#size' => 15,
+    '#size' => 25,
     '#default_value' => !empty($items[$delta]['asin']) ? $items[$delta]['asin'] : '',
+    '#element_validate' => array('asin_field_widget_element_validate'),
   );
-
+  $form_state['langcode'] = $langcode;
   return $element;
 }
+
+/**
+ * Widget validation function.
+ *
+ * Checks to see if we can look up an ASIN, URL, or ISBN-13 using the
+ * provided text. If we can, it's OK and we turn it into an ASIN.
+ * Otherwise, flag as error.
+ */
+function asin_field_widget_element_validate($element, &$form_state) {
+  $field_name = $element['#field_name'];
+  $langcode = $form_state['langcode'];
+
+  foreach ($form_state['values'][$field_name][$langcode] as $delta => &$item) {
+    $asin = $item['asin'];
+    if (!empty($asin) && is_numeric($delta)) {
+      $results = _asin_load_items($asin);
+      if (empty($results)) {
+        form_set_error("{$field_name}][{$langcode}][{$delta}][asin]", t('No Amazon product with the ASIN "%id" could be located.', array('%id' => $asin)));
+      }
+      else {
+        $item['asin'] = (string)key($results);
+      }
+    }
+  }
+}
+
 
 /**
  * Implements hook_field_views_data().
  *
  * Through this hook we're given the chance to change the views schema
- * data for the ASIN type.
+ * data for the asin field. The primary thing to be done is to add a join
+ * on the ASIN type to the amazon_item views base stuff.
  */
 function asin_field_views_data($field) {
   // TODO: This should be refactored something like the commented out stuff
