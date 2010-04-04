@@ -172,7 +172,7 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
   // Handle participants and types.
   if (isset($item['participants'])) {
     $variables['participants'] = filter_xss(filter_xss(implode(', ', $item['participants'])));
-    $participant_types = split(',', AMAZON_PARTICIPANT_TYPES);
+    $participant_types = preg_split('/,/', AMAZON_PARTICIPANT_TYPES);
 
     foreach ($participant_types as $participant_type) {
       $participant_type = strtolower($participant_type);
@@ -552,7 +552,7 @@ function amazon_item_clean_xml($xml) {
     $item['amazonpriceformattedprice'] = (string) $xml->Offers->Offer[0]->OfferListing->Price->FormattedPrice;
   }
 
-  $participant_types = split(',', AMAZON_PARTICIPANT_TYPES);
+  $participant_types = preg_split('/,/', AMAZON_PARTICIPANT_TYPES);
 
   // Pull in the basics of the ItemAttributes collection.
   foreach ((array) ($xml->ItemAttributes) as $key => $value) {
@@ -575,7 +575,7 @@ function amazon_item_clean_xml($xml) {
   // Handle the product images. In theory, there could be a million different
   // product image types. We're only going to check for the most common ones
   // and ignore the rest for now.
-  $supported_sizes = split(',', AMAZON_IMAGE_SIZES);
+  $supported_sizes = preg_split('/,/', AMAZON_IMAGE_SIZES);
   if (isset($xml->ImageSets->ImageSet)) {
     foreach ((array) $xml->ImageSets->ImageSet as $key => $data) {
       if (in_array($key, $supported_sizes)) {
@@ -657,7 +657,7 @@ function amazon_item_insert($item) {
   // Handle the various credits for a product, including Artist, Author,
   // Actor, etc. We map these to a separate table.
   if (in_array('creators', variable_get('amazon_core_data', array('creators', 'images')))) {
-    $participant_types = split(',', AMAZON_PARTICIPANT_TYPES);
+    $participant_types = preg_split('/,/', AMAZON_PARTICIPANT_TYPES);
     foreach ($participant_types as $type) {
       if (isset($item[strtolower($type)])) {
         foreach ((array) $item[strtolower($type)] as $participant) {

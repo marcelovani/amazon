@@ -29,7 +29,7 @@ function theme_amazon_item__dvd($item, $style = 'default') {
     default:
       $output .= '<div class="' . _amazon_item_classes($type) . '">';
       $output .= theme('image', array('path' => $item['imagesets']['smallimage']['url'], 'alt' => t('Cover image'), 'title' => check_markup($item['title']), 'attributes' => array(), 'getsize' => FALSE));
-      $date = split('-', $item['theatricalreleasedate']);
+      $date = preg_split('/-/', $item['theatricalreleasedate']);
       $output .= '<h3>' . l(check_markup($item['title']), $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow'))) . ' (' . check_plain($date[0]) . ')</h3>';
       $output .= '<div><strong>' . t('Director') . ':</strong> ' . implode(', ', $item['director']) . '</div>';
       $output .= '<div><strong>' . t('Rating') . ':</strong> ' . $item['audiencerating'] . '</div>';
@@ -48,7 +48,7 @@ function theme_amazon_item__dvd($item, $style = 'default') {
  */
 function theme_amazon_inline_item_dvd($item) {
   $type = $item['type'];
-  $date = split('-', $item['theatricalreleasedate']);
+  $date = preg_split('/-/', $item['theatricalreleasedate']);
   $output = '<span class="' . _amazon_item_classes($type) . ' amazon-item-inline">';
   $output .= l($item['title'] . ' (' . $date[0] . ')', $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow')));
   $output .= '</span>';
