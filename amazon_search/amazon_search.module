@@ -39,7 +39,7 @@ function amazon_search_search_info() {
 /**
  * Implements hook_search_execute(). Implements remote Amazon searching.
  */
-function amazon_search_search_execute($keys = NULL) {
+function amazon_search_search_execute($keys = NULL, $conditions = NULL) {
   $products = array();
   $items = amazon_search_simple_search($keys);
   foreach ($items as $item) {

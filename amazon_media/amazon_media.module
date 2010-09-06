@@ -107,8 +107,11 @@ function amazon_media_preprocess_amazon_item(&$variables) {
 function amazon_media_amazon_item_load($item) {
   $table = amazon_media_get_table_name($item);
   if (!empty($table)) {
-    $additions = db_query("SELECT * FROM {$table} WHERE asin = :asin",
-    array('asin' => $item['asin']))->fetchAssoc();
+    $additions = db_select($table)
+      ->condition('asin', $item['asin'])
+      ->fields($table)
+      ->execute()
+      ->fetchAssoc();
     return $additions;
   }
 }
