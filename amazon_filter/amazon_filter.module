@@ -76,7 +76,7 @@ function _amazon_filter_process_text($text) {
           // Full is a synonym of 'details'.
           case 'full':
           case 'details':
-            $replace[] = theme('amazon_item', array('item' => $item));
+            $replace[] = theme('amazon_item', array('item' => $item, 'style' => 'details'));
             break;
 
           // Handle themeable cases, like thumbnail.

@@ -77,7 +77,7 @@ function amazon_permission() {
 function amazon_theme() {
   $templates = array(
     'amazon_item' => array(
-      'variables' => array('item' => array()),
+      'variables' => array('item' => array(), 'style' => NULL),
       'template' => 'amazon-item',
     ),
     'amazon_inline_item' => array(
@@ -87,29 +87,39 @@ function amazon_theme() {
     ),
     'amazon_detail' => array(
       'variables' => array('item' => array(), 'detail' => NULL),
-      'template' => 'amazon-item-detail',
+      'template' => 'amazon-detail',
       'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
 
-  // All templates provided at the module level have to be explicitly listed.
+    // All templates provided at the module level have to be explicitly listed.
     'amazon_item_detail' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item-detail',
       'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
-    'amazon_item_details' => array(
+    'amazon_item__details' => array(
       'variables' => array('item' => array()),
-      'template' => 'amazon-item-details',
+      'template' => 'amazon-item--details',
       'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
-    'amazon_item_default' => array(
+    'amazon_item__default' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item',
       'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
-    'amazon_item_thumbnail' => array(
+    'amazon_item__thumbnail' => array(
       'variables' => array('item' => array()),
-      'template' => 'amazon-item-thumbnail',
+      'template' => 'amazon-item--thumbnail',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
+    ),
+    'amazon_item__medium' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item--medium',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
+    ),
+    'amazon_item__large' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item--large',
       'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
 
@@ -124,7 +134,7 @@ function amazon_theme() {
 function template_preprocess_amazon_item(&$variables, $theme_type) {
 
   $item = $variables['item'];
-  // Do a quick cycle through the simple keys on the item, check_plain() them,
+  // Do a quick cycle through the simple keys on the item, filter_xss() them,
   // and stick them in the variables collection.
   foreach ($item as $key => $value) {
     if (is_string($value)) {
@@ -213,20 +223,22 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
   if (!empty($variables['detail']) && $theme_type == 'amazon_detail') {
     $variables['classes_array'] = array("amazon-item", "amazon-item-detail-{$variables['detail']}");
   }
+  if (!empty($variables['style']) && $variables['style'] == 'inline' && !empty($variables['producttypename'])) {
+    $variables['theme_hook_suggestions'][] = 'amazon_inline_item__' . _amazon_clean_type($item['producttypename']);
+  }
   if (!empty($variables['style'])) {
     $variables['classes'] = _amazon_item_classes($item) . ' amazon-item-' . check_plain($variables['style']);
 
     // A set of more specific templates to use when displaying items.
-    $variables['theme_hook_suggestions'][] = 'amazon-item-' . $variables['style'];
-    $variables['theme_hook_suggestions'][] = 'amazon-item-' . strtolower($variables['type']);
-    $variables['theme_hook_suggestions'][] = 'amazon-item-' . strtolower($variables['type']) . '-' . $variables['style'];
+    $variables['theme_hook_suggestions'][] = 'amazon_item__' . $variables['style'];
+    $variables['theme_hook_suggestions'][] = 'amazon_item__' . strtolower($variables['type']);
+    $variables['theme_hook_suggestions'][] = 'amazon_item__' . strtolower($variables['type']) . '__' . $variables['style'];
 
     if (!empty($item['view']) && !empty($item['view']->name)) {
-      $vars['template_files'][] = 'amazon-item-view-' . $item['view']->name;
-      $variables['template_files'][] = 'amazon-item-' . strtolower($variables['type']) . '-view-' . $item['view']->name;
+      $variables['theme_hook_suggestions'][] = 'amazon_item_view__' . $item['view']->name;
+      $variables['theme_hook_suggestions'][] = 'amazon_item__' . strtolower($variables['type']) . '__view__' . $item['view']->name;
     }
   }
-
 }
 
 /**

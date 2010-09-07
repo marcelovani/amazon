@@ -11,5 +11,4 @@ files[] = amazon-item-software-details.tpl.php
 files[] = amazon-item-video-games-details.tpl.php
 files[] = amazon_media.install
 files[] = amazon_media.module
-files[] = amazon_media.theme.inc
 files[] = amazon_media.views.inc

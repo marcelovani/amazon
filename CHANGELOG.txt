@@ -1,5 +1,10 @@
 $Id$
 
+7.x-1.x-dev
+===========
+- [#761832] by rfay: D7 theming doesn't work right.
+- [#857616] by rfay: Amazon Media module fails with database prefix turned on.
+
 6.x-1.x-RC4 release
 ===================
 - [#671686] by rfay: Fixed Amazon module localization errors.

@@ -8,51 +8,50 @@
 
 /**
  * Implements hook_theme().
- *
  */
 function amazon_media_theme() {
   $templates = array(
-    'amazon_inline_item_dvd' => array(
+    'amazon_inline_item__dvd' => array(
       'variables' => array('item' => array()),
-      'file' => 'amazon_media.theme.inc',
     ),
-    'amazon_inline_item_software' => array(
+    'amazon_inline_item__software' => array(
       'variables' => array('item' => array()),
-      'file' => 'amazon_media.theme.inc',
     ),
-    'amazon_inline_item_video_games' => array(
+    'amazon_inline_item__games' => array(
       'variables' => array('item' => array()),
-      'file' => 'amazon_media.theme.inc',
     ),
-    'amazon_inline_item_console_video_games' => array(
+    'amazon_inline_item__console_video_games' => array(
       'variables' => array('item' => array()),
-      'function' => 'theme_amazon_inline_item_video_games',
-      'file' => 'amazon_media.theme.inc',
+      'function' => 'theme_amazon_inline_item__games',
     ),
-    'amazon-item-book-details' => array(
+    'amazon_item__book__details' => array(
       'variables' => array('item' => array()),
-      'template' => 'amazon-item-book-details',
+      'template' => 'amazon-item--book--details',
     ),
-    'amazon-item-dvd-details' => array(
+    'amazon_item__dvd__details' => array(
       'variables' => array('item' => array()),
-      'template' => 'amazon-item-dvd-details',
+      'template' => 'amazon-item--dvd--details',
     ),
-    'amazon-item-software-details' => array(
+    'amazon_item__software__details' => array(
       'variables' => array('item' => array()),
-      'template' => 'amazon-item-software-details',
+      'template' => 'amazon-item--software--details',
     ),
-    'amazon-item-video-games-details' => array(
+    'amazon_item__games__details' => array(
       'variables' => array('item' => array()),
-      'template' => 'amazon-item-video-games-details',
+      'template' => 'amazon-item--games--details',
     ),
-    );
+  );
   return $templates;
 }
 
-// Because we aren't defining our own stuff here, just providing some
-// high-specificity templates for theme_amazon_item, we'll add this
-// module's directory to the list of paths to search for when finding
-// amazon_item tpl's.
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * Because we aren't defining our own stuff here, just providing some
+ * high-specificity templates for theme_amazon_item, we'll add this
+ * module's directory to the list of paths to search for when finding
+ * amazon_item tpl's.
+ */
 function amazon_media_theme_registry_alter(&$theme_registry) {
   $theme_registry['amazon_item']['theme path'] = drupal_get_path('module', 'amazon_media');
   if (!empty($theme_registry['amazon_item'])) {
@@ -195,4 +194,78 @@ function amazon_media_amazon_item_delete($asin) {
  */
 function amazon_media_views_api() {
   return array('api' => 2);
+}
+
+
+/**
+ * Implements theme_ with specialty dvd.
+ *
+ * @param $item
+ *   fully populated amazon item.
+ * @param $style
+ *   'full', 'thumbnail', or whatever.
+ */
+
+function theme_amazon_item__dvd($item, $style = 'default') {
+  drupal_set_message('Theming with theme_amazon_item__dvd');
+  $output = '';
+  $type = $item['type'];
+  switch ($style) {
+    case 'full':
+      $output .= '<div class="' . _amazon_item_classes($type) . ' amazon-item-full">';
+      $output .= theme('image', array('path' => $item['imagesets']['mediumimage']['url'], 'alt' => t('Cover image'), 'title' => check_markup($item['title']), 'attributes' => array(), 'getsize' => FALSE));
+      $output .= '<h3>' . l(check_plain($item['title']), $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow'))) . '</h3>';
+      $output .= '</div>';
+      break;
+    case 'thumbnail':
+      $output .= '<div class="' . _amazon_item_classes($type) . ' amazon-item-thumbnail">';
+      $output .= theme('image', array('path' => $item['imagesets']['mediumimage']['url'], 'alt' => t('Cover image'), 'title' => check_markup($item['title']), 'attributes' => array(), 'getsize' => FALSE));
+      $output .= '</div>';
+      break;
+    default:
+      $output .= '<div class="' . _amazon_item_classes($type) . '">';
+      $output .= theme('image', array('path' => $item['imagesets']['smallimage']['url'], 'alt' => t('Cover image'), 'title' => check_markup($item['title']), 'attributes' => array(), 'getsize' => FALSE));
+      $date = preg_split('/-/', $item['theatricalreleasedate']);
+      $output .= '<h3>' . l(check_markup($item['title']), $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow'))) . ' (' . check_plain($date[0]) . ')</h3>';
+      $output .= '<div><strong>' . t('Director') . ':</strong> ' . implode(', ', $item['director']) . '</div>';
+      $output .= '<div><strong>' . t('Rating') . ':</strong> ' . $item['audiencerating'] . '</div>';
+      $output .= '<div><strong>' . t('Running time') . ':</strong> ' . $item['runningtime'] . ' ' . t('minutes') . '</div>';
+      $output .= '</div>';
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Theme with inline item dvd.
+ * @param $item
+ * @return
+ *   rendered output.
+ */
+function theme_amazon_inline_item__dvd($item) {
+  $type = $item['type'];
+  $date = preg_split('/-/', $item['theatricalreleasedate']);
+  $output = '';
+  $output .= '<span class="' . _amazon_item_classes($type) . ' amazon-item-inline">';
+  $output .= l($item['title'] . ' (' . $date[0] . ')', $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow')));
+  $output .= '</span>';
+  return $output;
+}
+
+
+function theme_amazon_inline_item__software($item) {
+  $output = '';
+  $output .= '<span class="' . _amazon_item_classes($item) . ' amazon-item-inline">';
+  $output .= l($item['title'] . ' (' . $item['operatingsystem'] . ')', $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow')));
+  $output .= '</span>';
+  return $output;
+}
+
+
+function theme_amazon_inline_item__games($item) {
+  $output = '';
+  $output .= '<span class="' . _amazon_item_classes($item) . ' amazon-item-inline">';
+  $output .= l($item['title'] . ' (' . $item['hardwareplatform'] . ')', $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow')));
+  $output .= '</span>';
+  return $output;
 }

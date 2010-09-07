@@ -1,6 +1,8 @@
 Amazon.module API Documentation
 ===============================
 
+Please read the handbook documentation at http://drupal.org/node/595464.
+
 The Amazon package gives Drupal based web sites access to the core features of 
 the Amazon Product Marketing API. The package provides several components:
 
