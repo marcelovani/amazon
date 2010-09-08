@@ -116,22 +116,32 @@ function asin_field_is_empty($item, $field) {
 function asin_field_formatter_info() {
   return array(
     'default' => array(
-      'label' => t('Small image and basic info'),
+      'label' => t('Thumbnail with title'),
       'field types' => array('asin'),
       'multiple values' => FIELD_BEHAVIOR_DEFAULT,
     ),
     'details' => array(
-      'label' => t('Small image and full info'),
+      'label' => t('Thumbnail with details'),
       'field types' => array('asin'),
       'multiple values' => FIELD_BEHAVIOR_DEFAULT,
     ),
     'thumbnail' => array(
+      'label' => t('Thumbnail image'),
+      'field types' => array('asin'),
+      'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+    ),
+    'medium' => array(
+      'label' => t('Medium image'),
+      'field types' => array('asin'),
+      'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+    ),
+    'large' => array(
       'label' => t('Large image'),
       'field types' => array('asin'),
       'multiple values' => FIELD_BEHAVIOR_DEFAULT,
     ),
     'inline' => array(
-      'label' => t('Title as link'),
+      'label' => t('Link to item'),
       'field types' => array('asin'),
       'multiple values' => FIELD_BEHAVIOR_DEFAULT,
     ),
@@ -150,8 +160,8 @@ function asin_field_formatter_view($entity_type, $entity, $field, $instance, $la
     if (!empty($asin)) {
       $asins = amazon_item_lookup("$asin");
       // TODO: kill off amazon_inline_item. There's no reason for it to clutter the earth.
-      $theme_function = $display['type'] == 'inline' ? 'amazon_inline_item' : "amazon_item_{$display['type']}";
-      $element[$delta] = array('#markup' => theme($theme_function, array('item' => $asins["$asin"])));
+      $theme_function = $display['type'] == 'inline' ? 'amazon_inline_item' : 'amazon_item';
+      $element[$delta] = array('#markup' => theme($theme_function, array('item' => $asins["$asin"], 'style' => $display['type'])));
     }
   }
   return $element;
