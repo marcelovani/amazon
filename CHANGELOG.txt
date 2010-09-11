@@ -1,6 +1,10 @@
 $Id$
 
-7.x-1.x-dev
+7.x-1.0-beta3
+============
+- [#761832] followup: Sorry, I messed up a bunch of tpl.php files.
+
+7.x-1.0-beta2
 ===========
 - [#761832] by rfay: D7 theming doesn't work right.
 - [#857616] by rfay: Amazon Media module fails with database prefix turned on.
