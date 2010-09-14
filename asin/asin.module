@@ -21,18 +21,6 @@ function asin_field_info() {
   );
 }
 
-/**
-* Implements hook_field_schema().
-*/
-function asin_field_schema($field) {
-  $columns = array(
-    'asin' => array('type' => 'varchar', 'length' => 32, 'not null' => FALSE)
-  );
-  return array(
-    'columns' => $columns,
-  );
-}
-
 
 ///**
 // * @todo: This is the leftover from D6 hook_field. Seems that there's some
