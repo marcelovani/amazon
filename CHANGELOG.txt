@@ -3,6 +3,7 @@ $Id$
 7.x-1.0-beta4
 =============
 [#758630] by rfay: Views title should link to Amazon Store.
+[#879830] by rfay: Make amazon price work outside US
 
 7.x-1.0-beta3
 ============
