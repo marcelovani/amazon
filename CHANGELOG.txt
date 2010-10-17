@@ -1,5 +1,9 @@
 $Id$
 
+7.x-1.0-beta4
+=============
+[#758630] by rfay: Views title should link to Amazon Store.
+
 7.x-1.0-beta3
 ============
 - [#761832] followup: Sorry, I messed up a bunch of tpl.php files.
