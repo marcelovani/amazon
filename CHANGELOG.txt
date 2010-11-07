@@ -6,6 +6,7 @@ $Id$
 [#879830] by rfay: Make amazon price work outside US
 [#801896] by rfay: Editorial content is double-escaped.
 [#944280] by rfay: Fix watchdog PDO fatal
+[#959810] by fragtom, rfay: Fix admin/config menu
 
 
 
