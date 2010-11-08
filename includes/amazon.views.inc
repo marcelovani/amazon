@@ -272,7 +272,7 @@ function _amazon_make_simple_markup_field(&$data, $table, $column, $title, $help
      // Information for displaying a title as a field
     'field' => array(
       'handler' => 'views_handler_field_markup',
-      'format' => FILTER_FORMAT_DEFAULT,
+      'format' => filter_default_format(),
      ),
   );
 }
