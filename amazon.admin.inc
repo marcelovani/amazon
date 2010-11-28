@@ -87,12 +87,11 @@ function amazon_storage_settings_form($form, &$form_state) {
   $form['details']['amazon_core_data'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Store extended product data'),
-    '#default_value' => variable_get('amazon_core_data', array('creators', 'images')),
+    '#default_value' => variable_get('amazon_core_data', array('creators', 'images', 'editorial_reviews')),
     '#options' => array(
       'creators' => t('Book authors, film actors, etc.'),
       'images' => t('Product image links'),
       'editorial_reviews' => t('Editorial reviews'),
-      'customer_reviews' => t('Customer reviews'),
     ),
   );
 

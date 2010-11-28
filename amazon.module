@@ -9,7 +9,7 @@
  * save configuration and setup.
  */
 
-define('AMAZON_ECS_SCHEMA', '2009-03-31');
+define('AMAZON_ECS_SCHEMA', '2010-09-01');
 define('AMAZON_PARTICIPANT_TYPES', 'Author,Artist,Actor,Director,Creator');
 
 // Other common sizes include SwatchImage, TinyImage, and ThumbnailImage.
@@ -155,13 +155,8 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
   $variables['type'] = _amazon_clean_type($item['producttypename']);
   $variables['detailpageurl'] = check_url($item['detailpageurl']);
   $variables['editorialreview'] = !empty($item['editorialreviews']) ? filter_xss_admin($item['editorialreviews'][0]['content']) : '';
-  if (!empty($item['customerreviews'])) {
-    foreach ($item['customerreviews'] as &$review) {
-      $review['content'] = filter_xss($review['content']);
-      $review['summary'] = filter_xss($review['summary']);
-    }
-  }
-  $variables['customerreview'] = !empty($item['customerreviews']) ? filter_xss($item['customerreviews'][0]['content']) : '';
+  $variables['customerreviews_iframe'] = !empty($item['customerreviews_iframe']) ? check_url($item['customerreviews_iframe']) : '';
+
   $variables['invalid_asin'] = !empty($item['invalid_asin']) ? 1 : 0;
 
   $variables['detailpageurl'] = check_url($variables['detailpageurl']);
@@ -633,14 +628,7 @@ function amazon_item_clean_xml($xml) {
 
   // And the customer reviews.
   if (isset($xml->CustomerReviews)) {
-    foreach ($xml->CustomerReviews->Review as $data) {
-      $item['customerreviews'][] = array(
-        'rating' => (string) $data->Rating,
-        'date' => (string) $data->Date,
-        'summary' => (string) $data->Summary,
-        'content' => (string) $data->Content,
-      );
-    }
+    $item['customerreviews_iframe'] = (string)$xml->CustomerReviews->IFrameURL;
   }
 
   // Give other modules an opportunity to pull out other bits of Amazon data
@@ -741,24 +729,6 @@ function amazon_item_insert($item) {
       }
     }
   }
-  // Save the customer reviews if they exist.
-  if (in_array('customer_reviews', variable_get('amazon_core_data', array('creators', 'images')))) {
-    if (isset($item['customerreviews'])) {
-      foreach ($item['customerreviews'] as $data) {
-        $review = array('asin' => $item['asin'], 'rating' => $data['rating'], 'date' => $data['date'], 'summary' => $data['summary'], 'content' => $data['content']);
-        try {
-          db_insert('amazon_item_customer_review')
-          ->fields($review)
-          ->execute();
-        }
-        catch (Exception $e) {
-          amazon_db_error_watchdog("Failed to insert item into amazon_item_editorial_review table", $e);
-        }
-
-      }
-    }
-  }
-
   module_invoke_all('amazon_item_insert', $item);
 }
 
@@ -780,9 +750,6 @@ function amazon_item_delete($asin) {
   ->condition('asin', $asin)
   ->execute();
   db_delete('amazon_item_editorial_review')
-  ->condition('asin', $asin)
-  ->execute();
-  db_delete('amazon_item_customer_review')
   ->condition('asin', $asin)
   ->execute();
 }

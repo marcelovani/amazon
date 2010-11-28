@@ -217,19 +217,7 @@ function amazon_views_data() {
   _amazon_make_simple_text_field($data, 'amazon_item_editorial_review', 'source', 'Editorial review source', 'The source of this editorial review. Since there may be more than one review for each product, your view will produce one row per review.');
   _amazon_make_simple_markup_field($data, 'amazon_item_editorial_review', 'content', 'Editorial content', 'Content of an editorial review. Since there may be more than one review for each product, your view will produce one row per review.');
 
-  $data['amazon_item_customer_review']['table']['group']  = t('Amazon');
-  $data['amazon_item_customer_review']['table']['join'] = array(
-    // customer review links to amazon_item directly via asin.
-    'amazon_item' => array(
-      'left_field' => 'asin',
-      'field' => 'asin',
-    ),
-  );
-  _amazon_make_simple_number_field($data, 'amazon_item_customer_review', 'rating', 'Customer Rating', "Numeric rating of this product. Since there is normally more than one review for each product, your view will produce one row per review.");
-  _amazon_make_simple_date_field($data, 'amazon_item_customer_review', 'date', 'Customer Rating Date', 'Date the product was rated. Since there is normally more than one review for each product, your view will produce one row per review.');
-  _amazon_make_simple_text_field($data, 'amazon_item_customer_review', 'summary', 'Customer Review Summary', 'Summary of the review. Since there is normally more than one review for each product, your view will produce one row per review.');
-  _amazon_make_simple_text_field($data, 'amazon_item_customer_review', 'content', 'Customer Review Content', 'Customer review content. Since there is normally more than one review for each product, your view will produce one row per review.');
-
+  _amazon_make_simple_text_field($data, 'amazon_item', 'customerreviews_iframe', 'Customer reviews iframe', "A link to an customer reviews provided by Amazon which is suitable for placement in an iframe");
   return $data;
 }
 
