@@ -24,12 +24,12 @@ class views_handler_field_amazon_participant extends views_handler_field_prerend
       '#type' => 'select',
       '#title' => t('Participant restriction'),
       '#options' => array(
-        '**ALL**' => t('Show all particpants'),
-        'author' => 'Author',
-        'artist' => 'Artist',
-        'actor' => 'Actor',
-        'director' => 'Director',
-        'creator' => 'Creator'
+        '**ALL**' => t('Show all participants'),
+        'author' => t('Author'),
+        'artist' => t('Artist'),
+        'actor' => t('Actor'),
+        'director' => t('Director'),
+        'creator' => t('Creator'),
       ),
       '#default_value' => $this->options['participant_type'],
     );
@@ -50,14 +50,18 @@ class views_handler_field_amazon_participant extends views_handler_field_prerend
       }
     }
 
-    $sql = "SELECT aip.participant, aip.asin FROM {amazon_item_participant} aip WHERE aip.asin IN ('" . implode("', '", $asins) . "') ";
-    if ($this->options['participant_type'] != '**ALL**') {
-      $sql .= " AND aip.type = '%s'";
-    }
-    $results = db_query($sql, $this->options['participant_type']);
+    $query = db_select('amazon_item_participant', 'aip')
+      ->condition('asin', $asins, 'IN');
 
-    while ($result = db_fetch_array($results)) {
-      $this->items[$result['asin']][] = check_plain($result['participant']);
+    if ($this->options['participant_type'] != '**ALL**') {
+      $query = $query->condition('type', $this->options['participant_type']);
+    }
+    $query->fields('aip', array('participant', 'asin'));
+
+    $results = $query->execute();
+
+    while ($record = $results->fetchAssoc()) {
+      $this->items[$record['asin']][] = check_plain($record['participant']);
     }
   }
 }
