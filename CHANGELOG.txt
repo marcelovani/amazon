@@ -9,6 +9,7 @@ $Id$
 [#959810] by fragtom, rfay: Fix admin/config menu
 [#971820] by davidzz: Add BOOKS_1973_AND_LATER to types handled by amazon_media
 by rfay: Fixed problem with "all participants" field in views
+[#951070] by davidzz, rfay: Make editorialreview not get key tags stripped out.
 
 
 
