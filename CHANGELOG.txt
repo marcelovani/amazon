@@ -7,6 +7,7 @@ $Id$
 [#801896] by rfay: Editorial content is double-escaped.
 [#944280] by rfay: Fix watchdog PDO fatal
 [#959810] by fragtom, rfay: Fix admin/config menu
+[#971820] by davidzz: Add BOOKS_1973_AND_LATER to types handled by amazon_media
 
 
 

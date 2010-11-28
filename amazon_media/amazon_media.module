@@ -124,6 +124,7 @@ function amazon_media_amazon_item_load($item) {
  */
 function amazon_media_get_table_name($item) {
   static $names = array('ABIS_BOOK' => 'amazon_book',
+    'BOOKS_1973_AND_LATER' => 'amazon_book',
     'VIDEO_DVD' => 'amazon_dvd',
     'ABIS_DVD' => 'amazon_dvd',
     'ABIS_MUSIC' => 'amazon_music',
