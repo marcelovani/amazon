@@ -11,6 +11,7 @@ $Id$
 by rfay: Fixed problem with "all participants" field in views
 [#951070] by davidzz, rfay: Make editorialreview not get key tags stripped out.
 [#905198] by rfay: Update to new Amazon handling of customer reviews
+[#983598] by rfay: Make HTML in Amazon Editorial reviews work
 
 
 

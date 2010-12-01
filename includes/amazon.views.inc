@@ -57,6 +57,9 @@ function amazon_views_handlers() {
       'views_handler_field_amazon_title' => array(
         'parent' => 'views_handler_field',
       ),
+      'views_handler_field_amazon_xss' => array(
+        'parent' => 'views_handler_field',
+      ),
       'views_handler_filter_amazon_image' => array(
         'parent' => 'views_handler_filter_many_to_one',
       ),
@@ -259,8 +262,7 @@ function _amazon_make_simple_markup_field(&$data, $table, $column, $title, $help
     'help' => $help, // The help that appears on the UI,
      // Information for displaying a title as a field
     'field' => array(
-      'handler' => 'views_handler_field_markup',
-      'format' => filter_fallback_format(),
+      'handler' => 'views_handler_field_amazon_xss',
      ),
   );
 }
