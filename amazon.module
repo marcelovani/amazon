@@ -518,14 +518,6 @@ function _amazon_load_child_data(&$item) {
     unset($review['asin']);
     $item['editorialreviews'][] = $review;
   }
-  $result = db_query('SELECT * FROM {amazon_item_customer_review} WHERE asin = :asin',
-  array('asin' => $item['asin']),
-  array('fetch' => PDO::FETCH_ASSOC));
-  foreach ($result as $review) {
-    unset($review['asin']);
-    $item['customerreviews'][] = $review;
-  }
-
 }
 
 /**

@@ -21,7 +21,7 @@ function amazon_media_schema() {
       'ean' => array('type' => 'varchar', 'length' => 20, 'not null' => TRUE),
       'isbn' => array('type' => 'varchar', 'length' => 20, 'not null' => TRUE),
       'deweydecimalnumber' => array('type' => 'varchar', 'length' => 64),
-      'edition' => array('type' => 'int'),
+      'edition' => array('type' => 'varchar', 'length' => 128),
       'numberofpages' => array('type' => 'int'),
       'publicationdate' => array('type' => 'varchar', 'length' => 32),
     ),
@@ -74,3 +74,13 @@ function amazon_media_schema() {
 function amazon_media_update_7002() {
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'amazon_media'");
 }
+
+/**
+ * Update the "edition" field to a varchar since it can be many things provided
+ * by amazon.
+ */
+function amazon_media_update_7003() {
+  db_change_field('amazon_book', 'edition', 'edition', array('type' => 'varchar', 'length' => 128));
+  return(t("Changed amazon_book 'edition' to a varchar"));
+}
+
