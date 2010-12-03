@@ -13,6 +13,7 @@ by rfay: Fixed problem with "all participants" field in views
 [#905198] by rfay: Update to new Amazon handling of customer reviews
 [#983598] by rfay: Make HTML in Amazon Editorial reviews work
 [#984894] by rfay: Change the type of the edition field
+[#959766] by dereine, rfay: Fix views support of images
 
 
 
