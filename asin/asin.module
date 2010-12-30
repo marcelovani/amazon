@@ -566,3 +566,46 @@ function asin_feeds_set_target($node, $target, $value) {
 
   $node->$target = $field;
 }
+
+
+/**
+ * Implements hook_devel_generate().
+ * Callback for populating ASIN fields with devel_generate module.
+ *
+ * Picks a random Drupal-related book.
+ */
+function asin_devel_generate($object, $field, $instance, $bundle) {
+  if (field_behaviors_widget('multiple values', $instance) == FIELD_BEHAVIOR_CUSTOM) {
+    return devel_generate_multiple('_asin_devel_generate', $object, $field, $instance, $bundle);
+  }
+  else {
+    return _asin_devel_generate($object, $field, $instance, $bundle);
+  }
+}
+
+/**
+ * Utility function that actually provides the values for asin_devel_generate().
+ */
+function _asin_devel_generate($object, $field, $instance, $bundle) {
+  $asins = &drupal_static(__FUNCTION__);
+  if (!isset($asins) || $reset) {
+    $actions = module_invoke_all('action_info');
+  }
+
+  $parameters = array(
+    'ResponseGroup' => 'ItemAttributes,EditorialReview',
+    'SearchIndex' => 'Blended',
+    'Keywords' => 'drupal'
+  );
+
+  $asins = array();
+  $results = amazon_http_request('ItemSearch', $parameters);
+  foreach ($results->Items->Item as $xml) {
+    $asin = amazon_item_clean_xml($xml);
+    $asins[$asin['asin']] = $asin;
+  }
+
+  $field = array();
+  $field['asin'] = array_rand($asins, 1);
+  return $field;
+}
