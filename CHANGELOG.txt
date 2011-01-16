@@ -1,5 +1,8 @@
 $Id$
 
+7.x-1.0
+[#1015260] by rfay: Fix requirements message.
+
 7.x-1.0-beta4
 =============
 [#758630] by rfay: Views title should link to Amazon Store.
