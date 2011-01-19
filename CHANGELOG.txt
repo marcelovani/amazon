@@ -2,6 +2,7 @@ $Id$
 
 7.x-1.0
 [#1015260] by rfay: Fix requirements message.
+[#1011280] by rfay: Fix the _field_sql_storage_etid() #fail
 
 7.x-1.0-beta4
 =============
