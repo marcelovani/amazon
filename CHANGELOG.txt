@@ -5,6 +5,7 @@ $Id$
 [#1015260] by rfay: Fix requirements message.
 [#1011280] by rfay: Fix the _field_sql_storage_etid() #fail
 [#1014128] by jdleonard, rfay: Fix invalid conditions in amazon_item_clean_xml()
+[#1037168] by rfay: Fix problem with amazon_media_software_template
 
 7.x-1.0-beta4
 =============
