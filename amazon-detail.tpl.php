@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 /**
  * @file
  * Outputs a single piece of data as provided in $$detail.

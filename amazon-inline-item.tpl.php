@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 /**
  * @file
  * Theme the 'amazon_inline_item' type.

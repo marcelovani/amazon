@@ -1,11 +1,11 @@
 <?php
+// $Id$
+
 /**
  * @file
  * Install, update and uninstall functions for the amazon_media module.
  *
  */
-
-// $Id$
 
 function amazon_media_install() {
   amazon_media_update_7002();  // Set system weight.

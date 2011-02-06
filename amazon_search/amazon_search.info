@@ -1,4 +1,4 @@
-; $Id
+; $Id$
 
 name = Amazon search
 description = Provides an API for searching Amazon product information, and integration with the Drupal search system.

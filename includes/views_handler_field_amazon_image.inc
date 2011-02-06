@@ -1,5 +1,6 @@
 <?php
-// $Id $
+// $Id$
+
 /**
  * @file
  * Provide views handler so that Amazon Image can be displayed in the various

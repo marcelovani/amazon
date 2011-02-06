@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 /**
  * @file
  * Theme the 'amazon-item' 'thumbnail' image style.

@@ -1,12 +1,12 @@
 <?php
 // $Id$
+
 /**
  * @defgroup views_field_handlers Views' field handlers
  * @{
  * Handlers to tell Views how to build and display fields.
  *
  */
-
 
 /**
  * A handler to run a field through simple XSS filtering

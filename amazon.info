@@ -1,4 +1,4 @@
-; $Id
+; $Id$
 
 name = Amazon API
 description = Provides integration with the Amazon Product Advertising API.

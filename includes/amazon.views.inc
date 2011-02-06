@@ -1,5 +1,6 @@
 <?php
 // $Id$
+
 /**
  * @file
  * Provide views data and handlers for amazon.module
