@@ -1,9 +1,9 @@
+; $Id
+
 name = Amazon field
 description = Provides a field for Amazon products.
 package = Amazon
 dependencies[] = amazon
 core = 7.x
 php = 5.2
-
-files[] = asin.install
-files[] = asin.module
+configure = admin/structure/types

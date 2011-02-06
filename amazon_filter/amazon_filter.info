@@ -1,7 +1,9 @@
+; $Id
+
 name = Amazon Filter
 description = Lets writers use the [amazon] tag to embed Amazon product information in text.
-package = "Amazon"
+package = Amazon
 dependencies[] = amazon
 core = 7.x
-
-files[] = amazon_filter.module
+php = 5.2
+configure = admin/config/content/formats
