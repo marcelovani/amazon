@@ -16,19 +16,21 @@ function amazon_install() {
  * Implements hook_uninstall().
  */
 function amazon_uninstall() {
-  $variables = preg_split('/\s+/',
-    "amazon_media_data
-    amazon_locale
-    amazon_associate_setting
-    amazon_custom_associate_id
-    amazon_aws_access_key
-    amazon_aws_secret_access_key
-    amazon_refresh_schedule
-    amazon_core_data");
-  foreach ($variables as $var) {
+  $vars = array(
+    'amazon_media_data',
+    'amazon_locale',
+    'amazon_associate_setting',
+    'amazon_custom_associate_id',
+    'amazon_aws_access_key',
+    'amazon_aws_secret_access_key',
+    'amazon_refresh_schedule',
+    'amazon_core_data',
+  );
+	foreach ($vars as $var) {
     variable_del($var);
   }
 }
+
 /**
  * implementation of hook_requirements to make sure we let them know about
  * the requirement for amazon_aws_secret_access_key
