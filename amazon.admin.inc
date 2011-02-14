@@ -108,7 +108,7 @@ function amazon_test_form($form, &$form_state) {
   $form['asin'] = array(
     '#type' => 'textfield',
     '#title' => t('Amazon Product ID'),
-    '#description' => t('The ASIN, ISBN-10, or ISBN-13 of a product listed on Amazon.'),
+    '#description' => t('The ASIN (ISBN-10) or EAN (ISBN-13) of a product listed on Amazon.'),
     '#required' => TRUE,
   );
   $form['submit'] = array(
@@ -117,34 +117,44 @@ function amazon_test_form($form, &$form_state) {
   );
 
   if (isset($form_state['amazon_item'])) {
-    $markup = theme('amazon_item', array('item' => $form_state['amazon_item'], 'style' => 'default'));
-    $markup .= '<pre>' . print_r($form_state['amazon_item'], TRUE) . '</pre>';
-    $form['item_data'] = array(
-      '#type' => 'markup',
-      '#markup' => $markup,
+    $form['item'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Result'),
+      '#collapsible' => FALSE,
+    );
+    $form['item']['display'] = array(
+      '#markup' => theme('amazon_item', array('item' => $form_state['amazon_item'], 'style' => 'details')),
+      '#weight' => 9,
+    );
+    $form['item']['details'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Details'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
       '#weight' => 10,
+    );
+    $form['item']['details']['data'] = array(
+      '#markup' => '<pre><small>' . print_r($form_state['amazon_item'], TRUE) . '</small></pre>',
     );
   }
   return $form;
 }
 
-function amazon_test_form_submit($form, &$form_state) {
-  $asin = $form_state['values']['asin'];
-  $asin = amazon_convert_to_asin($asin); // Normalize to an asin. ISBN-13 OK.
-
+function amazon_test_form_validate($form, &$form_state) {
+  // Normalize input and look up
+  $asin = amazon_convert_to_asin($form_state['values']['asin']);
   $items = amazon_item_lookup_from_web(array($asin));
   if (!empty($items) && is_array($items)) {
-    $item = array_pop($items);
-    amazon_item_delete($item['asin']);
-    amazon_item_insert($item);
-
-    // We could probably be sneaky and put the Amazon data in here directly,
-    // but SimpleXML objects can't be serialized, and setting rebuild = TRUE
-    // causes a serialization operation. Whoops.
-    $form_state['amazon_item'] = $item;
-    $form_state['rebuild'] = TRUE;
+    $form_state['amazon_item'] = array_pop($items);
   }
   else {
-    drupal_set_message(t("Test failed for this ASIN. Please check the !link for messages.", array('!link' => l(t("error log"), 'admin/reports/dblog'))));
+    form_set_error('asin', t("%input is no valid ASIN or EAN. Please check the !link for messages.", array('%input' => $form_state['values']['asin'], '!link' => l(t("error log"), 'admin/reports/dblog'))));
   }
+}
+
+function amazon_test_form_submit($form, &$form_state) {
+  $item = $form_state['amazon_item'];
+  amazon_item_delete($item['asin']);
+  amazon_item_insert($item);
+  $form_state['rebuild'] = TRUE;
 }

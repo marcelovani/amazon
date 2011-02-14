@@ -2,6 +2,7 @@ $Id$
 
 7.x-1.0-beta5
 ===========
+[#1060704] by Pancho: Refactor admin test form: error handling, UX and codestyle
 [#1060694] by Pancho: Fix asin.module's error handling
 [#1053340] by Pancho: Cleanup: for variable_del walk thru array instead of preg_split
 [#1053110] by Pancho: Cleanup: add CVS $Ids where missing
