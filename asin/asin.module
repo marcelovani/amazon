@@ -79,29 +79,6 @@ function _asin_trim_items(&$items) {
 }
 
 /**
- * Get an array of items from Amazon.
- *
- * @param $items
- *   An array of ASIN strings
- * @return
- *   An array of amazon item arrays, keyed by ASIN.
- */
-function _asin_load_items(&$items) {
-  if (is_string($items)) {
-    $items = array($items);
-  }
-  $asins = array();
-  foreach ($items as $delta => &$item) {
-    if (!empty($item)) {
-      $asin = trim($item);
-      $asin = amazon_convert_to_asin($asin);
-      $asins[] = $asin;
-    }
-  }
-  return amazon_item_lookup($asins);
-}
-
-/**
  * Implements of hook_field_is_empty().
  */
 function asin_field_is_empty($item, $field) {
@@ -155,14 +132,15 @@ function asin_field_formatter_info() {
 function asin_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
 
-  foreach ($items as $delta => $item) {
-    $asin = trim($item['asin']);
-    $asins = array();
+  foreach ($items as $delta => $value) {
+    $asin = trim($value['asin']);
     if (!empty($asin)) {
-      $asins = amazon_item_lookup("$asin");
-      // TODO: kill off amazon_inline_item. There's no reason for it to clutter the earth.
-      $theme_function = $display['type'] == 'inline' ? 'amazon_inline_item' : 'amazon_item';
-      $element[$delta] = array('#markup' => theme($theme_function, array('item' => $asins["$asin"], 'style' => $display['type'])));
+      $lookup = amazon_item_lookup($asin);
+      if (!empty($lookup) && $item = $lookup[$asin]) {
+	      // TODO: kill off amazon_inline_item. There's no reason for it to clutter the earth.
+	      $theme_function = $display['type'] == 'inline' ? 'amazon_inline_item' : 'amazon_item';
+	      $element[$delta] = array('#markup' => theme($theme_function, array('item' => $item, 'style' => $display['type'])));
+      }
     }
   }
   return $element;
@@ -226,11 +204,11 @@ function asin_field_widget_element_validate($element, &$form_state) {
   $langcode = $form_state['langcode'];
 
   foreach ($form_state['values'][$field_name][$langcode] as $delta => &$item) {
-    $asin = $item['asin'];
+    $asin = trim(amazon_convert_to_asin($item['asin']));
     if (!empty($asin) && is_numeric($delta)) {
-      $results = _asin_load_items($asin);
+      $results = amazon_item_lookup(array($asin));
       if (empty($results)) {
-        form_set_error("{$field_name}][{$langcode}][{$delta}][asin]", t('No Amazon product with the ASIN "%id" could be located.', array('%id' => $asin)));
+        form_set_error("{$field_name}][{$langcode}][{$delta}][asin", t('No Amazon product with the ASIN "%id" could be located.', array('%id' => $asin)));
       }
       else {
         $item['asin'] = (string)key($results);
