@@ -1,4 +1,3 @@
-$Id$
 
 API
 * Handle update/delete cases cleanly (currently inefficient)

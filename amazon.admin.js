@@ -1,4 +1,3 @@
-// $Id$
 
 jQuery(document).ready(function(){ jQuery("#edit-amazon-associate-setting").bind("change", function() {
   if (this.value == 'custom') {

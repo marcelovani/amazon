@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 /**
  Filter node-linked amazom products by source module

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Migration for the amazonnode and related item links from D5 amazontools.

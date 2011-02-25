@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function amazon_media_install() {
   drupal_install_schema('amazon_media');

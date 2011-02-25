@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 
 function amazon_search_perm() {
