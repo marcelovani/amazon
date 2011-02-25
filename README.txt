@@ -1,4 +1,3 @@
-$Id$
 
 Amazon.module API Documentation
 ===============================

@@ -1,4 +1,3 @@
-$Id$
 
 There is a vast array of theming possibility with Amazon and the Amazon Media
 module.

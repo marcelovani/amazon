@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 class views_handler_field_amazon_title extends views_handler_field {
   function options(&$options) {

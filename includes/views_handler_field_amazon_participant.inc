@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 class views_handler_field_amazon_participant extends views_handler_field_prerender_list {
   function construct() {
