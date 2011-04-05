@@ -1,4 +1,8 @@
 
+7.x-1.0-beta6
+=============
+[#987986] by berdir: Improve views title handling.
+
 7.x-1.0-beta5
 ===========
 [#1014036] by Pancho: First take on token support: Remove non-working code

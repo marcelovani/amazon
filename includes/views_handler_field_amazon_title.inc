@@ -1,9 +1,11 @@
 <?php
 
 class views_handler_field_amazon_title extends views_handler_field {
-  function options(&$options) {
-    parent::options($options);
-    $options['link_format'] = 'amazon';
+  function option_definition() {
+    $options = parent::option_definition();
+    $options['link_format'] = array('default' => 'amazon');
+
+    return $options;
   }
 
   /**
@@ -12,9 +14,10 @@ class views_handler_field_amazon_title extends views_handler_field {
   function init(&$view, &$data) {
     parent::init($view, $data);
     if (!empty($data['link_format']) && $data['link_format'] == 'amazon') {
-      $this->additional_fields[] = 'detailpageurl';
+      $this->additional_fields['detailpageurl'] = 'detailpageurl';
     }
-    $this->additional_fields[] = 'asin';
+    $this->additional_fields['asin'] = 'asin';
+    $this->additional_fields['nid'] = array('table' => 'node', 'field' => 'nid');
   }
 
   /**
@@ -41,22 +44,33 @@ class views_handler_field_amazon_title extends views_handler_field {
   }
 
   function render($values) {
-    $title = check_plain($values->{$this->field_alias});
+    return $this->render_link(check_plain($values->{$this->field_alias}), $values);
+  }
+
+  function render_link($data, $values) {
+    $title = $data;
+
     switch ($this->options['link_format']) {
       case 'plain':
-        return $title;
         break;
       case 'node':
-        return l($title, 'node/' . $values->nid, array('html' => TRUE));
+        $this->options['alter']['make_link'] = TRUE;
+        $this->options['alter']['path'] = "node/$values->{$this->aliases['nid']}";
+        $this->options['alter']['html'] = TRUE;
         break;
       case 'amazon':
-        return l($title, check_url($values->{$this->table_alias . '_detailpageurl'}), array('html' => TRUE));
+        $this->options['alter']['make_link'] = TRUE;
+        $this->options['alter']['path'] = check_url($values->{$this->aliases['detailpageurl']});
+        $this->options['alter']['html'] = TRUE;
         break;
       case 'amazon_store':
+        $this->options['alter']['make_link'] = TRUE;
+        $this->options['alter']['html'] = TRUE;
         $asin = $values->{$this->aliases['asin']};
-        return l($title, 'amazon_store/item/' . $asin, array('html' => TRUE));
+        $this->options['alter']['path'] = 'amazon_store/item/' . $asin;
         break;
-
     }
+
+    return $data;
   }
 }
