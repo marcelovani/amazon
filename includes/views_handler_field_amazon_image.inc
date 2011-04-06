@@ -90,21 +90,25 @@ class views_handler_field_amazon_image extends views_handler_field {
   }
 
   function render($values) {
+    $url = $this->get_value($values, 'url');
+    $detailpageurl = $this->get_value($values, 'detailpageurl');
+    $asin = $this->get_value($values, 'asin');
+
     // We may not have a URL. It's not guaranteed that Amazon will give us one.
-    if (empty($values->{$this->aliases['url']})) {
+    if (empty($url)) {
       return;
     }
     $attributes = array(
-      'height' => $values->{$this->aliases['height']},
-      'width' => $values->{$this->aliases['width']},
+      'height' => $this->get_value($values, 'height'),
+      'width' => $this->get_value($values, 'width'),
     );
 
     // Choose presentation style
     if ($this->options['presentation_format'] == 'markup') {
-      $image = theme('image', array('path' => $values->{$this->aliases['url']}, 'alt' => NULL, 'title' => NULL, 'attributes' => $attributes, 'getsize' => FALSE));
+      $image = theme('image', array('path' => $url, 'alt' => NULL, 'title' => NULL, 'attributes' => $attributes, 'getsize' => FALSE));
     }
     else {
-      $image = $values->{$this->aliases['url']};
+      $image = $url;
     }
 
     switch ($this->options['link_format']) {
@@ -112,16 +116,14 @@ class views_handler_field_amazon_image extends views_handler_field {
         return $image;
         break;
       case 'amazon':
-        if (!empty($values->{$this->aliases['detailpageurl']})) {
-          $urlfield = $values->{$this->aliases['detailpageurl']};
-          return l($image, $urlfield, array('html' => TRUE));
+        if (!empty($detailpageurl)) {
+          return l($image, $detailpageurl, array('html' => TRUE));
         }
         else {
           return $image;
         }
         break;
       case 'amazon_store':
-        $asin = $values->{$this->aliases['asin']};
         return l($image, 'amazon_store/item/' . $asin, array('html' => TRUE));
         break;
     }

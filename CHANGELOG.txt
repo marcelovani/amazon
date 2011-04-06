@@ -2,6 +2,7 @@
 7.x-1.0-beta6
 =============
 [#987986] by dereine: Improve views title handling.
+[#1071902] by rfay: Catch up with Views 3 API changes and fix broken handlers
 
 7.x-1.0-beta5
 ===========

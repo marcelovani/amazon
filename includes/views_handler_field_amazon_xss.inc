@@ -12,7 +12,7 @@
  */
 class views_handler_field_amazon_xss extends views_handler_field {
   function render($values) {
-    $value = $values->{$this->field_alias};
+    $value = $this->get_value($values);
     return filter_xss_admin($value);
   }
 }
