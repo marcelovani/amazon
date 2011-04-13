@@ -1,8 +1,0 @@
-
-name = Amazon Filter
-description = Lets writers use the [amazon] tag to embed Amazon product information in text.
-package = Amazon
-dependencies[] = amazon
-core = 7.x
-php = 5.2
-configure = admin/config/content/formats
