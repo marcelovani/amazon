@@ -3,6 +3,7 @@
 =============
 [#987986] by dereine: Improve views title handling.
 [#1071902] by rfay: Catch up with Views 3 API changes and fix broken handlers
+[#1125640] by rfay: Add the Amazon Examples feature back in
 
 7.x-1.0-beta5
 ===========
