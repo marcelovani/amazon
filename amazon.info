@@ -9,6 +9,7 @@ configure = admin/config/amazon_settings/amazon
 ; views handler
 files[] = includes/views_handler_field_amazon_date.inc
 files[] = includes/views_handler_field_amazon_image.inc
+files[] = includes/views_handler_field_amazon_participant.inc
 files[] = includes/views_handler_field_amazon_title.inc
 files[] = includes/views_handler_field_amazon_xss.inc
 files[] = includes/views_handler_filter_amazon_node_module.inc

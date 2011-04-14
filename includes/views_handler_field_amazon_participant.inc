@@ -44,7 +44,7 @@ class views_handler_field_amazon_participant extends views_handler_field_prerend
 
     $asins = array();
     foreach ($values as $result) {
-      $asin = $this->get_value($values, 'asin');
+      $asin = $this->get_value($result);
       if (!empty($asin)) {
         $asins[] = $asin;
       }
