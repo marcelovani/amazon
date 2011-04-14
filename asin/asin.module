@@ -268,9 +268,11 @@ function asin_autocomplete_validate($element, &$form_state) {
  */
 function asin_field_views_data($field) {
   $data = field_views_field_default_views_data($field);
+
   foreach ($data as $table_name => $table_data) {
     foreach ($table_data as $field_name => $field_data) {
-      if (!in_array($field_name, array('table', 'entity_id', 'revision_id'))) {
+      // Check for fieldapi value fields.
+      if (isset($field_data['filter']['field_name'])) {
         $data[$table_name][$field_name]['relationship'] = array(
           'handler' => 'views_handler_relationship',
           'base' => 'amazon_item',
@@ -282,7 +284,6 @@ function asin_field_views_data($field) {
   }
   return $data;
 }
-
 
 /**
  * Implementation of hook_feeds_node_processor_targets_alter().
