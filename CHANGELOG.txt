@@ -8,6 +8,7 @@
 [#1127886] by Shawn DeArmond: Detailpageurl warning message
 [#1127540] by Shawn DeArmond: Improve autocomplete results
 [#1127644] by Shawn DeArmond: Make devel_generate look for less dups
+[#1079388] by Pancho | zazinteractive: Fixed Mandatory parameters missing in schema definition.
 
 7.x-1.0-beta5
 ===========
