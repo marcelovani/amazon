@@ -26,11 +26,9 @@ class views_handler_field_amazon_image extends views_handler_field {
       $this->additional_fields['height'] = 'height';
       $this->additional_fields['width'] = 'width';
     }
-    if (!empty($data['link_format']) && $data['link_format'] == 'amazon') {
       $this->additional_fields['detailpageurl'] = array(
         'table' => 'amazon_item', 'field' => 'detailpageurl', 'value' => 'amazon_item_detailpageurl'
       );
-    }
     $this->additional_fields['asin'] = 'asin';
     $this->additional_fields['url'] = 'url';
   }
