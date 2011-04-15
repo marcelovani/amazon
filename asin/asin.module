@@ -362,10 +362,14 @@ function _asin_devel_generate($object, $field, $instance, $bundle) {
     $actions = module_invoke_all('action_info');
   }
 
+  // Diversifies the results a little so we don't get so many duplicates.
+  $keywords_picker = array('drupal', 'linux', 'open source', 'php', 'mysql','apache', 
+                           'postgresql', 'amazon aws', 'jquery', 'javascript');
+  $keywords_picker = array_flip($keywords_picker);
   $parameters = array(
     'ResponseGroup' => 'ItemAttributes,EditorialReview',
-    'SearchIndex' => 'Blended',
-    'Keywords' => 'drupal'
+    'SearchIndex' => 'All',
+    'Keywords' => urlencode(array_rand($keywords_picker, 1)),
   );
 
   $asins = array();
