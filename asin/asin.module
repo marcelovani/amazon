@@ -225,7 +225,7 @@ function asin_autocomplete_callback($string = '') {
   // Search Amazon.
   $parameters = array(
     'ResponseGroup' => 'Small',
-    'SearchIndex' => 'Blended',
+    'SearchIndex' => 'All',
     'Keywords' => urlencode($string)
   );
   $results = amazon_http_request('ItemSearch', $parameters);

@@ -6,6 +6,7 @@
 [#1125640] by rfay: Add the Amazon Examples feature back in
 [#1127708] by Shawn DeArmond: Fix devel_generate warning
 [#1127886] by Shawn DeArmond: Detailpageurl warning message
+[#1127540] by Shawn DeArmond: Improve autocomplete results
 
 7.x-1.0-beta5
 ===========
