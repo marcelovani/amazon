@@ -26,9 +26,11 @@ class views_handler_field_amazon_image extends views_handler_field {
       $this->additional_fields['height'] = 'height';
       $this->additional_fields['width'] = 'width';
     }
+    if (!empty($data['link_format']) && $data['link_format'] == 'amazon') {
       $this->additional_fields['detailpageurl'] = array(
         'table' => 'amazon_item', 'field' => 'detailpageurl', 'value' => 'amazon_item_detailpageurl'
       );
+    }
     $this->additional_fields['asin'] = 'asin';
     $this->additional_fields['url'] = 'url';
   }
@@ -89,7 +91,6 @@ class views_handler_field_amazon_image extends views_handler_field {
 
   function render($values) {
     $url = $this->get_value($values, 'url');
-    $detailpageurl = $this->get_value($values, 'detailpageurl');
     $asin = $this->get_value($values, 'asin');
 
     // We may not have a URL. It's not guaranteed that Amazon will give us one.
@@ -114,7 +115,7 @@ class views_handler_field_amazon_image extends views_handler_field {
         return $image;
         break;
       case 'amazon':
-        if (!empty($detailpageurl)) {
+        if ($detailpageurl = $this->get_value($values, 'detailpageurl')) {
           return l($image, $detailpageurl, array('html' => TRUE));
         }
         else {
