@@ -453,9 +453,10 @@ function _amazon_item_batch_lookup_from_web_errors($errors) {
     // Find and extract the failing ASIN, so we can mark it in the db.
     if (preg_match('/^([^ ]+) is not a valid value for ItemId/', $message, $matches)) {
       $error_asin = $matches[1];
+      $update_fields = array('invalid_asin' => TRUE);
       try {
         $result = db_update('amazon_item')
-        ->fields(array('invalid_asin' => TRUE))
+        ->fields($update_fields)
         ->condition('asin', $error_asin)
         ->execute();
       }
@@ -667,7 +668,7 @@ function amazon_item_insert($item) {
     ->execute();
   }
   catch (Exception $e) {
-    amazon_db_error_watchdog("Failed to insert item into amazon_item table", $e);
+    amazon_db_error_watchdog("Failed to insert item into amazon_item table", $e, $db_item);
   }
 
   // Handle the various credits for a product, including Artist, Author,
@@ -684,7 +685,7 @@ function amazon_item_insert($item) {
             ->execute();
           }
           catch (Exception $e) {
-            amazon_db_error_watchdog("Failed to insert item into amazon_item_participant table", $e);
+            amazon_db_error_watchdog("Failed to insert item into amazon_item_participant table", $e, $item_participant);
           }
         }
       }
@@ -702,7 +703,7 @@ function amazon_item_insert($item) {
           ->execute();
         }
         catch (Exception $e) {
-          amazon_db_error_watchdog("Failed to insert item into amazon_item_image table", $e);
+          amazon_db_error_watchdog("Failed to insert item into amazon_item_image table", $e, $image);
         }
       }
     }
@@ -719,7 +720,7 @@ function amazon_item_insert($item) {
           ->execute();
         }
         catch (Exception $e) {
-          amazon_db_error_watchdog("Failed to insert item into amazon_item_editorial_review table", $e);
+          amazon_db_error_watchdog("Failed to insert item into amazon_item_editorial_review table", $e, $review);
         }
       }
     }
@@ -802,16 +803,17 @@ function amazon_ean_to_asin($ean) {
 function amazon_item_node_save($asin, $node, $module = 'amazon', $weight = 0) {
   amazon_item_node_delete($asin, $nid, $module);
   try {
-    $id = db_insert('amazon_item_node')
-    ->fields(array(
+    $nodefields = array(
           'asin' => $asin,
           'nid' => $nid,
           'module' => $module,
           'weight' => $weight,
-    ))
+    );
+    $id = db_insert('amazon_item_node')
+    ->fields($nodefields)
     ->execute();
   } catch(Exception $e) {
-    amazon_db_error_watchdog('Failed to save amazon_item_node.', $e);
+    amazon_db_error_watchdog('Failed to save amazon_item_node.', $e, $nodefields);
   }
 }
 
@@ -967,9 +969,11 @@ function amazon_init() {
  *   The message should not be localized, as it will be passed to watchdog().
  * @param $e
  *   The exception which was caught
+ * @param $extra
+ *   Array: The fields being updated, or other information.
  *
  */
-function amazon_db_error_watchdog($msg, $e) {
-  watchdog('amazon', "$msg: Message = %message, query= %query",
-    array('%message' => $e->getMessage(), '%query' => $e->query_string));
+function amazon_db_error_watchdog($msg, $e, $extra) {
+  watchdog('amazon', "$msg: Message = %message, query= %query fields=<pre>%fields</pre>",
+    array('%message' => $e->getMessage(), '%query' => $e->query_string, '%fields' => print_r($extra, TRUE)));
 }
