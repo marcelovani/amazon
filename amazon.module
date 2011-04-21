@@ -544,16 +544,17 @@ function amazon_item_clean_xml($xml) {
   if (empty($xml->ItemAttributes->EAN)) {
     $item['ean'] = (string) $xml->ItemAttributes->EAN;
   }
-  $item['salesrank'] = (string) $xml->SalesRank;
+  $item['salesrank'] = intval($xml->SalesRank);
   $item['detailpageurl'] = (string) $xml->DetailPageURL;
 
   if (!empty($xml->ItemAttributes->ListPrice)) {
-    $item['listpriceamount'] = (string) $xml->ItemAttributes->ListPrice->Amount;
+    $item['listpriceamount'] = intval($xml->ItemAttributes->ListPrice->Amount);
     $item['listpricecurrencycode'] = (string) $xml->ItemAttributes->ListPrice->CurrencyCode;
     $item['listpriceformattedprice'] = (string) $xml->ItemAttributes->ListPrice->FormattedPrice;
   }
   if (!empty($xml->OfferSummary->LowestNewPrice)) {
-    $item['lowestpriceamount'] = (string) $xml->OfferSummary->LowestNewPrice->Amount;
+    // Lowest may be "too low to display" so we need to make it an integer
+    $item['lowestpriceamount'] = intval($xml->OfferSummary->LowestNewPrice->Amount);
     $item['lowestpricecurrencycode'] = (string) $xml->OfferSummary->LowestNewPrice->CurrencyCode;
     $item['lowestpriceformattedprice'] = (string) $xml->OfferSummary->LowestNewPrice->FormattedPrice;
   }
@@ -570,7 +571,7 @@ function amazon_item_clean_xml($xml) {
     );
     $merchant = (string)$xml->Offers->Offer[0]->Merchant->MerchantId;
     if (in_array($merchant, $amazon_merchant_ids)) {
-      $item['amazonpriceamount'] = (string)$xml->Offers->Offer[0]->OfferListing->Price->Amount;
+      $item['amazonpriceamount'] = intval($xml->Offers->Offer[0]->OfferListing->Price->Amount);
       $item['amazonpricecurrencycode'] = (string)$xml->Offers->Offer[0]->OfferListing->Price->CurrencyCode;
       $item['amazonpriceformattedprice'] = (string)$xml->Offers->Offer[0]->OfferListing->Price->FormattedPrice;
     }
@@ -605,8 +606,8 @@ function amazon_item_clean_xml($xml) {
       if (in_array($key, $supported_sizes)) {
         $item['imagesets'][strtolower($key)] = array(
           'url' => (string) $data->URL,
-          'height' => (string) $data->Height,
-          'width' => (string) $data->Width,
+          'height' => intval($data->Height),
+          'width' => intval($data->Width),
         );
       }
     }
