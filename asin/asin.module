@@ -342,7 +342,7 @@ function asin_feeds_set_target($node, $target, $value) {
  * Implements hook_devel_generate().
  * Callback for populating ASIN fields with devel_generate module.
  *
- * Picks a random Drupal-related book.
+ * Picks a random computer-related book.
  */
 function asin_devel_generate($object, $field, $instance, $bundle) {
   if (field_behaviors_widget('multiple values', $instance) == FIELD_BEHAVIOR_CUSTOM) {
@@ -355,31 +355,41 @@ function asin_devel_generate($object, $field, $instance, $bundle) {
 
 /**
  * Utility function that actually provides the values for asin_devel_generate().
+ *
+ * You can change the SearchIndex and Keywords used for the search by changing
+ * the variables amazon_devel_generate_search_index and
+ * amazon_devel_generate_keywords_array.
  */
 function _asin_devel_generate($object, $field, $instance, $bundle) {
-  $asins = &drupal_static(__FUNCTION__);
-  if (!isset($asins)) {
-    $actions = module_invoke_all('action_info');
-  }
-
-  // Diversifies the results a little so we don't get so many duplicates.
-  $keywords_picker = array('drupal', 'linux', 'open source', 'php', 'mysql','apache', 
-                           'postgresql', 'amazon aws', 'jquery', 'javascript');
+  $search_index = variable_get('amazon_devel_generate_search_index', 'Books');
+  $keywords_picker = variable_get('amazon_devel_generate_keywords_array', array('computers'));
   $keywords_picker = array_flip($keywords_picker);
-  $parameters = array(
-    'ResponseGroup' => 'ItemAttributes,EditorialReview',
-    'SearchIndex' => 'All',
-    'Keywords' => urlencode(array_rand($keywords_picker, 1)),
-  );
 
-  $asins = array();
-  $results = amazon_http_request('ItemSearch', $parameters);
-  foreach ($results->Items->Item as $xml) {
-    $asin = amazon_item_clean_xml($xml);
-    $asins[$asin['asin']] = $asin;
+  $asins = variable_get('amazon_devel_generate_asins', array());
+  $amazon_item_page = variable_get('amazon_devel_generate_item_page', 1);
+
+  if (empty($asins)) {
+    $parameters = array(
+      'ResponseGroup' => 'ItemAttributes,EditorialReview,Images',
+      'SearchIndex' => $search_index,
+      'Keywords' => urlencode(array_rand($keywords_picker, 1)),
+      'ItemPage' => $amazon_item_page % 400,
+    );
+    $amazon_item_page++;
+
+    $results = amazon_http_request('ItemSearch', $parameters);
+    foreach ($results->Items->Item as $xml) {
+      $item = amazon_item_clean_xml($xml);
+      amazon_item_insert($item);
+      $asins[] = $item['asin'];
+    }
   }
 
   $field = array();
-  $field['asin'] = array_rand($asins, 1);
+  //$field['asin'] = array_shift($asins);
+  $asin = array_shift($asins);
+  $field['asin'] = $asin;
+  variable_set('amazon_devel_generate_asins', $asins);
+  variable_set('amazon_devel_generate_item_page', $amazon_item_page);
   return $field;
 }
