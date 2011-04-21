@@ -709,7 +709,7 @@ function amazon_item_insert($item) {
   }
 
   // Save the editorial reviews if they exist.
-  if (in_array('editorial_reviews', variable_get('amazon_core_data', array('creators', 'images')))) {
+  if (in_array('editorial_reviews', variable_get('amazon_core_data', array('creators', 'images', 'editorial_reviews')))) {
     if (isset($item['editorialreviews'])) {
       foreach ($item['editorialreviews'] as $data) {
         $review = array('asin' => $item['asin'], 'source' => $data['source'], 'content' => $data['content']);
