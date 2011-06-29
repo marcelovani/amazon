@@ -287,25 +287,18 @@ function asin_field_views_data($field) {
 
 /**
  * Implementation of hook_feeds_node_processor_targets_alter().
- *
- * @see FeedsNodeProcessor::getMappingTargets().
  */
-function asin_feeds_node_processor_targets_alter(&$targets, $content_type) {
-  $info = content_types($content_type);
-  $fields = array();
-  if (isset($info['fields']) && count($info['fields'])) {
-    foreach ($info['fields'] as $field_name => $field) {
-      if ($field['type'] == 'asin') {
-        $fields[$field_name] = isset($field['widget']['label']) ? $field['widget']['label'] : $field_name;
-      }
+function asin_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
+  foreach (field_info_instances($entity_type, $bundle_name) as $name => $instance) {
+    $info = field_info_field($name);
+    if ($info['type'] == 'asin') {
+      $targets[$name] = array(
+        'name' => $bundle_name . ':' . $name,
+        'callback' => 'asin_feeds_set_target',
+        'description' => t('The %name field of the %bundle', array('%name' => $name, '%bundle' => $bundle_name)),
+        'real_target' => $name,
+      );
     }
-  }
-  foreach ($fields as $k => $name) {
-    $targets[$k] = array(
-      'name' => $name,
-      'callback' => 'asin_feeds_set_target',
-      'description' => t('The CCK !name field of the node.', array('!name' => $name)),
-    );
   }
 }
 
@@ -315,26 +308,31 @@ function asin_feeds_node_processor_targets_alter(&$targets, $content_type) {
  * When the callback is invoked, $target contains the name of the field the
  * user has decided to map to and $value contains the value of the feed item
  * element the user has picked as a source.
+ *
+ * @see my_module_set_target() in feeds.api.php
  */
-function asin_feeds_set_target($node, $target, $value) {
+function asin_feeds_set_target($source, $entity, $target, $value) {
+  if (!isset($value)) {
+    return;
+  }
 
-  $field = isset($node->$target) ? $node->$target : array();
+  // Handle non-multiple value fields.
+  if (!is_array($value)) {
+    $value = array($value);
+  }
 
-  // Handle multiple value fields.
-  if (is_array($value)) {
-    $i = 0;
-    foreach ($value as $v) {
-      if (!is_array($v) && !is_object($v)) {
-        $field[$i]['asin'] = $v;
-      }
-      $i++;
+  // Iterate over all values.
+  $i = 0;
+  $info = field_info_field($target);
+  $field_name = $target;
+  foreach ($value as $v) {
+    $field[LANGUAGE_NONE][$i]['asin'] = $v;
+    if ($info['cardinality'] == 1) {
+      break;
     }
+    $i++;
   }
-  else {
-    $field[0]['asin'] = $value;
-  }
-
-  $node->$target = $field;
+  $entity->{$field_name} = $field;
 }
 
 

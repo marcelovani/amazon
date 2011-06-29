@@ -1,3 +1,6 @@
+7.x-1.0-beta7
+=============
+[#848990] by rfay: D7 support for feeds.
 
 7.x-1.0-beta6
 =============
