@@ -36,32 +36,51 @@ class views_handler_field_amazon_participant extends views_handler_field_prerend
 
   function query() {
     $this->add_additional_fields();
+    $this->field_alias = $this->aliases['asin'];
   }
 
   function pre_render($values) {
-    $this->field_alias = $this->aliases['asin'];
     $this->items = array();
 
     $asins = array();
     foreach ($values as $result) {
-      $asin = $this->get_value($result);
+      $asin = $this->get_value($result, NULL, TRUE);
       if (!empty($asin)) {
         $asins[] = $asin;
       }
     }
 
-    $query = db_select('amazon_item_participant', 'aip')
-      ->condition('asin', $asins, 'IN');
+    if($asins) {
+      $query = db_select('amazon_item_participant', 'aip')
+        ->condition('asin', $asins, 'IN');
 
-    if ($this->options['participant_type'] != '**ALL**') {
-      $query = $query->condition('type', $this->options['participant_type']);
+      if ($this->options['participant_type'] != '**ALL**') {
+        $query = $query->condition('type', $this->options['participant_type']);
+      }
+      $query->fields('aip', array('participant', 'asin', 'type'));
+
+      $results = $query->execute();
+
+      while ($record = $results->fetchAssoc()) {
+        $this->items[$record['asin']][] = array(
+          'participant' => check_plain($record['participant']),
+          'type' => check_plain($record['type'])
+        );
+      }
     }
-    $query->fields('aip', array('participant', 'asin'));
+  }
 
-    $results = $query->execute();
+  function render_item($count, $item) {
+    return $item['participant'];
+  }
 
-    while ($record = $results->fetchAssoc()) {
-      $this->items[$record['asin']][] = check_plain($record['participant']);
-    }
+  function document_self_tokens(&$tokens) {
+    $tokens['[' . $this->options['id'] . '-name' . ']'] = t('The name of the participant.');
+    $tokens['[' . $this->options['id'] . '-type' . ']'] = t('The participant type.');
+  }
+
+  function add_self_tokens(&$tokens, $item) {
+    $tokens['[' . $this->options['id'] . '-name' . ']'] = $item['participant'];
+    $tokens['[' . $this->options['id'] . '-type' . ']'] = $item['type'];
   }
 }
