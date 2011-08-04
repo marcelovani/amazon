@@ -529,11 +529,11 @@ function asin_content_generate($node, $field) {
  *
  * You can change the SearchIndex and Keywords used for the search by changing
  * the variables amazon_devel_generate_search_index and
- * amazon_devel_generate_keywords_array.
+ * asin_devel_generate_keywords.
  */
 function _asin_devel_generate($node, $field) {
-  $search_index = variable_get('amazon_devel_generate_search_index', 'Books');
-  $keywords_picker = variable_get('amazon_devel_generate_keywords_array', array('computers'));
+  $search_index = variable_get('asin_devel_generate_search_index', 'All');
+  $keywords_picker = explode(',', variable_get('asin_devel_generate_keywords', 'computer'));
   $keywords_picker = array_flip($keywords_picker);
 
   $asins = variable_get('amazon_devel_generate_asins', array());
@@ -544,7 +544,7 @@ function _asin_devel_generate($node, $field) {
       'ResponseGroup' => 'ItemAttributes,EditorialReview,Images',
       'SearchIndex' => $search_index,
       'Keywords' => urlencode(array_rand($keywords_picker, 1)),
-      'ItemPage' => $amazon_item_page % 400,
+      'ItemPage' => $amazon_item_page % 10,
     );
     $amazon_item_page++;
 
@@ -562,4 +562,35 @@ function _asin_devel_generate($node, $field) {
   variable_set('amazon_devel_generate_asins', $asins);
   variable_set('amazon_devel_generate_item_page', $amazon_item_page);
   return $field;
+}
+
+/**
+ * Allow selection of the SearchIndex and Keywords to be used
+ */
+function asin_form_devel_generate_content_form_alter(&$form, $form_state) {
+  $form['asin_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Amazon ASIN Field Configuration'),
+    '#expanded' => FALSE,
+  );
+
+  $form['asin_options']['asin_devel_generate_search_index'] = array(
+    '#type' => 'select',
+    '#title' => t('Amazon SearchIndex'),
+    '#options' => drupal_map_assoc(array('All', 'Books', 'DVD', 'Electronics', 'Kitchen', 'Software')),
+    '#default_value' => variable_get('asin_devel_generate_search_index', 'All'),
+  );
+  $form['asin_options']['asin_devel_generate_keywords'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Amazon.com search keywords for ASIN fields'),
+    '#description' => t('Comma-separated list of keywords to be used in search to populate Amazon module asin fields'),
+    '#default_value' => variable_get('asin_devel_generate_keywords', 'computers'),
+  );
+  $form['submit']['#weight'] = 99;
+  array_unshift($form['#submit'], 'asin_devel_generate_set_values');
+}
+
+function asin_devel_generate_set_values($form, &$form_state) {
+  variable_set('asin_devel_generate_keywords', $form_state['values']['asin_devel_generate_keywords']);
+  variable_set('asin_devel_generate_search_index', $form_state['values']['asin_devel_generate_search_index']);
 }
