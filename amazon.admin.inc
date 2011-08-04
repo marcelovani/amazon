@@ -32,7 +32,6 @@ function amazon_settings_form($form, &$form_state) {
     '#options' => array(
       'association' => t('Use the Drupal Association\'s associate ID'),
       'custom' => t('Use your own associate ID'),
-      'none' => t('Do not use any associate ID')
     ),
     '#description' => t('Outgoing links to Amazon.com can include an associate ID code. When shoppers purchase Amazon products via one of those links, the associate ID is used to determine who should receive a referral bonus from Amazon.com.'),
   );
