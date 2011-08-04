@@ -61,7 +61,7 @@ function amazon_schema() {
       'brand' => array('type' => 'varchar', 'length' => 64),
       'publisher' => array('type' => 'varchar', 'length' => 64),
       'manufacturer' => array('type' => 'varchar', 'length' => 64),
-      'mpn' => array('type' => 'varchar', 'length' => 128),
+      'mpn' => array('type' => 'varchar', 'length' => 255),
       'studio' => array('type' => 'varchar', 'length' => 64),
       'label' => array('type' => 'varchar', 'length' => 64),
       'binding' => array('type' => 'varchar', 'length' => 64),
@@ -341,5 +341,15 @@ function amazon_update_6015() {
   db_add_field($ret, 'amazon_item', 'customerreviews_iframe', array('type' => 'varchar', 'length' => 255));
   db_drop_table($ret, 'amazon_item_customer_review');
   $ret[] = update_sql('UPDATE {amazon_item} SET timestamp = 0;');
+  return $ret;
+}
+
+/**
+ * Increase the length of the mpn field.
+ */
+function amazon_update_6016() {
+  $ret = array();
+  db_change_field($ret, 'amazon_item', 'mpn', 'mpn',
+    array('type' => 'varchar', 'length' => 255));
   return $ret;
 }
