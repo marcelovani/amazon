@@ -72,13 +72,6 @@ function amazon_media_theme_registry_alter(&$theme_registry) {
  * @param $variables
  */
 function amazon_media_preprocess_amazon_item(&$variables) {
-  if (!empty($variables['theatricalreleasedate'])) {
-    $date = explode('-', $variables['theatricalreleasedate']);
-    $variables['theatricalreleaseyear'] = $date[0];
-  }
-  else {
-    $variables['theatricalreleaseyear'] = '';
-  }
 
   if (!empty($variables['publicationdate'])) {
     $date = explode('-', $variables['publicationdate']);
@@ -92,7 +85,6 @@ function amazon_media_preprocess_amazon_item(&$variables) {
     'audiencerating' => t('NR - Not Rated'),
     'publicationyear' => '',
     'runningtime' => '',
-    'theatricalreleaseyear' => '',
   );
 }
 
@@ -226,8 +218,7 @@ function theme_amazon_item__dvd($item, $style = 'default') {
     default:
       $output .= '<div class="' . _amazon_item_classes($type) . '">';
       $output .= theme('image', array('path' => $item['imagesets']['smallimage']['url'], 'alt' => t('Cover image'), 'title' => check_markup($item['title']), 'attributes' => array(), 'getsize' => FALSE));
-      $date = preg_split('/-/', $item['theatricalreleasedate']);
-      $output .= '<h3>' . l(check_markup($item['title']), $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow'))) . ' (' . check_plain($date[0]) . ')</h3>';
+      $output .= '<h3>' . l(check_markup($item['title']), $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow'))) . '</h3>';
       $output .= '<div><strong>' . t('Director') . ':</strong> ' . implode(', ', $item['director']) . '</div>';
       $output .= '<div><strong>' . t('Rating') . ':</strong> ' . $item['audiencerating'] . '</div>';
       $output .= '<div><strong>' . t('Running time') . ':</strong> ' . $item['runningtime'] . ' ' . t('minutes') . '</div>';
@@ -245,10 +236,9 @@ function theme_amazon_item__dvd($item, $style = 'default') {
  */
 function theme_amazon_inline_item__dvd($item) {
   $type = $item['type'];
-  $date = preg_split('/-/', $item['theatricalreleasedate']);
   $output = '';
   $output .= '<span class="' . _amazon_item_classes($type) . ' amazon-item-inline">';
-  $output .= l($item['title'] . ' (' . $date[0] . ')', $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow')));
+  $output .= l($item['title'], $item['detailpageurl'], array('attributes' => array('rel' => 'nofollow')));
   $output .= '</span>';
   return $output;
 }
