@@ -8,7 +8,7 @@
  * save configuration and setup.
  */
 
-define('AMAZON_ECS_SCHEMA', '2010-09-01');
+define('AMAZON_ECS_SCHEMA', '2011-08-01');
 define('AMAZON_PARTICIPANT_TYPES', 'Author,Artist,Actor,Director,Creator');
 
 // Other common sizes include SwatchImage, TinyImage, and ThumbnailImage.
@@ -267,7 +267,7 @@ function amazon_http_request($operation, $parameters = array(), $locale = NULL) 
     watchdog('amazon', "HTTP code %http_code accessing Amazon's AWS service: %code, %message", array('%http_code' => $results->code, '%code' => (string)$xml->Error->Code, '%message' => (string)$xml->Error->Message));
     return FALSE;
   }
-  watchdog('amazon', "Error accessing Amazon AWS web service. HTTP result code=%code, error=%error", array('%code' => $results->code, '%error' => $results->error));
+  watchdog('amazon', "Error accessing Amazon AWS web service with query '%url'. HTTP result code=%code, error=%error", array('%code' => $results->code, '%error' => $results->error, '%url' => $url));
   return FALSE;
 }
 
@@ -761,7 +761,14 @@ function _amazon_default_locales() {
     'url'     => 'http://ecs.amazonaws.ca/onca/xml',
     'name'    => t('Canada'),
   );
-
+  $locales['CN'] = array(
+    'url' => 'http://webservices.amazon.cn/onca/xml',
+    'name' => t('China'),
+  );
+  $locales['IT'] = array(
+    'url' => 'http://webservices.amazon.it/onca/xml',
+    'name' => t('Italy'),
+  );
   return $locales;
 }
 
