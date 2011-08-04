@@ -70,6 +70,14 @@ function amazon_settings_form($form, &$form_state) {
 }
 
 /**
+ * Validate the keys and trim whitespace.
+ */
+function amazon_settings_form_validate($form, &$form_state) {
+  $form_state['values']['amazon_aws_access_key'] = trim($form_state['values']['amazon_aws_access_key']);
+  $form_state['values']['amazon_aws_secret_access_key'] = trim($form_state['values']['amazon_aws_secret_access_key']);
+}
+
+/**
  * Form to determine how long things get cached.
  */
 function amazon_storage_settings_form($form, &$form_state) {
