@@ -22,15 +22,11 @@ class views_handler_field_amazon_image extends views_handler_field {
    */
   function init(&$view, &$data) {
     parent::init($view, $data);
-    if (!empty($data['image_size'])) {
-      $this->additional_fields['height'] = 'height';
-      $this->additional_fields['width'] = 'width';
-    }
-    if (!empty($data['link_format']) && $data['link_format'] == 'amazon') {
-      $this->additional_fields['detailpageurl'] = array(
-        'table' => 'amazon_item', 'field' => 'detailpageurl', 'value' => 'amazon_item_detailpageurl'
-      );
-    }
+    $this->additional_fields['height'] = 'height';
+    $this->additional_fields['width'] = 'width';
+    $this->additional_fields['detailpageurl'] = array(
+      'table' => 'amazon_item', 'field' => 'detailpageurl', 'value' => 'amazon_item_detailpageurl'
+    );
     $this->additional_fields['asin'] = 'asin';
     $this->additional_fields['url'] = 'url';
   }
@@ -63,7 +59,7 @@ class views_handler_field_amazon_image extends views_handler_field {
         'mediumimage' => t("Medium"),
         'largeimage' => t("Large"),
       ),
-      '#default_value' => !empty($this->options['image_size']) ? $this->options['image_size'] : 'MedumImage',
+      '#default_value' => $this->options['image_size'],
     );
 
     $form['link_format'] = array(
@@ -73,7 +69,7 @@ class views_handler_field_amazon_image extends views_handler_field {
         'plain' => t('No link'),
         'amazon' => t("A link to the product's Amazon page"),
       ),
-      '#default_value' => !empty($this->options['link_format']) ? $this->options['link_format'] : 'plain',
+      '#default_value' => $this->options['link_format'],
     );
     if (module_exists('amazon_store')) {
       $form['link_format']['#options']['amazon_store'] = t("A link to the product's Amazon Store page (Amazon Store Module)");
@@ -85,7 +81,7 @@ class views_handler_field_amazon_image extends views_handler_field {
         'markup' => t('HTML img markup'),
         'plain_url' => t('Plain URL to image'),
       ),
-      '#default_value' => !empty($this->options['presentation_format']) ? $this->options['presentation_format'] : 'markup',
+      '#default_value' => $this->options['presentation_format'],
     );
   }
 

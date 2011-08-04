@@ -13,9 +13,7 @@ class views_handler_field_amazon_title extends views_handler_field {
    */
   function init(&$view, &$data) {
     parent::init($view, $data);
-    if (!empty($data['link_format']) && $data['link_format'] == 'amazon') {
-      $this->additional_fields['detailpageurl'] = 'detailpageurl';
-    }
+    $this->additional_fields['detailpageurl'] = 'detailpageurl';
     $this->additional_fields['asin'] = 'asin';
   }
 
@@ -31,7 +29,7 @@ class views_handler_field_amazon_title extends views_handler_field {
         'plain' => t('No link'),
         'amazon' => t("A link to the product's Amazon page"),
       ),
-      '#default_value' => !empty($this->options['link_format']) ? $this->options['link_format'] : 'plain',
+      '#default_value' => $this->options['link_format'],
     );
     if (module_exists('amazon_store')) {
       $form['link_format']['#options']['amazon_store'] = t("A link to the product's Amazon Store page (Amazon Store Module)");
