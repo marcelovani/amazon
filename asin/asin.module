@@ -236,7 +236,7 @@ function asin_autocomplete_callback($string = '') {
   $results = amazon_http_request('ItemSearch', $parameters);
   // Process the results.
   foreach($results->Items->Item as $xml) {
-    $items[(string) $xml->ASIN] = (string) $xml->ItemAttributes->Title;
+    $items[(string) $xml->ASIN] = (string) $xml->ItemAttributes->Title . ' (' . $xml->ItemAttributes->ProductGroup . ')';
   }
   // Create our response.
   foreach ($items as $asin => $title) {
