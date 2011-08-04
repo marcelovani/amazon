@@ -34,9 +34,12 @@ function amazon_uninstall() {
  * implementation of hook_requirements to make sure we let them know about
  * the requirement for amazon_aws_secret_access_key
  * @param $phase
- * @return unknown_type
+ * @return A $requirement[] array, or NULL if there are no issues.
  */
 function amazon_requirements($phase) {
+  if ($phase != 'runtime') {
+    return;
+  }
   $secret_access_key = variable_get('amazon_aws_secret_access_key', "");
   $api_key = variable_get('amazon_aws_access_key', "");
   $requirement = array();
