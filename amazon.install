@@ -62,7 +62,7 @@ function amazon_schema() {
       'brand' => array('type' => 'varchar', 'length' => 64),
       'publisher' => array('type' => 'varchar', 'length' => 64),
       'manufacturer' => array('type' => 'varchar', 'length' => 64),
-      'mpn' => array('type' => 'varchar', 'length' => 128),
+      'mpn' => array('type' => 'varchar', 'length' => 255),
       'studio' => array('type' => 'varchar', 'length' => 64),
       'label' => array('type' => 'varchar', 'length' => 64),
       'binding' => array('type' => 'varchar', 'length' => 64),
@@ -169,4 +169,12 @@ function amazon_update_7102() {
   ->execute();
 
   return(t("Updated support for customer reviews"));
+}
+
+/**
+ * Increase the length of the mpn field.
+ */
+function amazon_update_7103() {
+  db_change_field('amazon_item', 'mpn', 'mpn',
+    array('type' => 'varchar', 'length' => 255));
 }
