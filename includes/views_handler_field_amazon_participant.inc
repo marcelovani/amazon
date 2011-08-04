@@ -6,12 +6,10 @@ class views_handler_field_amazon_participant extends views_handler_field_prerend
     $this->additional_fields['asin'] = array('table' => 'amazon_item', 'field' => 'asin');
   }
 
-  /**
-   * Provide meaningful defaults
-   */
-  function options(&$options) {
-    parent::options($options);
-    $options['participant_type'] = '**ALL**';
+  function option_definition() {
+    $options = parent::option_definition();
+    $options['participant_type'] = array('default' => '**ALL**');
+    return $options;
   }
 
   /**
