@@ -126,8 +126,8 @@ function amazon_settings_form($form_state) {
  */
 function amazon_settings_form_validate($form, &$form_state) {
 
-  $form_state['values']['amazon_aws_access_key'] = trim($form_state['values']['amazon_a
-  $form_state['values']['amazon_aws_secret_access_key'] = trim($form_state['values']['a
+  $form_state['values']['amazon_aws_access_key'] = trim($form_state['values']['amazon_aws_access_key']);
+  $form_state['values']['amazon_aws_secret_access_key'] = trim($form_state['values']['amazon_aws_secret_access_key']);
 
   if ($file = file_save_upload('amazon_default_image')) {
     $orig_picture = variable_get('amazon_default_image', '');
