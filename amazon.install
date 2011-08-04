@@ -33,11 +33,14 @@ function amazon_uninstall() {
  * implementation of hook_requirements to make sure we let them know about
  * the requirement for amazon_aws_secret_access_key
  * @param $phase
- * @return unknown_type
+ * @return A $requirement[] array, or NULL if there are no issues.
  */
 function amazon_requirements($phase) {
-  $secret_access_key=variable_get('amazon_aws_secret_access_key',"");
-  $api_key = variable_get('amazon_aws_access_key',"");
+  if ($phase != 'runtime') {
+    return;
+  }
+  $secret_access_key = variable_get('amazon_aws_secret_access_key', "");
+  $api_key = variable_get('amazon_aws_access_key', "");
   $requirement = array();
   if (empty($secret_access_key) || empty($api_key)) {
     drupal_set_message(t("The Amazon API must be configured with an Access Key ID and an Amazon AWS Secret Access Key to function. Go to !settings.",array("!settings"=>l(t("Amazon API Setttings"),'admin/settings/amazon'))));
