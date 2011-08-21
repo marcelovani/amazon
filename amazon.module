@@ -420,9 +420,8 @@ function _amazon_item_batch_lookup_from_web($item_ids = array()) {
       'ResponseGroup' => 'Large',
     );
     $results = amazon_http_request('ItemLookup', $params);
-    $errors = $results->Items->Request->Errors;
-    if (!empty($errors)) {
-    	_amazon_item_batch_lookup_from_web_errors($errors);
+    if (!empty($results->Items->Request->Errors)) {
+    	_amazon_item_batch_lookup_from_web_errors($results->Items->Request->Errors);
     }
     $items = array();
     if (!empty($results->Items->Item)) {
