@@ -43,11 +43,11 @@ function amazon_search_search_execute($keys = NULL, $conditions = NULL) {
   $items = amazon_search_simple_search($keys);
   foreach ($items as $item) {
     $products[] = array(
-            'title' => filter_xss($item['title']),
+            'title' => '',
             'link' => check_url($item['detailpageurl']),
             'type' => check_plain($item['productgroup']),
-            'user' => isset($item['participants']) ? implode(', ', $item['participants']) : '',
-            'snippet' => isset($item['editorialreviews']) ? filter_xss($item['editorialreviews'][0]['content']) : '',
+            'snippet' => theme('amazon_item', array('item' => $item, 'style' => 'details')),
+            'item' => $item,
     );
   }
   return $products;
@@ -65,8 +65,8 @@ function amazon_search_search_execute($keys = NULL, $conditions = NULL) {
  */
 function amazon_search_simple_search($keywords = '', $parameters = array()) {
   $parameters += array(
-    'ResponseGroup' => 'ItemAttributes,EditorialReview',
-    'SearchIndex' => 'Blended',
+    'ResponseGroup' => 'Large',
+    'SearchIndex' => 'All',
   );
   $parameters['Keywords'] = urlencode($keywords);
   drupal_alter('amazon_search_parameters', $parameters);
