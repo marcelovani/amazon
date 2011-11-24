@@ -594,3 +594,130 @@ function asin_devel_generate_set_values($form, &$form_state) {
   variable_set('asin_devel_generate_keywords', $form_state['values']['asin_devel_generate_keywords']);
   variable_set('asin_devel_generate_search_index', $form_state['values']['asin_devel_generate_search_index']);
 }
+
+/**
+ * Implementation of hook_token_list()
+ */
+function asin_token_list($type = 'all') {
+  if ($type == 'field' || $type == 'all') {
+    $tokens = array();
+    $tokens['asin']['asin'] = t("Product ID");
+    $tokens['asin']['title'] = t("Product title");
+    $tokens['asin']['title-dec'] = t("Product title (HTML entities like '&amp;mp;' are decoded. Best for use in node titles.)");
+    //isbn and ean removed, because they're not available in the database. can be readded later if those fields are made available
+    //$tokens['asin']['isbn'] = t("The 10-digit ISBN (INternational Standard Book Number)");
+    //$tokens['asin']['ean'] = t("The EAN or 13-digit ISBN");
+    $tokens['asin']['detailpageurl'] = t("The detail page URL for the item");
+    $tokens['asin']['salesrank'] = t("The product's sales rank");
+    $tokens['asin']['brand'] = t("The product's brand");
+    $tokens['asin']['brand-dec'] = t("The product's brand (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['publisher'] = t("The product's publisher");
+    $tokens['asin']['publisher-dec'] = t("The product's publisher (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['manufacturer'] = t("The product's manufacturer");
+    $tokens['asin']['manufacturer-dec'] = t("The product's manufacturer (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['studio'] = t("The product's studio");
+    $tokens['asin']['studio-dec'] = t("The product's studio (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['label'] = t("The product's label");
+    $tokens['asin']['label-dec'] = t("The product's label (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['binding'] = t("The product's binding type");
+    $tokens['asin']['binding-dec'] = t("The product's binding type (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['release'] = t("The product's release date");
+    $tokens['asin']['release-Y'] = t("The product's release date. 4 digit year only.");
+    $tokens['asin']['release-y'] = t("The product's release date. 2 digit year only.");
+    $tokens['asin']['release-m'] = t("The product's release date. 2 digit month only");
+    $tokens['asin']['release-n'] = t("The product's release date. 2 digit month only (no leading 0)");
+    $tokens['asin']['release-M'] = t("The product's release date. Abbreviated month only. (Example: 'Jan', 'Feb'");
+    $tokens['asin']['release-d'] = t("The product's release date. 2 digit day only");
+    $tokens['asin']['release-j'] = t("The product's release date. 2 digit day only (no leading 0)");
+    $tokens['asin']['list'] = t("The product's list price");
+    $tokens['asin']['list-amount'] = t("The product's list price (Unformatted)");
+    $tokens['asin']['list-currency'] = t("Currency code for the product's list price");
+    $tokens['asin']['lowest'] = t("The lowest price currently offered by any merchant at Amazon");
+    $tokens['asin']['lowest-amount'] = t("The lowest price currently offered by any merchant at Amazon (Unformatted)");
+    $tokens['asin']['lowest-currency'] = t("Currency code for the lowest price currently offered by any merchant at Amazon");
+    $tokens['asin']['amazon'] = t("Current price offered by Amazon");
+    $tokens['asin']['amazon-amount'] = t("Current price offered by Amazon (Unformatted)");
+    $tokens['asin']['amazon-currency'] = t("Currency code for the current price offered by Amazon");
+    $tokens['asin']['group'] = t("The product's product group or categorization of the product");
+    $tokens['asin']['group-dec'] = t("The product's product group (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['type'] = t("The product's Amazon product type");
+    $tokens['asin']['type-dec'] = t("The product's Amazon product type (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['author'] = t("The product's author(s)");
+    $tokens['asin']['author-dec'] = t("The product's author (HTML entities like '&amp;mp;' are decoded.)");
+    $tokens['asin']['participants'] = t("The product's participants. All names listed on the product");
+    $tokens['asin']['participants-dec'] = t("The product's participants. (HTML entities like '&amp;mp;' are decoded.)");
+    return $tokens;
+  }
+}
+
+/**
+ * Implementation of hook_token_values()
+ */
+function asin_token_values($type, $object = NULL, $options = array()) {
+  if ($type == 'field') {
+    $item = $object[0];
+    $amazonAsin = amazon_convert_to_asin($item['asin']);
+    $amazonArr = amazon_item_lookup($amazonAsin);
+    $item = $amazonArr[$amazonAsin];
+    if (is_array($item)) {
+      foreach($item as $k => $v) {
+        if ($k == 'detailpageurl') {
+          $v = check_url($v);
+        }
+        else if ($k == 'author' || $k == 'participants') {
+          $v = array_map('check_plain', $v);
+          $v = implode(', ', $v);
+        }
+        else if(is_string($v)) {
+          $v = check_plain($v);
+        }
+        $$k = $v;
+      }
+    }
+    $values['asin'] = $asin;
+    $values['title'] = $title;
+    $values['title-dec'] = decode_entities($title);
+    $values['detailpageurl'] = $detailpageurl;
+    $values['salesrank'] = $salesrank;
+    $values['brand'] = $brand;
+    $values['brand-dec'] = decode_entities($brand);
+    $values['publisher'] = $publisher;
+    $values['publisher-dec'] = decode_entities($publisher);
+    $values['manufacturer'] = $manufacturer;
+    $values['manufacturer-dec'] = decode_entities($manufacturer);
+    $values['studio'] = $studio;
+    $values['studio-dec'] = decode_entities($studio);
+    $values['label'] = $label;
+    $values['label-dec'] = decode_entities($label);
+    $values['binding'] = $binding;
+    $values['binding-dec'] = decode_entities($binding);
+    $values['release'] = $releasedate;
+    $values['release-Y'] = substr($releasedate, 0, 4);
+    $values['release-y'] = substr($releasedate, 2, 2);
+    $month = substr($releasedate, 5, 2);
+    $values['release-m'] = $month;
+    $values['release-n'] = ltrim($month, '0');
+    $values['release-M'] = $month ? date('M', mktime(0, 0, 0, $month)) : '';
+    $day = substr($releasedate, 8, 2);
+    $values['release-d'] = $day;
+    $values['release-j'] = ltrim($day, '0');
+    $values['list'] = $listpriceformattedprice;
+    $values['list-amount'] = $listpriceamount;
+    $values['list-currency'] = $listpricecurrencycode;
+    $values['lowest'] = $lowestpriceformattedprice;
+    $values['lowest-amount'] = $lowestpriceamount;
+    $values['lowest-currency'] = $lowestpricecurrencycode;
+    $values['amazon'] = $amazonpriceformattedprice;
+    $values['amazon-amount'] = $amazonpriceamount;
+    $values['amazon-currency'] = $amazonpricecurrencycode;
+    $values['group'] = $productgroup;
+    $values['group-dec'] = decode_entities($productgroup);
+    $values['type'] = $producttypename;
+    $values['type-dec'] = decode_entities($producttypename);
+    $values['author'] = $author;
+    $values['author-dec'] = decode_entities($author);
+    $values['participants'] = $participants;
+    $values['participants-dec'] = decode_entities($participants);
+    return $values;
+  }
+}
