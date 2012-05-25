@@ -876,14 +876,12 @@ function _amazon_default_locales() {
 
 function amazon_get_associate_id() {
   switch (variable_get('amazon_associate_setting', 'association')) {
-    case 'association':
-      return 'drupal0a-20';
-      break;
     case 'custom':
       return variable_get('amazon_custom_associate_id', '');
       break;
+    case 'association':
     default:
-      return FALSE;
+      return 'drupal0a-20';
   }
 }
 
