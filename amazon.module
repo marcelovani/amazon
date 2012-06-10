@@ -871,6 +871,11 @@ function _amazon_default_locales() {
     'url' => 'http://webservices.amazon.it/onca/xml',
     'name' => t('Italy'),
   );
+  $locales['ES'] = array(
+    'url' => 'http://webservices.amazon.es/onca/xml',
+    'name' => t('Spain'),
+  );
+
   return $locales;
 }
 
