@@ -155,7 +155,7 @@ function amazon_media_amazon_item_insert($item) {
       ->execute();
     }
     catch (Exception $e) {
-      amazon_db_error_watchdog("Failed to insert item into amazon table", $e);
+      amazon_db_error_watchdog("Failed to insert item into amazon table", $e, $db_item);
     }
   }
 }
