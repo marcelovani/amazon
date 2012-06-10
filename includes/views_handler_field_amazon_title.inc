@@ -55,7 +55,7 @@ class views_handler_field_amazon_title extends views_handler_field {
         $this->options['alter']['make_link'] = TRUE;
         $this->options['alter']['html'] = TRUE;
         $asin = $this->get_value($values, 'asin');
-        $this->options['alter']['path'] = 'amazon_store/item/' . $asin;
+        $this->options['alter']['path'] = AMAZON_STORE_PATH . '/item/' . $asin;
         break;
     }
 
