@@ -80,7 +80,7 @@ function _amazon_filter_process_text($text) {
 
           // Handle themeable cases, like thumbnail.
           case 'thumbnail':
-            $replace[] = theme('amazon_item_thumbnail', array('item' => $item));
+            $replace[] = theme('amazon_item__thumbnail', array('item' => $item));
             break;
 
           default:
