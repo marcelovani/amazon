@@ -480,7 +480,7 @@ function amazon_item_lookup_from_db($item_ids = array()) {
  */
 function _amazon_load_child_data(&$item) {
   $result = db_query('SELECT type, participant FROM {amazon_item_participant} WHERE asin = :asin',
-  array('asin' => $item['asin']),
+  array(':asin' => $item['asin']),
   array('fetch' => PDO::FETCH_ASSOC));
   foreach ($result as $participant) {
     // unset($participant['asin']);
@@ -489,7 +489,7 @@ function _amazon_load_child_data(&$item) {
   }
 
   $result = db_query('SELECT * FROM {amazon_item_image} WHERE asin = :asin',
-  array('asin' => $item['asin']),
+  array(':asin' => $item['asin']),
   array('fetch' => PDO::FETCH_ASSOC));
   foreach ($result as $image) {
     unset($image['asin']);
@@ -497,7 +497,7 @@ function _amazon_load_child_data(&$item) {
   }
 
   $result = db_query('SELECT * FROM {amazon_item_editorial_review} WHERE asin = :asin',
-  array('asin' => $item['asin']),
+  array(':asin' => $item['asin']),
   array('fetch' => PDO::FETCH_ASSOC));
   foreach ($result as $review) {
     unset($review['asin']);
