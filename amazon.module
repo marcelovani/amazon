@@ -20,17 +20,7 @@ define('AMAZON_IMAGE_SIZES', 'SmallImage,MediumImage,LargeImage');
  */
 function amazon_menu() {
   $items = array();
-  $items['admin/config/amazon_settings'] = array(
-    'title' => 'Amazon Settings',
-    'description' => 'Amazon-related module settings',
-    'page callback' => 'system_admin_menu_block_page',
-    'file' => 'system.admin.inc',
-    'file path' => drupal_get_path('module', 'system'),
-    'access callback' => 'user_access',
-    'access arguments' => array('access administration pages'),
-    'type' => MENU_NORMAL_ITEM,
-  );
-    $items['admin/config/amazon_settings/amazon'] = array(
+  $items['admin/config/services/amazon'] = array(
     'title' => 'Amazon API',
     'description' => 'Global settings for the Amazon Ecommerce API.',
     'page callback' => 'drupal_get_form',
@@ -40,7 +30,7 @@ function amazon_menu() {
     'access arguments' => array('administer amazon'),
     'type' => MENU_NORMAL_ITEM
   );
-  $items['admin/config/amazon_settings/amazon/storage'] = array(
+  $items['admin/config/services/amazon/storage'] = array(
     'title' => 'Storage',
     'description' => 'Local data storage settings for Amazon products.',
     'page callback' => 'drupal_get_form',
@@ -50,7 +40,7 @@ function amazon_menu() {
     'access arguments' => array('administer amazon'),
     'type' => MENU_LOCAL_TASK
   );
-  $items['admin/config/amazon_settings/amazon/test'] = array(
+  $items['admin/config/services/amazon/test'] = array(
     'title' => 'Test',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('amazon_test_form'),
@@ -59,7 +49,7 @@ function amazon_menu() {
     'access arguments' => array('administer amazon'),
     'type' => MENU_LOCAL_TASK
   );
-  $items['admin/config/amazon_settings/amazon/api'] = array(
+  $items['admin/config/services/amazon/api'] = array(
     'title' => 'Settings',
     'weight' => -10,
     'type' => MENU_DEFAULT_LOCAL_TASK
