@@ -91,7 +91,7 @@ function amazon_theme() {
     ),
     'amazon_inline_item' => array(
       'variables' => array('item' => array()),
-      'template' => 'amazon-inline-item',
+      'template' => 'amazon-item--inline',
       'preprocess functions' => array('template_preprocess_amazon_item'),
     ),
     'amazon_detail' => array(

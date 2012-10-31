@@ -137,7 +137,7 @@ function asin_field_formatter_view($entity_type, $entity, $field, $instance, $la
       $lookup = amazon_item_lookup($asin);
       if (!empty($lookup) && $item = $lookup[$asin]) {
         // TODO: kill off amazon_inline_item. There's no reason for it to clutter the earth.
-        $theme_function = $display['type'] == 'inline' ? 'amazon_inline_item' : 'amazon_item';
+        $theme_function = $display['type'] == 'asin_inline' ? 'amazon_inline_item' : 'amazon_item';
         // Trim the 'asin_' prefix from the formatter machine name before
         // passing it to the theme function.
         if (strpos($display['type'], 'asin_') === 0) {
