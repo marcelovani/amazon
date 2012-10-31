@@ -195,4 +195,5 @@ function amazon_update_7104() {
   foreach ($paths as $prev_path => $new_path) {
     db_query('UPDATE {menu_router} set path=:path WHERE path=:prev', array(':path' => $new_path, ':prev' => $prev_path));
   }
+  menu_rebuild();
 }
