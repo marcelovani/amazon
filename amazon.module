@@ -407,7 +407,7 @@ function _amazon_item_batch_lookup_from_web($item_ids = array()) {
   if (!empty($item_ids)) {
     $params = array(
       'ItemId' => implode(',', $item_ids),
-      'ResponseGroup' => 'Large',
+      'ResponseGroup' => amazon_get_response_groups(),
     );
     $results = amazon_http_request('ItemLookup', $params);
     if (!empty($results->Items->Request->Errors)) {
@@ -957,4 +957,22 @@ function amazon_init() {
 function amazon_db_error_watchdog($msg, $e, $extra = array()) {
   watchdog('amazon', "$msg: Message = %message, query= %query fields=<pre>%fields</pre>",
     array('%message' => $e->getMessage(), '%query' => $e->query_string, '%fields' => print_r($extra, TRUE)));
+}
+
+
+/**
+ * Allow other modules to alter the list of response groups used when sending an http request. Invoke using the alter
+ * hook modulename_amazon_response_groups_alter.
+ *
+ * @return string
+ *   Imploded array of response groups, delimetered by commas.
+ *   
+ */
+function amazon_get_response_groups() {
+  $response_groups = array('Large');
+
+  // Fire hook_amazon_response_groups_alter().
+  drupal_alter('amazon_response_groups', $response_groups);
+
+  return implode(',', $response_groups);
 }
