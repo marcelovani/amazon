@@ -78,48 +78,51 @@ function amazon_theme() {
     'amazon_item' => array(
       'variables' => array('item' => array(), 'style' => NULL),
       'template' => 'amazon-item',
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
     'amazon_inline_item' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item--inline',
       'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
     'amazon_detail' => array(
       'variables' => array('item' => array(), 'detail' => NULL),
       'template' => 'amazon-detail',
       'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
 
     // All templates provided at the module level have to be explicitly listed.
-    'amazon_item_detail' => array(
-      'variables' => array('item' => array()),
-      'template' => 'amazon-item-detail',
-      'preprocess functions' => array('template_preprocess_amazon_item'),
-    ),
     'amazon_item__details' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item--details',
       'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
     'amazon_item__default' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item',
       'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
     'amazon_item__thumbnail' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item--thumbnail',
       'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
     'amazon_item__medium' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item--medium',
       'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
     'amazon_item__large' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item--large',
       'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
 
   );

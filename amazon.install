@@ -197,3 +197,10 @@ function amazon_update_7104() {
   }
   menu_rebuild();
 }
+
+/**
+ * Rebuild the theme registry.
+ */
+function amazon_update_7105() {
+  drupal_theme_rebuild();
+}
