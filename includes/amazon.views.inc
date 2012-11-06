@@ -9,7 +9,7 @@
  * @defgroup views_amazon_module amazon.module handlers
  *
  * Includes the tables 'amazon_item', 'amazon_item_participant',
- * 'amazon_item_image', 'amazon_item_editorial_review', and 'amazon_item_node'.
+ * 'amazon_item_image', 'amazon_item_editorial_review'.
  * @{
  */
 
@@ -62,9 +62,6 @@ function amazon_views_handlers() {
       ),
       'views_handler_filter_amazon_image' => array(
         'parent' => 'views_handler_filter_many_to_one',
-      ),
-      'views_handler_filter_amazon_node_module' => array(
-        'parent' => 'views_handler_filter_in_operator',
       ),
       'views_handler_field_amazon_date' => array(
         'parent' => 'views_handler_field_date',

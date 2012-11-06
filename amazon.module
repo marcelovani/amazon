@@ -770,42 +770,6 @@ function amazon_ean_to_asin($ean) {
   }
   return $asin;
 }
-/**
- * Utility functions for managing AmazonItem/Node relationships
- */
-
-function amazon_item_node_save($asin, $node, $module = 'amazon', $weight = 0) {
-  amazon_item_node_delete($asin, $nid, $module);
-  try {
-    $nodefields = array(
-          'asin' => $asin,
-          'nid' => $nid,
-          'module' => $module,
-          'weight' => $weight,
-    );
-    $id = db_insert('amazon_item_node')
-    ->fields($nodefields)
-    ->execute();
-  } catch(Exception $e) {
-    amazon_db_error_watchdog('Failed to save amazon_item_node.', $e, $nodefields);
-  }
-}
-
-function amazon_item_node_delete($asin = NULL, $nid = NULL, $module = NULL) {
-  $delete = db_delete('amazon_item_node');
-  if (isset($asin)) {
-    $delete = $delete->condition('asin', $asin);
-  }
-
-  if (isset($nid)) {
-    $delete = $delete->condition('nid', $nid);
-  }
-
-  if (isset($module)) {
-    $delete = $delete->condition('module', $module);
-  }
-  $delete->execute();
-}
 
 
 /**

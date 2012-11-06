@@ -122,24 +122,6 @@ function amazon_schema() {
     'indexes' => array('asin' => array('asin')),
   );
 
-  $schema['amazon_item_node'] = array(
-    'fields' => array(
-      'nid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
-      'vid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
-      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
-      'notes' => array('type' => 'text', 'not null' => FALSE),
-      'module' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => 'amazon'),
-      'delta' => array('type' => 'int', 'default' => 0),
-    ),
-    'primary key' => array('nid', 'asin', 'module'),
-    'indexes' => array(
-      'nid' => array('nid'),
-      'vid' => array('vid'),
-      'vid_module' => array('vid', 'module'),
-      'asin' => array('asin'),
-    ),
-  );
-
   return $schema;
 }
 
@@ -203,4 +185,11 @@ function amazon_update_7104() {
  */
 function amazon_update_7105() {
   drupal_theme_rebuild();
+}
+
+/**
+ * Drop table amazon_item_node.
+ */
+function amazon_update_7106() {
+  db_drop_table('amazon_item_node');
 }
