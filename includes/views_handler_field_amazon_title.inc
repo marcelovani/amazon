@@ -52,10 +52,11 @@ class views_handler_field_amazon_title extends views_handler_field {
         $this->options['alter']['html'] = TRUE;
         break;
       case 'amazon_store':
+        $path = function_exists('amazon_store_get_amazon_store_path') ? amazon_store_get_amazon_store_path() : 'amazon_store';
         $this->options['alter']['make_link'] = TRUE;
         $this->options['alter']['html'] = TRUE;
         $asin = $this->get_value($values, 'asin');
-        $this->options['alter']['path'] = AMAZON_STORE_PATH . '/item/' . $asin;
+        $this->options['alter']['path'] = $path . '/item/' . $asin;
         break;
     }
 
