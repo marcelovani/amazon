@@ -75,6 +75,12 @@ function amazon_settings_form($form, &$form_state) {
 function amazon_settings_form_validate($form, &$form_state) {
   $form_state['values']['amazon_aws_access_key'] = trim($form_state['values']['amazon_aws_access_key']);
   $form_state['values']['amazon_aws_secret_access_key'] = trim($form_state['values']['amazon_aws_secret_access_key']);
+  $amazon_associate_setting = variable_get('amazon_associate_setting', 'association');
+  $amazon_custom_associate_id = variable_get('amazon_custom_associate_id', '');
+  if ($amazon_associate_setting != $form_state['values']['amazon_associate_setting'] ||
+      $amazon_custom_associate_id != $form_state['values']['amazon_custom_associate_id']) {
+    amazon_expire_items();
+  }
 }
 
 /**

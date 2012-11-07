@@ -933,7 +933,7 @@ function amazon_db_error_watchdog($msg, $e, $extra = array()) {
  *
  * @return string
  *   Imploded array of response groups, delimetered by commas.
- *   
+ *
  */
 function amazon_get_response_groups() {
   $response_groups = array('Large');
@@ -942,4 +942,59 @@ function amazon_get_response_groups() {
   drupal_alter('amazon_response_groups', $response_groups);
 
   return implode(',', $response_groups);
+}
+
+
+/**
+ * Allows expiration of items in the amazon_item table. Items can be
+ * expired by productgroup type, specifically by asin, or all items.
+ * If no parameters are specified, all items will be expired.
+ *
+ * @param $asins
+ *   array of ASINs to expire
+ * @param $types
+ *   array of productgroup types to expire
+ */
+function amazon_expire_items(array $asins = array(), array $types = array()) {
+  $query = db_update('amazon_item')->fields(array(
+             'timestamp' => 0,
+           ));
+
+  if (!empty($asins)) {
+    $query->condition('asin', $asins, 'IN');
+  }
+
+  if (!empty($types)) {
+    foreach ($types as $key => $value) {
+      $types[$key] = strtolower($value);
+    }
+    $query->condition('lower(productgroup)', $types, 'IN');
+  }
+
+  $updated = $query->execute();
+  $update_msg = format_plural($updated,
+    '1 Amazon Item has been expired',
+    '@count Amazon Items have been expired');
+  watchdog('amazon', $update_msg, NULL, WATCHDOG_INFO, NULL);
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function amazon_flush_caches() {
+  // Determine what function is actually causing this hook to fire
+  $trace = debug_backtrace(FALSE);
+  while (in_array($trace[0]['function'], array(
+    'amazon_flush_caches',
+    'call_user_func_array',
+    'module_invoke_all',
+    'drupal_flush_all_caches'))) {
+    $foo = array_shift($trace);
+  }
+  // If this hook was not fired by a cron run expire items.
+  if ($trace[0]['function'] != 'system_cron') {
+    amazon_expire_items();
+  }
+
+  return array();
 }
