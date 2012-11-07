@@ -533,8 +533,8 @@ function asin_content_generate($node, $field) {
  * asin_devel_generate_keywords.
  */
 function _asin_devel_generate($node, $field) {
-  $search_index = variable_get('asin_devel_generate_search_index', 'All');
-  $keywords_picker = explode(',', variable_get('asin_devel_generate_keywords', 'computer'));
+  $search_index = variable_get('asin_devel_generate_search_index', 'Books');
+  $keywords_picker = explode(',', variable_get('asin_devel_generate_keywords', 'computers'));
   $keywords_picker = array_flip($keywords_picker);
 
   $asins = variable_get('amazon_devel_generate_asins', array());
@@ -545,7 +545,7 @@ function _asin_devel_generate($node, $field) {
       'ResponseGroup' => 'ItemAttributes,EditorialReview,Images',
       'SearchIndex' => $search_index,
       'Keywords' => urlencode(array_rand($keywords_picker, 1)),
-      'ItemPage' => $amazon_item_page % 10,
+      'ItemPage' => $amazon_item_page % 400,
     );
     $amazon_item_page++;
 
