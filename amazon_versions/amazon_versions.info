@@ -1,0 +1,6 @@
+name = Amazon versions
+description = Stores alternate version information for amazon products.
+package = Amazon
+dependencies[] = amazon
+core = 6.x
+php = 5.2

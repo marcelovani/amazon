@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * Amazon Similar
+ *
+ * Retrieves and stores a list of similar ASIN numbers for each product.
+ */
+
+/**
+ * Implementation of hook_amazon_response_groups_alter().
+ */
+function amazon_similar_amazon_response_groups_alter(&$groups) {
+  $groups[] = 'Similarities';
+}
+
+/**
+ * Implementation of hook_amazon_item_clean_xml().
+ */
+function amazon_similar_amazon_item_clean_xml(&$item, $xml) {
+  if (isset($xml->SimilarProducts->SimilarProduct)) {
+    foreach($xml->SimilarProducts->SimilarProduct as $data) {
+      $version = array();
+      $version['asin'] = (string)$data->ASIN;
+      $version['title'] = (string)$data->Title;
+      $item['similarproducts'][] = $version;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_amazon_item_load().
+ */
+function amazon_similar_amazon_item_load($item) {
+  $alternates = array();
+  $item_ids = array();
+  $result =  db_query("SELECT asin, title FROM {amazon_similar} WHERE item = '%s' ORDER BY delta ASC", $item['asin']);
+
+  while ($version = db_fetch_array($result)) {
+    $alternates[] = $version;
+    $item_ids[] = $version['asin'];
+  }
+
+  if (module_exists('amazon_import')) {
+    $node_ids = amazon_import_get_product_nodes($item_ids);
+    foreach ($alternates as $key => $version) {
+      if (!empty($node_ids[$version['asin']])) {
+        $alternates[$key]['nid'] = $node_ids[$version['asin']];
+      }
+    }
+  }
+
+  $additions['similarproducts'] = $alternates;
+  if (isset($additions)) {
+    return $additions;
+  }
+}
+
+/**
+ * Implementation of hook_amazon_item_insert().
+ */
+function amazon_similar_amazon_item_insert($item) {
+  if (empty($item['similarproducts'])) {
+    return;
+  }
+
+  $delta = 0;
+  foreach ($item['similarproducts'] as $version) {
+    $version['item'] = $item['asin'];
+    $version['delta'] = $delta;
+    drupal_write_record('amazon_similar', $version);
+    ++$delta;
+  }
+
+}
+
+/**
+ * Implementation of hook_amazon_item_delete().
+ */
+function amazon_similar_amazon_item_delete($asin) {
+  db_query("DELETE FROM {amazon_similar} WHERE item = '%s'", $asin);
+}

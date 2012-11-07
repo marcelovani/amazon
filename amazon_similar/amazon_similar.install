@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for Amazon Similar module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function amazon_similar_install() {
+  drupal_install_schema('amazon_similar');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function amazon_similar_uninstall() {
+  db_query("DROP TABLE {amazon_similar}");
+}
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function amazon_similar_schema() {
+  $schema['amazon_similar'] = array(
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'item' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'title' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
+      'delta' => array('type' => 'int', 'default' => 0),
+    ),
+    'primary key' => array('asin', 'item'),
+    'indexes' => array(
+      'item' => array('item'),
+    ),
+  );
+
+  return $schema;
+}

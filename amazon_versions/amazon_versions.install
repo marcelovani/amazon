@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for Amazon Versions module.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function amazon_versions_install() {
+  drupal_install_schema('amazon_versions');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function amazon_versions_uninstall() {
+  db_query("DROP TABLE {amazon_versions}");
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function amazon_versions_schema() {
+  $schema['amazon_versions'] = array(
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'item' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'title' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
+      'binding' => array('type' => 'varchar', 'length' => 64),
+      'delta' => array('type' => 'int', 'default' => 0),
+    ),
+    'primary key' => array('asin', 'item'),
+    'indexes' => array(
+      'item' => array('item'),
+    ),
+  );
+
+  return $schema;
+}
