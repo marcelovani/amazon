@@ -198,6 +198,20 @@ function _amazon_item_classes($item) {
   return 'amazon-item amazon-item-'. str_replace('_', '-', _amazon_clean_type($item['producttypename']));
 }
 
+/**
+ * Allow other modules to alter the list of response groups used when sending an http request. Invoke using the alter
+ * hook modulename_amazon_response_groups_alter.
+ *
+ * @return string
+ *   Imploded array of response groups, delimetered by commas.
+ *   
+ */
+
+function amazon_get_response_groups() {
+  $response_groups = array('Large');
+  drupal_alter('amazon_response_groups', $response_groups);
+  return implode(',', $response_groups);
+}
 
 function amazon_http_request($operation, $parameters = array(), $locale = NULL) {
   if (!isset($locale)) {
@@ -343,7 +357,7 @@ function _amazon_item_batch_lookup_from_web($item_ids = array()) {
   if (!empty($item_ids)) {
     $params = array(
       'ItemId' => implode(',', $item_ids),
-      'ResponseGroup' => 'Large',
+      'ResponseGroup' => amazon_get_response_groups(),
     );
     $results = amazon_http_request('ItemLookup', $params);
     if (!empty($results->Items->Request->Errors)) {
