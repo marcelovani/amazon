@@ -13,42 +13,29 @@ function amazon_settings_form($form, &$form_state) {
   foreach ($cache['locales'] as $locale => $data) {
     $options[$locale] = $data['name'];
   }
-  $form['amazon_locale'] = array(
+  $form['amazon_default_locale'] = array(
     '#type' => 'select',
-    '#title' => t('Amazon locale'),
-    '#default_value' => variable_get('amazon_locale', 'US'),
+    '#title' => t('Default Amazon locale'),
+    '#default_value' => variable_get('amazon_default_locale', 'US'),
     '#options' => $options,
-    '#description' => t('Amazon.com uses separate product databases and Ecommerce features in different locales; pricing and availability information, as well as product categorization, differs from one locale to the next. Be sure to select the locale your site will be running in.'),
+    '#description' => t('Amazon.com uses separate product databases and Ecommerce features in different locales; pricing and availability information, as well as product categorization, differs from one locale to the next. Be sure to select the default locale your site will be running in.'),
   );
 
   $form['associate_setting'] = array(
     '#type' => 'fieldset',
     '#title' => t('Amazon referral settings'),
+    '#description' => t('Enter your associate ID for each locale you\'d like to use on your site. Locales left blank will not be available.<br><strong>Note:</strong> By default the Drupal Association\'s ID will populate the field if it\'s available unless you have already specified your own or cleared the value.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
   );
-  $form['associate_setting']['amazon_associate_setting'] = array(
-    '#type' => 'select',
-    '#required' => TRUE,
-    '#title' => t('What Amazon associate ID do you want to use?'),
-    '#default_value' => variable_get('amazon_associate_setting', 'association'),
-    '#options' => array(
-      'association' => t('Use the Drupal Association\'s associate ID'),
-      'custom' => t('Use your own associate ID'),
-    ),
-    '#description' => t('Outgoing requests and links to Amazon.com must include an associate ID code. When shoppers purchase Amazon products via one of those links, the associate ID is used to determine who should receive a referral bonus from Amazon.'),
-  );
-
-  $form['associate_setting']['amazon_custom_associate_id'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Your associate ID'),
-    '#description' => t('Enter your own associate ID to receive referral bonuses when shoppers purchase Amazon products via your site.'),
-    '#default_value' => variable_get('amazon_custom_associate_id', ''),
-    '#states' => array(
-      'visible' => array(
-        "select[name=amazon_associate_setting]" => array('value' => 'custom'),
-      ),
-    ),
-
-  );
+  foreach ($cache['locales'] as $locale => $data) {
+    $form['associate_setting']['amazon_locale_'. $locale .'_associate_id'] = array(
+      '#type' => 'textfield',
+      '#title' => t(':locale_name associate ID', array(':locale_name' => $data['name'])),
+      '#description' => t('Enter your :locale_name associate ID to receive referral bonuses when shoppers purchase Amazon products via your site.', array(':locale_name' => $data['name'])),
+      '#default_value' => variable_get('amazon_locale_'. $locale .'_associate_id', $data['da_associate_id']),
+    );
+  }
 
   $form['amazon_aws_access_key'] = array(
     '#type' => 'textfield',
@@ -75,10 +62,21 @@ function amazon_settings_form($form, &$form_state) {
 function amazon_settings_form_validate($form, &$form_state) {
   $form_state['values']['amazon_aws_access_key'] = trim($form_state['values']['amazon_aws_access_key']);
   $form_state['values']['amazon_aws_secret_access_key'] = trim($form_state['values']['amazon_aws_secret_access_key']);
-  $amazon_associate_setting = variable_get('amazon_associate_setting', 'association');
-  $amazon_custom_associate_id = variable_get('amazon_custom_associate_id', '');
-  if ($amazon_associate_setting != $form_state['values']['amazon_associate_setting'] ||
-      $amazon_custom_associate_id != $form_state['values']['amazon_custom_associate_id']) {
+
+  // Load locale data
+  require_once(drupal_get_path('module', 'amazon') .'/includes/amazon.locales.inc');
+  $locales = _amazon_load_locales();
+
+  $expire = FALSE;
+  // Set up default values for each locale to the Drupal Association ID for that locale (if available)
+  foreach ($locales as $locale => $data) {
+    $assoc_id = variable_get('amazon_locale_'. $locale .'_associate_id', '');
+    if ($assoc_id != $form_state['values']['amazon_locale_'. $locale .'_associate_id']) {
+      $expire = TRUE;
+    }
+  }
+
+  if ($expire) {
     amazon_expire_items();
   }
 }
@@ -118,11 +116,25 @@ function amazon_storage_settings_form($form, &$form_state) {
 function amazon_test_form($form, &$form_state) {
   $form = array();
 
+  $cache = amazon_data_cache();
+  $options = array();
+  foreach ($cache['locales'] as $locale => $data) {
+    if (variable_get('amazon_locale_'. $locale .'_associate_id', '')) {
+      $options[$locale] = $data['name'];
+    }
+  }
+
   $form['asin'] = array(
     '#type' => 'textfield',
     '#title' => t('Amazon Product ID'),
     '#description' => t('The ASIN (ISBN-10) or EAN (ISBN-13) of a product listed on Amazon.'),
     '#required' => TRUE,
+  );
+  $form['locale'] = array(
+    '#type' => 'select',
+    '#title' => t('Locale'),
+    '#options' => $options,
+    '#default_value' => variable_get('amazon_default_locale', 'US'),
   );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -156,7 +168,7 @@ function amazon_test_form($form, &$form_state) {
 function amazon_test_form_validate($form, &$form_state) {
   // Normalize input and look up
   $asin = amazon_convert_to_asin($form_state['values']['asin']);
-  $items = amazon_item_lookup_from_web(array($asin));
+  $items = amazon_item_lookup_from_web(array($asin), $form_state['values']['locale']);
   if (!empty($items) && is_array($items)) {
     $form_state['amazon_item'] = array_pop($items);
   }
