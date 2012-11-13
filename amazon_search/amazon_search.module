@@ -63,7 +63,7 @@ function amazon_search_search_execute($keys = NULL, $conditions = NULL) {
  * @return
  *   Array of Amazon items.
  */
-function amazon_search_simple_search($keywords = '', $parameters = array()) {
+function amazon_search_simple_search($keywords = '', $parameters = array(), $locale = NULL) {
   $parameters += array(
     'ResponseGroup' => 'Large',
     'SearchIndex' => 'All',
@@ -72,7 +72,7 @@ function amazon_search_simple_search($keywords = '', $parameters = array()) {
   drupal_alter('amazon_search_parameters', $parameters);
 
   $items = array();
-  $results = amazon_http_request('ItemSearch', $parameters);
+  $results = amazon_http_request('ItemSearch', $parameters, $locale);
   foreach ($results->Items->Item as $xml) {
     $item = amazon_item_clean_xml($xml);
     $items[$item['asin']] = $item;

@@ -279,7 +279,7 @@ function amazon_http_request($operation, $parameters = array(), $locale = NULL) 
     'AWSAccessKeyId' => variable_get('amazon_aws_access_key', ''),
     'Operation' => $operation,
   );
-  if ($associate_id = amazon_get_associate_id()) {
+  if ($associate_id = amazon_get_associate_id($locale)) {
     $parameters += array(
       'AssociateTag' => $associate_id,
     );
@@ -350,7 +350,7 @@ function amazon_http_request($operation, $parameters = array(), $locale = NULL) 
  * @return array
  *   Array of "cleaned" XML item descriptions, keyed on ASIN.
  */
-function amazon_item_lookup($item_ids = array(), $force_lookup = FALSE) {
+function amazon_item_lookup($item_ids = array(), $force_lookup = FALSE, $locale = NULL) {
   if (empty($item_ids)) {
     return array();
   }
@@ -368,7 +368,7 @@ function amazon_item_lookup($item_ids = array(), $force_lookup = FALSE) {
       $items_to_fetch[] = $item_id;
     }
   }
-  $items_from_web = amazon_item_lookup_from_web($items_to_fetch);
+  $items_from_web = amazon_item_lookup_from_web($items_to_fetch, $locale);
   $full_set = $items + $items_from_web;
   return $full_set;
 }
@@ -380,7 +380,7 @@ function amazon_item_lookup($item_ids = array(), $force_lookup = FALSE) {
  * @return array
  *   Array of cleaned XML structures keyed by ASIN.
  */
-function amazon_item_lookup_from_web($item_ids = array()) {
+function amazon_item_lookup_from_web($item_ids = array(), $locale = NULL) {
   $amazon_limit = 10; // Amazon will accept no more than 10 items
   $asins = array();
   $results = array();
@@ -389,7 +389,7 @@ function amazon_item_lookup_from_web($item_ids = array()) {
     if (!empty($asin)) {
       $asins[] = $asin;
       if (count($asins) >= $amazon_limit || count($asins) == count($item_ids)) {
-        $results += _amazon_item_batch_lookup_from_web($asins);
+        $results += _amazon_item_batch_lookup_from_web($asins, $locale);
         $asins = array();
       }
     }
@@ -406,13 +406,13 @@ function amazon_item_lookup_from_web($item_ids = array()) {
  * @return
  *   Array of ASIN data structures keyed by ASIN.
  */
-function _amazon_item_batch_lookup_from_web($item_ids = array()) {
+function _amazon_item_batch_lookup_from_web($item_ids = array(), $locale = NULL) {
   if (!empty($item_ids)) {
     $params = array(
       'ItemId' => implode(',', $item_ids),
       'ResponseGroup' => amazon_get_response_groups(),
     );
-    $results = amazon_http_request('ItemLookup', $params);
+    $results = amazon_http_request('ItemLookup', $params, $locale);
     if (!empty($results->Items->Request->Errors)) {
     	_amazon_item_batch_lookup_from_web_errors($results->Items->Request->Errors);
     }
@@ -757,14 +757,14 @@ function amazon_convert_to_asin($input) {
  *   The asin, or NULL if unsuccessful.
  * @see https://affiliate-program.amazon.com/gp/associates/help/t5/a16?ie=UTF8&pf_rd_t=501&pf_rd_m=ATVPDKIKX0DER&pf_rd_p=&pf_rd_s=assoc-center-2&pf_rd_r=&pf_rd_i=assoc_glossary
  */
-function amazon_ean_to_asin($ean) {
+function amazon_ean_to_asin($ean, $locale = NULL) {
   $asin = NULL;
   $params = array(
     'ItemId' => $ean,
     'IdType' => 'EAN',
     'SearchIndex' => 'Books',
   );
-  $results = amazon_http_request('ItemLookup', $params);
+  $results = amazon_http_request('ItemLookup', $params, $locale);
   if (!empty($results->Items->Item->ASIN)) {
     $asin = (string) $results->Items->Item->ASIN;
   }
@@ -796,55 +796,21 @@ function amazon_data_cache($reset = FALSE) {
 
 function _amazon_default_locales() {
   $locales = array();
-  $locales['US'] = array(
-    'url'     => 'http://ecs.amazonaws.com/onca/xml',
-    'name'    => t('United States'),
-  );
-  $locales['UK'] = array(
-    'url'     => 'http://ecs.amazonaws.co.uk/onca/xml',
-    'name'    => t('United Kingdom'),
-  );
-  $locales['JP'] = array(
-    'url'     => 'http://ecs.amazonaws.jp/onca/xml',
-    'name'    => t('Japan'),
-  );
-  $locales['FR'] = array(
-    'url'     => 'http://ecs.amazonaws.fr/onca/xml',
-    'name'    => t('France'),
-  );
-  $locales['DE'] = array(
-    'url'     => 'http://ecs.amazonaws.de/onca/xml',
-    'name'    => t('Germany'),
-  );
-  $locales['CA'] = array(
-    'url'     => 'http://ecs.amazonaws.ca/onca/xml',
-    'name'    => t('Canada'),
-  );
-  $locales['CN'] = array(
-    'url' => 'http://webservices.amazon.cn/onca/xml',
-    'name' => t('China'),
-  );
-  $locales['IT'] = array(
-    'url' => 'http://webservices.amazon.it/onca/xml',
-    'name' => t('Italy'),
-  );
-  $locales['ES'] = array(
-    'url' => 'http://webservices.amazon.es/onca/xml',
-    'name' => t('Spain'),
-  );
+  // Load default locales from includes/amazon.locales.inc
+  require_once(drupal_get_path('module', 'amazon') .'/includes/amazon.locales.inc');
+  $locales = _amazon_load_locales();
 
+  // Fire hook_amazon_locales_alter() to allow modules to manipulate default locales.
+  drupal_alter('amazon_locales', $locales);
   return $locales;
 }
 
-function amazon_get_associate_id() {
-  switch (variable_get('amazon_associate_setting', 'association')) {
-    case 'custom':
-      return variable_get('amazon_custom_associate_id', '');
-      break;
-    case 'association':
-    default:
-      return 'drupal0a-20';
+function amazon_get_associate_id($locale = NULL) {
+  if (!($locale)) {
+    $locale = variable_get('amazon_default_locale', 'US');
   }
+  $cache = amazon_data_cache();
+  return variable_get('amazon_locale_'. $locale .'_associate_id', $cache['locales'][$locale]['da_associate_id']);
 }
 
 function amazon_cron() {
