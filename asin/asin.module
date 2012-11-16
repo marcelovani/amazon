@@ -296,7 +296,7 @@ function asin_autocomplete_callback($entity_type, $bundle, $field_name, $string 
   $parameters = array(
     'ResponseGroup' => 'Small',
     'SearchIndex' => $instance['widget']['settings']['widget_settings']['productgroup'],
-    'Keywords' => urlencode($cleanstring)
+    'Keywords' => $cleanstring,
   );
   $results = amazon_http_request('ItemSearch', $parameters, $instance['widget']['settings']['widget_settings']['locale']);
   // Process the results.
@@ -440,7 +440,7 @@ function _asin_devel_generate($object, $field, $instance, $bundle) {
     $parameters = array(
       'ResponseGroup' => 'ItemAttributes,EditorialReview,Images',
       'SearchIndex' => $search_index,
-      'Keywords' => urlencode(array_rand($keywords_picker, 1)),
+      'Keywords' => array_rand($keywords_picker, 1),
       'ItemPage' => $amazon_item_page % 10,   // 10 is now max pages from amazon
     );
     $amazon_item_page++;

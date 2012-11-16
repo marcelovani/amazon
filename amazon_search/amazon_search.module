@@ -68,7 +68,7 @@ function amazon_search_simple_search($keywords = '', $parameters = array(), $loc
     'ResponseGroup' => 'Large',
     'SearchIndex' => 'All',
   );
-  $parameters['Keywords'] = urlencode($keywords);
+  $parameters['Keywords'] = $keywords;
   drupal_alter('amazon_search_parameters', $parameters);
 
   $items = array();
