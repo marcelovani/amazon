@@ -636,6 +636,25 @@ function amazon_item_insert($item) {
   // The db_insert needs fields that match exactly to the database,
   // so we'll intersect with what the actual schema says.
   $db_item = array_intersect_key($item, $item_keys);
+
+  // Remove urlencoding for select characters before storing item in the database
+  // This is purely for the sake of prettying up the resulting URLs, they work
+  // either way.
+  $replacements = array(
+    '%7E' => '~',
+    '%3D' => '=',
+    '%3A' => ':',
+    '%2C' => ',',
+    '%2F' => '/',
+    '%26' => '%',
+    '%3F' => '?',
+  );
+  if (isset($db_item['detailpageurl'])) {
+    $db_item['detailpageurl'] = str_replace(array_keys($replacements), $replacements, $db_item['detailpageurl']);
+  }
+  if (isset($db_item['customerreviews_iframe'])) {
+    $db_item['customerreviews_iframe'] = str_replace(array_keys($replacements), $replacements, $db_item['customerreviews_iframe']);
+  }
   try {
     db_insert('amazon_item')
     ->fields($db_item)
