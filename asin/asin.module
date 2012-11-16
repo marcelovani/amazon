@@ -10,14 +10,15 @@
  */
 function asin_menu() {
   $items = array();
-  $items['asin/autocomplete'] = array(
+  $items['asin/autocomplete/%/%/%'] = array(
     'page callback' => 'asin_autocomplete_callback',
+    'page arguments' => array(2, 3, 4),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK
   );
+
   return $items;
 }
-
 
 /**
  * Implementation of hook_field_info().
@@ -173,6 +174,62 @@ function asin_field_widget_info() {
 }
 
 /**
+ * Implements hook_field_widget_settings_form().
+ */
+function asin_field_widget_settings_form($field, $instance) {
+  $widget = $instance['widget'];
+  $settings = $widget['settings'];
+
+  $cache = amazon_data_cache();
+  $locale_options = array('' => '-- Select --');
+  foreach ($cache['locales'] as $locale => $data) {
+    if (variable_get('amazon_locale_'. $locale .'_associate_id', '')) {
+      $locale_options[$locale] = $data['name'];
+    }
+  }
+
+  if ($widget['type'] == 'asin_autocomplete') {
+    $form['widget_settings'] = array(
+      '#prefix' => '<div id="asin-autocomplete-widget-settings">',
+      '#suffix' => '</div>',
+    );
+    $form['widget_settings']['locale'] = array(
+      '#title'         => t('Amazon Locale'),
+      '#type'          => 'select',
+      '#options'       => $locale_options,
+      '#default_value' => isset($settings['widget_settings']['locale']) ? $settings['widget_settings']['locale'] : '',
+      '#required'      => TRUE,
+      '#ajax'          => array(
+        'wrapper'      => 'asin-autocomplete-widget-settings',
+        'callback'     => 'asin_widget_locale_product_group',
+        'method'       => 'replace',
+        'effect'       => 'fade',
+      ),
+    );
+
+    if (isset($settings['widget_settings']['locale'])) {
+      $form['widget_settings']['productgroup'] = array(
+        '#title' => t('Search Index'),
+        '#type'  => 'select',
+        '#options' => $cache['locales'][$settings['widget_settings']['locale']]['search_indexes'],
+        '#default_value' => isset($settings['widget_settings']['productgroup']) ? $settings['widget_settings']['productgroup'] : 'All',
+      );
+    }
+    return $form;
+  }
+}
+
+/**
+ * AJAX callback for widget settings form.
+ */
+function asin_widget_locale_product_group($form, &$form_state) {
+  $cache = amazon_data_cache();
+  $form['instance']['widget']['settings']['widget_settings']['productgroup']['#options'] =
+        $cache['locales'][$form_state['values']['instance']['widget']['settings']['widget_settings']['locale']]['search_indexes'];
+  return render($form['instance']['widget']['settings']['widget_settings']);
+}
+
+/**
  * Implements hook_field_widget_form().
  *
  */
@@ -189,7 +246,7 @@ function asin_field_widget_form(&$form, &$form_state, $field, $instance, $langco
       break;
 
     case 'asin_autocomplete':
-      $element['asin']['#autocomplete_path'] = 'asin/autocomplete';
+      $element['asin']['#autocomplete_path'] = 'asin/autocomplete/' . $instance['entity_type'] . '/' . $instance['bundle'] . '/' . $field['field_name'];
       $element['asin']['#value_callback'] = 'asin_autocomplete_value';
       $element['asin']['#maxlength'] = 256;
       $element['asin']['#element_validate'][] = 'asin_autocomplete_validate';
@@ -229,16 +286,19 @@ function asin_field_widget_element_validate($element, &$form_state) {
 /**
  * Autocomplete callback for the asin_autocomplete widget.
  */
-function asin_autocomplete_callback($string = '') {
+function asin_autocomplete_callback($entity_type, $bundle, $field_name, $string = '') {
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($entity_type, $field_name, $bundle);
+
   $items = $matches = array();
   $cleanstring = trim(preg_replace('#[^\p{L}\p{N}]+#u', ' ', $string));
   // Search Amazon.
   $parameters = array(
     'ResponseGroup' => 'Small',
-    'SearchIndex' => 'All',
+    'SearchIndex' => $instance['widget']['settings']['widget_settings']['productgroup'],
     'Keywords' => urlencode($cleanstring)
   );
-  $results = amazon_http_request('ItemSearch', $parameters);
+  $results = amazon_http_request('ItemSearch', $parameters, $instance['widget']['settings']['widget_settings']['locale']);
   // Process the results.
   foreach($results->Items->Item as $xml) {
     $items[(string) $xml->ASIN] = (string) $xml->ItemAttributes->Title . ' (' . $xml->ItemAttributes->ProductGroup . ')';
