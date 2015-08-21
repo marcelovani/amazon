@@ -223,3 +223,25 @@ function amazon_update_7107() {
   variable_del('amazon_custom_associate_id');
   variable_del('amazon_associate_setting');
 }
+
+/**
+ * Create table amazon_item_image_gallery.
+ */
+function amazon_update_7108() {
+   $schema['amazon_item_image_gallery'] = array(
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'size' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'url' => array('type' => 'varchar', 'length' => 128, 'not null' => TRUE),
+      'height' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'width' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'category' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'image_order' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 1),
+    ),
+    'primary key' => array('asin', 'size', 'image_order'),
+    'indexes' => array(
+      'asin' => array('asin'),
+    ),
+  );
+  db_create_table('amazon_item_image_gallery', $schema['amazon_item_image_gallery']);
+}
