@@ -6,3 +6,10 @@ dependencies[] = amazon
 core = 7.x
 php = 5.2
 configure = admin/config/content/formats
+
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-1.1+19-dev"
+core = "7.x"
+project = "amazon"
+datestamp = "1380553723"
+

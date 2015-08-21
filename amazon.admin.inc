@@ -148,7 +148,7 @@ function amazon_test_form($form, &$form_state) {
       '#collapsible' => FALSE,
     );
     $form['item']['display'] = array(
-      '#markup' => theme('amazon_item', array('item' => $form_state['amazon_item'], 'style' => 'details')),
+      '#markup' => theme('amazon_item', array('item' => $form_state['amazon_item'], 'style' => 'test')),
       '#weight' => 9,
     );
     $form['item']['details'] = array(

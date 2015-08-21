@@ -93,6 +93,21 @@ function amazon_theme() {
       'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
 
+    // Test
+    'amazon_item__test' => array(
+      'variables' => array('item' => array(), 'detail' => NULL),
+      'template' => 'amazon-item--test',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
+    ),
+
+    // Default :: Gallery
+    'amazon_item__default_gallery' => array(
+      'variables' => array('item' => array(), 'style' => NULL),
+      'template' => 'amazon-item--default-gallery',
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
+    ),
+
     // All templates provided at the module level have to be explicitly listed.
     'amazon_item__details' => array(
       'variables' => array('item' => array()),
@@ -100,27 +115,56 @@ function amazon_theme() {
       'preprocess functions' => array('template_preprocess_amazon_item'),
       'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
+
+    'amazon_item__details_gallery' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item--details-gallery',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
+    ),
+
     'amazon_item__default' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item',
       'preprocess functions' => array('template_preprocess_amazon_item'),
       'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
+    // Thumbnail Images
     'amazon_item__thumbnail' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item--thumbnail',
       'preprocess functions' => array('template_preprocess_amazon_item'),
       'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
+    'amazon_item__thumbnail_gallery' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item--thumbnail-gallery',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
+    ),
+    // Medium Images
     'amazon_item__medium' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item--medium',
       'preprocess functions' => array('template_preprocess_amazon_item'),
       'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
+    'amazon_item__medium_gallery' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item--medium-gallery',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
+    ),
+    // Large Images
     'amazon_item__large' => array(
       'variables' => array('item' => array()),
       'template' => 'amazon-item--large',
+      'preprocess functions' => array('template_preprocess_amazon_item'),
+      'path' => drupal_get_path('module', 'amazon') .'/templates',
+    ),
+    'amazon_item__large_gallery' => array(
+      'variables' => array('item' => array()),
+      'template' => 'amazon-item--large-gallery',
       'preprocess functions' => array('template_preprocess_amazon_item'),
       'path' => drupal_get_path('module', 'amazon') .'/templates',
     ),
@@ -134,7 +178,6 @@ function amazon_theme() {
  * template_preprocess: amazon_item.
  */
 function template_preprocess_amazon_item(&$variables, $theme_type) {
-
   $item = $variables['item'];
   // Do a quick cycle through the simple keys on the item, filter_xss() them,
   // and stick them in the variables collection.
@@ -205,7 +248,49 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
   }
   $variables['image'] = !empty($variables['mediumimage']) ? $variables['mediumimage'] : '';
 
-  $variables['classes_array'] = array();
+  // Product Image Galleries
+  if (isset($item['imagesets_gallery'] )) {
+    foreach ($item['imagesets_gallery'] as $key => $imageset_gallery) {
+      foreach ($imageset_gallery as $imageset_gallery_key => $image) {
+
+        // If :: Check to see if image is the "primary" product image.
+        // 1 - Add image to the beginning of the array.
+        // 0 - Add image the the end of the array.
+        if ($image['category'] === 'primary') {
+          // Primary Image :: Core Image Theme
+          $primary_image = theme('image', 
+            array(
+              'path' => $image['url'], 
+              'alt' => t('Image of') . ' ' . strip_tags($item['title']), 
+              'title' => strip_tags($item['title']), 
+              'attributes' => array(
+                'height' => $image['height'], 
+                'width' => $image['width'],
+                'data-category' => $image['category']
+              ), 
+              'getsize' => FALSE));
+
+          // Add Primary Image to beginning of Product Image Gallery array
+          array_unshift($variables[$key],  $primary_image);
+
+        } else {
+          // Variant Image :: Core Image Theme
+          $variables[$key][$imageset_gallery_key] = theme('image', 
+            array(
+              'path' => $image['url'], 
+              'alt' => t('Image of') . ' ' . strip_tags($item['title']), 
+              'title' => strip_tags($item['title']), 
+              'attributes' => array(
+                'height' => $image['height'], 
+                'width' => $image['width'],
+                'data-category' => $image['category']
+              ), 
+              'getsize' => FALSE));
+        }
+      }
+    }
+  }
+  $variables['classes_array'] = array('amazon-product--container');
   $variables['attributes_array'] = array();
   $variables['title_attributes_array'] = array();
   $variables['content_attributes_array'] = array();
@@ -228,6 +313,7 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
       $variables['theme_hook_suggestions'][] = 'amazon_item__' . strtolower($variables['type']) . '__view__' . $item['view']->name;
     }
   }
+
 }
 
 /**
@@ -499,6 +585,15 @@ function _amazon_load_child_data(&$item) {
     $item['imagesets'][$image['size']] = $image;
   }
 
+  // Fetch :: Amazon Product Image Galleries
+  $result = db_query('SELECT * FROM {amazon_item_image_gallery} WHERE asin = :asin',
+  array(':asin' => $item['asin']),
+  array('fetch' => PDO::FETCH_ASSOC));
+  foreach ($result as $image) {
+    unset($image['asin']);
+    $item['imagesets_gallery'][$image['size']][$image['image_order']] = $image;
+  }
+
   $result = db_query('SELECT * FROM {amazon_item_editorial_review} WHERE asin = :asin',
   array(':asin' => $item['asin']),
   array('fetch' => PDO::FETCH_ASSOC));
@@ -575,13 +670,56 @@ function amazon_item_clean_xml($xml) {
   // and ignore the rest for now.
   $supported_sizes = preg_split('/,/', AMAZON_IMAGE_SIZES);
   if (isset($xml->ImageSets->ImageSet)) {
-    foreach ((array) $xml->ImageSets->ImageSet as $key => $data) {
+    $ImageSets = (array) $xml->ImageSets;
+     if (is_array($ImageSets['ImageSet'])) {
+       if (isset($ImageSets['ImageSet'][0])) {
+         $ImageSets = $ImageSets['ImageSet'];
+         foreach ($ImageSets as $number => $set) {
+           $set = (array) $set;
+           if ($set['@attributes']['Category'] == 'primary') {
+             $ImageSet = $set;
+           }
+         }
+       }
+     }
+     else {
+       $ImageSet = $ImageSets['ImageSet'];
+     }
+     foreach ($ImageSet as $key => $data) {
       if (in_array($key, $supported_sizes)) {
         $item['imagesets'][strtolower($key)] = array(
           'url' => (string) $data->URL,
           'height' => intval($data->Height),
           'width' => intval($data->Width),
         );
+      }
+    }
+  }
+
+  // Prepare XML Request ImageSets
+  // $xml->ImageSets is an array of Images returned from amazon_http_request()
+  if (isset($xml->ImageSets)) {
+    // First, we loop through each ImageSet in the ImageSets array
+    // Second, we loop through each image size ($supported_sizes) in the ImageSet
+    // Finally, we store the imagesets in the $item array
+    $i = 0;
+    foreach ((array) $xml->ImageSets as $ImageSetKey => $ImageSets) {
+      foreach ((array) $ImageSets as $ImageSetKey => $ImageSet) {
+        $i++;
+        $k = 0;
+        $ImageSet = (array) $ImageSet;
+        foreach ( $ImageSet as $ImageSize => $imageData) {
+          $k++;
+          if (in_array($ImageSize, $supported_sizes)) {
+            $item['imagesets_gallery'][strtolower($ImageSize) . '_gallery'][$i] = array(
+              'url' => (string) $imageData->URL,
+              'category' => (string) $ImageSet['@attributes']['Category'],
+              'height' => intval($imageData->Height),
+              'width' => intval($imageData->Width),
+
+            );
+          }
+        }
       }
     }
   }
@@ -702,6 +840,22 @@ function amazon_item_insert($item) {
     }
   }
 
+  if (isset($item['imagesets_gallery'])) {
+      foreach ($item['imagesets_gallery'] as $imageOrder => $imageSizes) {
+        foreach ($imageSizes as $imageKey => $imageData) {
+          $image = array('asin' => $item['asin'], 'size' => $imageOrder, 'height' => $imageData['height'], 'width' => $imageData['width'], 'url' => $imageData['url'], 'category' => $imageData['category'], 'image_order' => $imageKey);
+          try {
+            db_insert('amazon_item_image_gallery')
+            ->fields($image)
+            ->execute();
+          }
+          catch (Exception $e) {
+            amazon_db_error_watchdog("Failed to insert itemset Gallery into amazon_item_image table", $e, $image);
+          }
+        }
+      }
+    }
+
   // Save the editorial reviews if they exist.
   if (in_array('editorial_reviews', variable_get('amazon_core_data', array('creators', 'images', 'editorial_reviews')))) {
     if (isset($item['editorialreviews'])) {
@@ -736,6 +890,9 @@ function amazon_item_delete($asin) {
   ->condition('asin', $asin)
   ->execute();
   db_delete('amazon_item_image')
+  ->condition('asin', $asin)
+  ->execute();
+  db_delete('amazon_item_image_gallery')
   ->condition('asin', $asin)
   ->execute();
   db_delete('amazon_item_editorial_review')

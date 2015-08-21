@@ -1,0 +1,378 @@
+<?php
+
+module_load_include('inc', 'amazon_component', 'amazon_component.preprocess');
+
+/**
+ * Implementation of hook_permission
+ */
+function amazon_component_permission() {
+  return array(
+    'administer amazon component' =>  array(
+      'title' => t('Administer Amazon Component module'),
+      'description' => t('Manage and arrange Amazon Components.'),
+  ),
+  );
+}
+
+/**
+ * Implements hook_block_info.
+ */
+function amazon_component_block_info() {
+  $blocks['amazon_component_gallery']['info'] = t('Amazon Component :: Gallery');
+  $blocks['amazon_component_cart']['info'] = t('Amazon Component :: Cart');
+  $blocks['amazon_component_add_to_cart']['info'] = t('Amazon Component :: Add To Cart');
+  $blocks['amazon_component_reviews']['info'] = t('Amazon Component :: Reviews');
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view.
+ */
+function amazon_component_block_view($delta) {
+  $block = array();
+  switch ($delta) {
+    case 'amazon_component_gallery':
+      $block['subject'] = t("Gallery");
+      $block['content'] = theme('amazon_gallery');
+      break;
+    case 'amazon_component_cart':
+      $block['subject'] = t("Cart");
+      $block['content'] = theme('amazon_component_cart');
+      break;
+    case 'amazon_component_add_to_cart':
+      $block['subject'] = t("Add To Cart");
+      $block['content'] = theme('amazon_component_add_to_cart');
+      break;
+    case 'amazon_component_reviews':
+      $block['subject'] = t("Reviews");
+      $block['content'] = theme('amazon_component_reviews');
+      break;
+    return $block;
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_block_configure.
+ */
+function amazon_component_block_configure($delta) {
+  switch ($delta) {
+    case 'amazon_gallery':
+      $form = array();
+      $form['amazon_store_search_block_keywords_width'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Maximum Amount of Gallery Images'),
+            '#size' => 5,
+            '#default_value' => variable_get("amazon_component['gallery']",    5),
+          );
+      return $form;
+    case 'amazon_component_cart':
+      $form = array();
+      $form['amazon_component_cart_style'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Style'),
+            '#size' => 5,
+            '#default_value' => variable_get("amazon_component['cart']", ''),
+          );
+      return $form;
+    case 'amazon_component_reviews':
+      $form = array();
+      $form['amazon_component_reviews_style'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Style'),
+            '#size' => 15,
+            '#default_value' => variable_get("amazon_component['reviews_style']", ''),
+          );
+      return $form;
+  }
+}
+
+/**
+ * Implements hook_block_save.
+ */
+function amazon_component_block_save($delta, $edit) {
+  switch ($delta) {
+    case 'amazon_gallery':
+      variable_set("amazon_component_gallery", $edit["amazon_component_gallery"]);
+      break;;
+    case 'amazon_component_cart':
+      variable_set("amazon_component_cart", $edit["amazon_component_cart"]);
+      break;;
+    case 'amazon_component_reviews':
+      variable_set("amazon_component_reviews_style", $edit["amazon_component_reviews_style"]);
+      break;;
+  }
+  return;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function amazon_component_theme() {
+  return array(
+    'amazon_gallery' => array(
+      'variables' => array('results' => NULL),
+      'template' => 'amazon_component_gallery',
+      //'preprocess functions' => array('amazon_component_theme_gallery'),
+      'path' => drupal_get_path('module', 'amazon_component') .'/templates',
+    ),
+    'amazon_component_cart' => array(
+      'variables' => array('cart' => NULL,),
+      'template' => 'amazon_component_cart',
+      'path' => drupal_get_path('module', 'amazon_component') .'/templates',
+    ),
+    'amazon_component_add_to_cart' => array(
+      'variables' => array('cart' => NULL,),
+      'template' => 'amazon_component_add_to_cart',
+      'path' => drupal_get_path('module', 'amazon_component') .'/templates',
+    ),
+    'amazon_component_reviews' => array(
+      'variables' => array('cart' => NULL,),
+      'template' => 'amazon_component_reviews',
+      'path' => drupal_get_path('module', 'amazon_component') .'/templates',
+    ),
+  );
+}
+
+
+
+
+
+/* ----------------------------------------------------------------- */
+/* Helper Functions
+/* ----------------------------------------------------------------- */
+
+/**
+ * Look up an item using database or web.
+ * The default is to look in the database for existing data, and then to do the
+ * web search if that fails. $force_lookup==TRUE forces going to Amazon's
+ * API.
+ * @param $item_ids
+ *   An array of ASIN strings or a single ASIN as a string.
+ * @param $force_lookup
+ *   If TRUE, skip the database lookup and just go to the Amazon API lookup.
+ * @return array
+ *   Array of "cleaned" XML item descriptions, keyed on ASIN.
+ */
+function amazon_component_gallery_lookup($item_ids = array(), $force_lookup = FALSE, $locale = NULL) {
+  // Function Variables
+  $items = array();
+  $items_to_fetch = array();
+
+  // Return :: Empty Check
+  if (empty($item_ids)) {
+    return array();
+  }
+  // Convert :: single $item_ids from String to Array
+  if (is_string($item_ids)) {
+    $item_ids = array($item_ids);
+  }
+  // Query :: Database - Product ASIN Gallery
+  if (!$force_lookup) {
+    $items = amazon_component_lookup_gallery_from_db($item_ids, $size = 'mediumimage');
+  }
+  // Loop :: Exclude Database Product ASIN Results from Amazon Product API Request
+  foreach ($item_ids as $item_id) {
+    if (!isset($items[$item_id])) {
+      $items_to_fetch[] = $item_id;
+    }
+  }
+  // Query :: API - Product ASIN Gallery
+  $items_from_web = amazon_component_gallery_lookup_from_web($items_to_fetch, $locale);
+  // Concat :: Database Results + Amazon API Results
+  $full_set = $items + $items_from_web;
+
+  // Return :: Database Lookup + Amazon API Request
+  return $full_set;
+}
+
+
+/**
+ * Look up ASINs in database and return arrays of information keyed by ASIN.
+ * @param $item_ids
+ *   An array of string ASINs.
+ * @param $size
+ *   Image Gallery Size Filter. Reference define(AMAZON_IMAGE_SIZES) in amazon Module.
+ * @return array
+ *   Array of Amazon 'cleaned' data structures keyed by ASIN.
+ */
+function amazon_component_lookup_gallery_from_db($item_ids = array(), $size = NULL) {
+  if (!empty($item_ids)) {
+    // Function Variables
+    $items = array();
+    $i = 0;
+
+    // IF :: Return all image gallery sizes: smallimage, mediumimage, etc.  
+    if (!$size) {
+      // Query :: ASIN Image Gallery WITHOUT $size
+      $query = 'SELECT * FROM {amazon_item_image_gallery} WHERE asin IN (:asins)';
+      $args = array(':asins' => $item_ids,);
+      $options = array('fetch' => PDO::FETCH_ASSOC);
+
+      // Result :: Image Gallery Sizes
+      $result = db_query($query,$args,$options);
+
+    // ELSE :: Return single image gallery size.
+    } else {
+      // Query :: ASIN Image Gallery WITH $size
+      $query = 'SELECT * FROM {amazon_item_image_gallery} WHERE asin IN (:asins) AND size IN (:size)';
+      $args = array(
+        ':asins' => $item_ids,
+        ':size' => $size,
+      );
+      $options = array('fetch' => PDO::FETCH_ASSOC);
+
+      // Result :: Image Gallery Sizes
+      $result = db_query($query,$args,$options);
+    }
+    
+    // Loop :: Query Result into $items varkables
+    foreach ($result as $image) {
+      $items[$image['asin']]['imagesets_gallery'][$image['size']][$image['image_order']] = $image;
+    }
+    // Return :: (array) $items
+    return $items;
+  }
+  return array();
+}
+
+/**
+ * Use Amazon API to look up an array of ASINs.
+ * @param $item_ids
+ *   Array of ASIN strings to look up.
+ * @return array
+ *   Array of cleaned XML structures keyed by ASIN.
+ */
+function amazon_component_gallery_lookup_from_web($item_ids = array(), $locale = NULL) {
+  // Function Variables :: Amazon API Request Limit = 10
+  $amazon_limit = 10;
+  $asins = array();
+  $results = array();
+
+  // Filter :: Remove empty items.
+  $item_ids = array_filter($item_ids);
+
+  // FOREACH :: Amazon Product ASIN Batch Lookup
+  foreach ($item_ids as $asin) {
+    if (!empty($asin)) {
+      $asins[] = $asin;
+      if (count($asins) >= $amazon_limit || count($asins) == count($item_ids)) {
+        $results += _amazon_component_batch_lookup_from_web($asins, $locale);
+        $asins = array();
+      }
+    }
+  }
+
+  // Return :: Amazon Product API XML Request cleaned via amazon_component_gallery_clean_xml()
+  return $results;
+}
+
+/**
+ * Get 10 or less items from the AWS web service.
+ * AWS allows ONLY 10 items,
+ * See http://docs.amazonwebservices.com/AWSECommerceService/latest/DG/index.html?ItemLookup.html.
+ * @param $item_ids
+ *   Array of ASINs to be looked up.
+ * @return
+ *   Array of ASIN data structures keyed by ASIN.
+ */
+function _amazon_component_batch_lookup_from_web($item_ids = array(), $locale = NULL) {
+  //Function Variables
+  $items = array();
+
+  // IF :: Check Item ID's Existence
+  if (!empty($item_ids)) {
+    $params = array(
+      'ItemId' => implode(',', $item_ids),
+      'ResponseGroup' => amazon_get_response_groups(),
+    );
+
+    // Result :: Raw Amazon Product API XML request
+    $results = amazon_http_request('ItemLookup', $params, $locale);
+
+    // IF :: Check for errors and set watchdog message 
+    if (!empty($results->Items->Request->Errors)) {
+      _amazon_item_batch_lookup_from_web_errors($results->Items->Request->Errors);
+    }
+    // IF :: Check Item Existence
+    // LOOP :: Convert XML to Gallery(s) + Insert Gallery(s) into Database
+    if (!empty($results->Items->Item)) {
+      foreach ($results->Items->Item as $xml) { 
+        $item = amazon_component_gallery_clean_xml($xml);
+        //amazon_component_gallery_insert($item); /* TODO :: Create function so it works! */
+        //$items["{$item['asin']}"] = $item;
+        $items[(string)$xml->ASIN] = $item;
+      }
+    }
+    return $items;
+  }
+  return array();
+}
+
+/**
+ * Take the Amazon XML item and turn it into our own private 'cleaned'
+ * data structure.
+ * @param $xml
+ *   XML structure as returned from Amazon API call.
+ * @return
+ *   'Cleaned' XML structure for local use.
+ */
+function amazon_component_gallery_clean_xml($xml) {
+  // Function Variables
+  $item = array();
+  $metadata = amazon_data_cache();
+  $supported_sizes = preg_split('/,/', AMAZON_IMAGE_SIZES);
+
+  // EXTRACT :: Amazon Product ASIN
+  //$item['asin'] = (string)$xml->ASIN;
+
+  // Extract :: Amazon Product ImageSetss
+  // LOOP :: Each ImageSets
+  // LOOP :: Each ImageSet
+  // LOOP :: Each Image
+  // $i = Number of image gallery sizes (small, medium,large, swatch, etc...)
+  // $k = Number of images in each gallery size (primary, variant, variant, etc...)
+  // Array :: Store indexed imagesets in $item array()
+  if (isset($xml->ImageSets)) {
+    $i = 0;
+    foreach ((array) $xml->ImageSets as $ImageSetKey => $ImageSets) {
+      foreach ((array) $ImageSets as $ImageSetKey => $ImageSet) {
+        $i++;
+        $k = 0;
+        $ImageSet = (array) $ImageSet;
+        foreach ( $ImageSet as $imageSize => $imageData) {
+          $k++;
+          if (in_array($imageSize, $supported_sizes)) {
+            $item['imagesets_gallery'][strtolower($imageSize)][$i] = array(
+              'asin' => (string)$xml->ASIN,
+              'url' => (string) $imageData->URL,
+              'category' => (string) $ImageSet['@attributes']['Category'],
+              'height' => intval($imageData->Height),
+              'width' => intval($imageData->Width),
+              'size' => (string)strtolower($imageSize),
+              'image_order' => $i,
+            );
+          }
+        }
+      }
+    }
+  }
+  return $item;
+}
+
+
+/**
+ * Return cart credentials (cart ID and HMAC) from the session variable
+ *
+ * @return
+ *   Array containing the cart_id and the HMAC, if set. Otherwise FALSE.
+ */
+function amazon_component_get_cart_creds() {
+  if (!empty($_SESSION['cart_id']) && !empty($_SESSION['HMAC'])) {
+    return array(
+      'CartId' => $_SESSION['cart_id'],
+      'HMAC' => $_SESSION['HMAC'],
+    );
+  }
+  return FALSE;
+}

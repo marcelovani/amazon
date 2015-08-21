@@ -98,20 +98,40 @@ function asin_field_formatter_info() {
       'label' => t('Thumbnail with title'),
       'field types' => array('asin'),
     ),
+    'asin_default_gallery' => array(
+      'label' => t('Gallery with title'),
+      'field types' => array('asin'),
+    ),
     'asin_details' => array(
       'label' => t('Thumbnail with details'),
+      'field types' => array('asin'),
+    ),
+    'asin_details_gallery' => array(
+      'label' => t('Gallery with details'),
       'field types' => array('asin'),
     ),
     'asin_thumbnail' => array(
       'label' => t('Thumbnail image'),
       'field types' => array('asin'),
     ),
+    'asin_thumbnail_gallery' => array(
+      'label' => t('Thumbnail Gallery Image(s)'),
+      'field types' => array('asin'),
+    ),
     'asin_medium' => array(
       'label' => t('Medium image'),
       'field types' => array('asin'),
     ),
+    'asin_medium_gallery' => array(
+      'label' => t('Medium Gallery Image(s)'),
+      'field types' => array('asin'),
+    ),
     'asin_large' => array(
       'label' => t('Large image'),
+      'field types' => array('asin'),
+    ),
+    'asin_large_gallery' => array(
+      'label' => t('Large Gallery Image(s)'),
       'field types' => array('asin'),
     ),
     'asin_inline' => array(
@@ -134,20 +154,37 @@ function asin_field_formatter_view($entity_type, $entity, $field, $instance, $la
   foreach ($items as $delta => $value) {
     $asin = trim($value['asin']);
     if (!empty($asin)) {
+      // If :: Check to see if the field format is set to "ASIN as plain text"
+      // 1 - Return plain Amazon Product ASIN
+      // 0 - Return themed Amazon Product Item
       if ($display['type'] == 'asin_plain') {
         $element[$delta] = array('#markup' => $asin);
       }
       else {
+
+        // Lookup :: Search the amazon_item table or request Amazon API information
         $lookup = amazon_item_lookup($asin);
+
+        // If :: Check to see if Amazon Product was returned succesfully  
         if (!empty($lookup) && $item = $lookup[$asin]) {
-          // TODO: kill off amazon_inline_item. There's no reason for it to clutter the earth.
+
+          // // TODO: kill off amazon_inline_item. There's no reason for it to clutter the earth.
           $theme_function = $display['type'] == 'asin_inline' ? 'amazon_inline_item' : 'amazon_item';
+
           // Trim the 'asin_' prefix from the formatter machine name before
           // passing it to the theme function.
           if (strpos($display['type'], 'asin_') === 0) {
             $style = substr($display['type'], 5);
           }
-          $element[$delta] = array('#markup' => theme($theme_function, array('item' => $item, 'style' => $style)));
+
+          $elements = array(
+            '#theme' => $theme_function,
+            '#style' => $style,
+            '#item' => $item
+          );
+
+          $element[$delta] = array('#markup' => drupal_render($elements));
+
         }
       }
     }

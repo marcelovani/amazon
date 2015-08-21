@@ -113,6 +113,22 @@ function amazon_schema() {
     ),
   );
 
+  $schema['amazon_item_image_gallery'] = array(
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'size' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'url' => array('type' => 'varchar', 'length' => 128, 'not null' => TRUE),
+      'height' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'width' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'category' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'image_order' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 1),
+    ),
+    'primary key' => array('asin', 'size', 'image_order'),
+    'indexes' => array(
+      'asin' => array('asin'),
+    ),
+  );
+
   $schema['amazon_item_editorial_review'] = array(
     'fields' => array(
       'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
