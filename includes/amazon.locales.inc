@@ -328,5 +328,44 @@ function _amazon_load_locales() {
     ),
   );
 
+  // Japan Amazon Locale:
+  $locales['IN'] = array(
+    'url'     => 'http://ecs.amazonaws.in/onca/xml',
+    'name'    => t('India'),
+    'da_associate_id' => '',
+    'search_indexes' => array(
+      'All'                 => 'All Indexes',
+      'Apparel'             => 'Apparel',
+      'Appliances'          => 'Appliances',
+      'Automotive'          => 'Automotive',
+      'Baby'                => 'Baby',
+      'Beauty'              => 'Beauty',
+      'Books'               => 'Books',
+      'Classical'           => 'Classical',
+      'DVD'                 => 'DVD',
+      'Electronics'         => 'Electronics',
+      'ForeignBooks'        => 'Foreign Books',
+      'Grocery'             => 'Grocery',
+      'HealthPersonalCare'  => 'Health & Personal Care',
+      'Hobbies'             => 'Hobbies',
+      'HomeImprovement'     => 'Home Improvement',
+      'Jewelry'             => 'Jewelry',
+      'Kitchen'             => 'Kichen',
+      'Marketplace'         => 'Marketplace',
+      'MP3Downloads'        => 'MP3 Downloads',
+      'Music'               => 'Music',
+      'MusicalInstruments'  => 'Musical Instruments',
+      'MusicTracks'         => 'Music Tracks',
+      'OfficeProducts'      => 'Office',
+      'Shoes'               => 'Shoes',
+      'Software'            => 'Software',
+      'SportingGoods'       => 'Sporting Goods',
+      'Toys'                => 'Toys',
+      'VHS'                 => 'VHS',
+      'Video'               => 'Video',
+      'VideoGames'          => 'Video Games',
+    ),
+  );
+
   return $locales;
 }
