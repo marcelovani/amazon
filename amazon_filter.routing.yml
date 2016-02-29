@@ -1,6 +1,6 @@
 
 amazon_filter.configuration_form:
-  path: '/admin/config/amazon_filter/configuration'
+  path: '/admin/config/services/amazon_filter/configuration'
   defaults:
     _form: '\Drupal\amazon_filter\Form\ConfigurationForm'
     _title: 'ConfigurationForm'
@@ -8,4 +8,3 @@ amazon_filter.configuration_form:
     _permission: 'access administration pages'
   options:
     _admin_route: TRUE
-

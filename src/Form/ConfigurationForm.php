@@ -38,7 +38,17 @@ class ConfigurationForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('amazon_filter.configuration');
-    return parent::buildForm($form, $form_state);
+    $form = parent::buildForm($form, $form_state);
+
+    $form['assoc_id'] = [
+      '#type' => 'textfield',
+      '#title' => t('Amazon Associates ID'),
+      '#description' => t('You must register as an <a href=":url">Associate with Amazon</a> before using this module.', [':url' => 'http://docs.aws.amazon.com/AWSECommerceService/latest/DG/becomingAssociate.html']),
+      '#default_value' => $config->get('assoc_id'),
+      '#required' => TRUE,
+    ];
+
+    return $form;
   }
 
   /**
@@ -55,6 +65,7 @@ class ConfigurationForm extends ConfigFormBase {
     parent::submitForm($form, $form_state);
 
     $this->config('amazon_filter.configuration')
+      ->set('assoc_id', $form_state->getValue('assoc_id'))
       ->save();
   }
 
