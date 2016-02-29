@@ -42,10 +42,22 @@ class ConfigurationForm extends ConfigFormBase {
 
     $form['assoc_id'] = [
       '#type' => 'textfield',
-      '#title' => t('Amazon Associates ID'),
-      '#description' => t('You must register as an <a href=":url">Associate with Amazon</a> before using this module.', [':url' => 'http://docs.aws.amazon.com/AWSECommerceService/latest/DG/becomingAssociate.html']),
+      '#title' => $this->t('Amazon Associates ID'),
+      '#description' => $this->t('You must register as an <a href=":url">Associate with Amazon</a> before using this module.', [':url' => 'http://docs.aws.amazon.com/AWSECommerceService/latest/DG/becomingAssociate.html']),
       '#default_value' => $config->get('assoc_id'),
       '#required' => TRUE,
+    ];
+
+    $max_age = $config->get('default_max_age');
+    if ($max_age == '') {
+      // Defaults to 15 minutes.
+      $max_age = '900';
+    }
+    $form['default_max_age'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Default max-age for retrieved information'),
+      '#description' => $this->t('Number of seconds that the result from Amazon will be cached. This can be overridden by defining a different value in the text filter. Set to zero to disable caching by default.'),
+      '#default_value' => $max_age,
     ];
 
     return $form;
@@ -66,6 +78,7 @@ class ConfigurationForm extends ConfigFormBase {
 
     $this->config('amazon_filter.configuration')
       ->set('assoc_id', $form_state->getValue('assoc_id'))
+      ->set('default_max_age', $form_state->getValue('default_max_age'))
       ->save();
   }
 
