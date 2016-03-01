@@ -1,6 +1,0 @@
-amazon_filter.configuration_form:
-  title: 'Amazon Associates Filter'
-  route_name: amazon_filter.configuration_form
-  description: 'Configure the Amazon Filter settings.'
-  parent: system.admin_config_services
-  weight: 99
