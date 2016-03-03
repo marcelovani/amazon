@@ -42,8 +42,9 @@ class SettingsForm extends ConfigFormBase {
 
     $description = '';
     $accessKey = Amazon::getAccessKey();
+    $accessSecret = Amazon::getAccessSecret();
     if (empty($accessKey)) {
-      $description = $this->t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See the <a href=":url">AWS home page</a> for information and a registration form.', [':url' => 'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key']);
+      $description = $this->t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See the <a href=":url">AWS home page</a> for information and a registration form. Enter your Access Key ID here.', [':url' => 'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key']);
     }
     else {
       $description = $this->t('The access key is set by another method and does not need to be entered here.');
@@ -54,6 +55,20 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('access_key'),
       '#description' => $description,
       '#disabled' => !empty($accessKey),
+    ];
+
+    if (empty($accessKey)) {
+      $description = $this->t('You must sign up for an Amazon AWS account to use the Product Advertising Service. See the <a href=":url">AWS home page</a> for information and a registration form. Enter your Access Key Secret here.', [':url' => 'https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key']);
+    }
+    else {
+      $description = $this->t('The access secret is set by another method and does not need to be entered here.');
+    }
+    $form['access_secret'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Amazon AWS Access Secret'),
+      '#default_value' => $config->get('access_secret'),
+      '#description' => $description,
+      '#disabled' => !empty($accessSecret),
     ];
 
     $form['associates_id'] = [
@@ -74,10 +89,6 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('Number of seconds that the result from Amazon will be cached. This can be overridden by defining a different value in the text filter. Set to zero to disable caching by default.'),
       '#default_value' => $max_age,
     ];
-
-    //$amazon = new Amazon($config->get('associates_id'));
-    //dpr($amazon->lookup('B00008OE6I'));
-    //exit;
 
     return parent::buildForm($form, $form_state);
   }
@@ -100,6 +111,7 @@ class SettingsForm extends ConfigFormBase {
 
     $this->config('amazon.settings')
       ->set('access_key', $form_state->getValue('access_key'))
+      ->set('access_secret', $form_state->getValue('access_secret'))
       ->set('associates_id', $form_state->getValue('associates_id'))
       ->set('default_max_age', $form_state->getValue('default_max_age'))
       ->save();
