@@ -60,14 +60,14 @@ class FilterAmazon  extends FilterBase {
           continue;
         }
 
-        $params = explode(' ', trim($match));
+        // Preferred format.
+        $params = explode(':', trim($match));
         if (empty($params)) {
-          $params = explode(':', trim($match));
+          // Backwards-compatible format.
+          $params = explode(' ', trim($match));
         }
         if (empty($params)) {
-          // @TODO: error handling? Or just return the broken token in the
-          // string and figure the user will see that it's broken.
-          return new FilterProcessResult($text);
+          continue;
         }
 
         $asin = $params[0];
@@ -95,10 +95,16 @@ class FilterAmazon  extends FilterBase {
       }
     }
 
-    // @TODO: Handle in-token overrides of max-age.
-    $text = strtr($text, $replacements);
-    $return = new FilterProcessResult($text);
-    $return->setCacheMaxAge((int) $maxAge);
+    $return = '';
+    if (!empty($replacements)) {
+      // @TODO: Handle in-token overrides of max-age.
+      $text = strtr($text, $replacements);
+      $return = new FilterProcessResult($text);
+      $return->setCacheMaxAge((int) $maxAge);
+    }
+    else {
+      $return = new FilterProcessResult($text);
+    }
 
     return $return;
   }
