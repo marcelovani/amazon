@@ -103,17 +103,4 @@ class FilterAmazon  extends FilterBase {
     return $return;
   }
 
-  protected function getItemFromAmazon($items) {
-    if (empty($items)) {
-      return;
-    }
-    if (!is_array($items)) {
-      $items = [$items];
-    }
-
-    $return = [];
-    // Amazon will allow lookups in batches of 10 or less.
-    return $return;
-  }
-
 }
