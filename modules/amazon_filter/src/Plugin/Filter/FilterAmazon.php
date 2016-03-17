@@ -62,11 +62,11 @@ class FilterAmazon  extends FilterBase {
 
         // Preferred format.
         $params = explode(':', trim($match));
-        if (empty($params)) {
+        if (count($params) == 1) {
           // Backwards-compatible format.
           $params = explode(' ', trim($match));
         }
-        if (empty($params)) {
+        if (count($params) == 1) {
           continue;
         }
 
@@ -83,6 +83,7 @@ class FilterAmazon  extends FilterBase {
             $associatesId = \Drupal::config('amazon.settings')->get('associates_id');
             $amazon = new Amazon($associatesId);
             $result = $amazon->lookup($asin);
+            dsm($result);
             if (!empty($result[0])) {
               $result = $result[0];
               $replacements[$completeToken] = new FormattableMarkup('<a href=":url">@item</a>', [
@@ -107,6 +108,26 @@ class FilterAmazon  extends FilterBase {
     }
 
     return $return;
+  }
+
+  public function tips($long = FALSE) {
+    $output = $this->t('Link to Amazon products with [amazon:ASIN:display_type(:cache_max_age_in_seconds)]. Example: [amazon:1590597559:thumbnail:900] or [amazon:1590597559:author]. Details are <a href=":url" target="_blank">on the Amazon module handbook page</a>.', [':url' => 'http://drupal.org/node/595464#filters']);
+    if (!$long) {
+      return $output;
+    }
+
+    $output = '<p>' . $output . '</p>';
+    $output .= '<p>' . $this->t('Currently supported options for display_typ:') . '</p>';
+    $output .= '<ul><li>' . $this->t('inline: Creates a text link to Amazon using the product title') . '</li>';
+    $output .= '<li>' . $this->t('thumbnail|small: Creates a link to Amazon using the small image size') . '</li>';
+    $output .= '<li>' . $this->t('medium: Creates a link to Amazon using the medium image size') . '</li>';
+    $output .= '<li>' . $this->t('full|large: Creates a link to Amazon using the large image size') . '</li>';
+    //$output .= '<li>' . $this->t() . '</li>';
+    //$output .= '<li>' . $this->t() . '</li>';
+    //$output .= '<li>' . $this->t() . '</li>';
+    //$output .= '<li>' . $this->t() . '</li>';
+    $output .= '<li>' . $this->t() . '</li></ul>';
+    return $output;
   }
 
 }
