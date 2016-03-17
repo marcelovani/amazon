@@ -83,7 +83,6 @@ class FilterAmazon  extends FilterBase {
             $associatesId = \Drupal::config('amazon.settings')->get('associates_id');
             $amazon = new Amazon($associatesId);
             $result = $amazon->lookup($asin);
-            dsm($result);
             if (!empty($result[0])) {
               $result = $result[0];
               $replacements[$completeToken] = new FormattableMarkup('<a href=":url">@item</a>', [
