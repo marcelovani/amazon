@@ -13,20 +13,21 @@ function amazon_theme($existing, $type, $theme, $path) {
     'amazon_inline' => [
       'variables' => ['results' => NULL],
     ],
-    'amazon_small' => [
-      'variables' => ['results' => NULL],
-    ],
-    'amazon_medium' => [
-      'variables' => ['results' => NULL],
-    ],
-    'amazon_large' => [
+    'amazon_image' => [
       'variables' => ['results' => NULL],
     ],
   ];
 }
 
 /**
- * Prepares variables fo the amazon-inline Twig template.
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function amazon_theme_suggestions_amazon(array $variables) {
+  dsm($variables, 'in suggestions');
+}
+
+/**
+ * Prepares variables for the amazon-inline Twig template.
  *
  * @param array $variables
  *   Array of variables including the results of the APA API call.
@@ -45,31 +46,11 @@ function template_preprocess_amazon_inline(&$variables) {
 }
 
 /**
- * Prepares variables fo the amazon-small Twig template.
+ * Prepares variables for the amazon-image Twig template.
  *
  * @param array $variables
  *   Array of variables including the results of the APA API call.
  */
-function template_preprocess_amazon_small(&$variables) {
-
-}
-
-/**
- * Prepares variables fo the amazon-medium Twig template.
- *
- * @param array $variables
- *   Array of variables including the results of the APA API call.
- */
-function template_preprocess_amazon_medium(&$variables) {
-
-}
-
-/**
- * Prepares variables fo the amazon-large Twig template.
- *
- * @param array $variables
- *   Array of variables including the results of the APA API call.
- */
-function template_preprocess_amazon_large(&$variables) {
-
+function template_preprocess_amazon_image(&$variables) {
+  dsm($variables, 'prepro image');
 }
