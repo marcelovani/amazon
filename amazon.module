@@ -14,7 +14,7 @@ function amazon_theme($existing, $type, $theme, $path) {
       'variables' => ['results' => NULL],
     ],
     'amazon_image' => [
-      'variables' => ['results' => NULL],
+      'variables' => ['results' => NULL, 'size' => ''],
     ],
   ];
 }
@@ -23,7 +23,13 @@ function amazon_theme($existing, $type, $theme, $path) {
  * Implements hook_theme_suggestions_HOOK().
  */
 function amazon_theme_suggestions_amazon(array $variables) {
+  $suggestions = [];
+  if ($variables['theme_hook_original'] == 'amazon_image') {
+    $suggestions = 'amazon_image__' . $variables['size'];
+  }
+
   dsm($variables, 'in suggestions');
+  return $suggestions;
 }
 
 /**
@@ -52,5 +58,21 @@ function template_preprocess_amazon_inline(&$variables) {
  *   Array of variables including the results of the APA API call.
  */
 function template_preprocess_amazon_image(&$variables) {
-  dsm($variables, 'prepro image');
+  switch($variables['size']) {
+    case 'small':
+      $image = $variables['results'][0]->SmallImage;
+      break;
+
+    case 'medium':
+      $image = $variables['results'][0]->MediumImage;
+      break;
+
+    case 'large':
+      $image = $variables['results'][0]->LargeImage;
+      break;
+  }
+  $variables['image_src'] = (string) $image->URL;
+  $variables['width'] = (string) $image->Width;
+  $variables['height'] = (string) $image->Height;
+  $variables['url'] = $variables['results'][0]->DetailPageURL;
 }

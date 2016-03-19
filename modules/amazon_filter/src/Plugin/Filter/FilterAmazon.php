@@ -60,6 +60,7 @@ class FilterAmazon  extends FilterBase {
       foreach ($matches[1] as $index => $match) {
         $completeToken = $matches[0][$index];
         if (isset($replacements[$completeToken])) {
+          // We've already built this replacement, do not do it again.
           continue;
         }
 
@@ -80,36 +81,55 @@ class FilterAmazon  extends FilterBase {
           $maxAge = $params[2];
         }
 
+        // @TODO: quick fix to get this working. Needs to be injected!
+        $associatesId = \Drupal::config('amazon.settings')->get('associates_id');
+        $amazon = new Amazon($associatesId);
+        $results = $amazon->lookup($asin);
+        if (empty($results[0])) {
+          continue;
+        }
+
+        // Build a render array for this element. This allows us to easily
+        // override the layout but simply overriding the Twig template. It also
+        // lets us set custom caching for each filter link.
+        $build = [
+          '#results' => $results,
+          '#max_age' => $maxAge,
+        ];
+
+        // Use the correct Twig template based on the "type" specified.
         switch (strtolower($type)) {
           case 'inline':
-            // @TODO: quick fix to get this working. Needs caching and injection!
-            $associatesId = \Drupal::config('amazon.settings')->get('associates_id');
-            $amazon = new Amazon($associatesId);
-            $results = $amazon->lookup($asin);
-            if (!empty($results[0])) {
-              $build = [
-                '#theme' => 'amazon_inline',
-                '#results' => $results,
-              ];
-              $replacements[$completeToken] = $renderer->render($build);
-            }
+            $build['#theme'] = 'amazon_inline';
             break;
+
+          case 'small':
+          case 'thumbnail':
+            $build['#theme'] = 'amazon_image';
+            $build['#size'] = 'small';
+            break;
+
+          case 'medium':
+            $build['#theme'] = 'amazon_image';
+            $build['#size'] = 'medium';
+            break;
+
+          case 'large':
+          case 'full':
+            $build['#theme'] = 'amazon_image';
+            $build['#size'] = 'large';
+            break;
+
+          default:
+            continue;
         }
+
+        $replacements[$completeToken] = $renderer->render($build);
       }
     }
 
-    $return = '';
-    if (!empty($replacements)) {
-      // @TODO: Handle in-token overrides of max-age.
-      $text = strtr($text, $replacements);
-      $return = new FilterProcessResult($text);
-      $return->setCacheMaxAge((int) $maxAge);
-    }
-    else {
-      $return = new FilterProcessResult($text);
-    }
-
-    return $return;
+    $text = strtr($text, $replacements);
+    return new FilterProcessResult($text);
   }
 
   public function tips($long = FALSE) {

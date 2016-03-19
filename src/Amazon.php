@@ -139,7 +139,7 @@ class Amazon {
       $request->setOptions([
         'Service' => 'AWSECommerceService',
         'ItemId' => implode(',', $asins),
-        'ResponseGroup' => 'Small',
+        'ResponseGroup' => 'Small,Images',
         'Operation' => 'ItemLookup',
       ]);
       $results = array_merge($results, $request->execute()->getResults());
