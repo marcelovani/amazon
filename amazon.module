@@ -1,0 +1,75 @@
+<?php
+/**
+ * @file
+ * Provides the easy integration of the Amazon Product Advertising API.
+ */
+
+
+/**
+ * Implements hook_theme().
+ */
+function amazon_theme($existing, $type, $theme, $path) {
+  return [
+    'amazon_inline' => [
+      'variables' => ['results' => NULL],
+    ],
+    'amazon_small' => [
+      'variables' => ['results' => NULL],
+    ],
+    'amazon_medium' => [
+      'variables' => ['results' => NULL],
+    ],
+    'amazon_large' => [
+      'variables' => ['results' => NULL],
+    ],
+  ];
+}
+
+/**
+ * Prepares variables fo the amazon-inline Twig template.
+ *
+ * @param array $variables
+ *   Array of variables including the results of the APA API call.
+ */
+function template_preprocess_amazon_inline(&$variables) {
+  // Only use the first result since we only build one link.
+  $variables['title'] = '';
+  $variables['url'] = '';
+  $variables['item'] = [];
+  if (!empty($variables['results'][0])) {
+    $item = $variables['results'][0];
+    $variables['title'] = $item->ItemAttributes->Title;
+    $variables['url'] = $item->DetailPageURL;
+    $variables['item'] = $item;
+  }
+}
+
+/**
+ * Prepares variables fo the amazon-small Twig template.
+ *
+ * @param array $variables
+ *   Array of variables including the results of the APA API call.
+ */
+function template_preprocess_amazon_small(&$variables) {
+
+}
+
+/**
+ * Prepares variables fo the amazon-medium Twig template.
+ *
+ * @param array $variables
+ *   Array of variables including the results of the APA API call.
+ */
+function template_preprocess_amazon_medium(&$variables) {
+
+}
+
+/**
+ * Prepares variables fo the amazon-large Twig template.
+ *
+ * @param array $variables
+ *   Array of variables including the results of the APA API call.
+ */
+function template_preprocess_amazon_large(&$variables) {
+
+}

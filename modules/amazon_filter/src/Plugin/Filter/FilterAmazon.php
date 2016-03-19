@@ -54,6 +54,9 @@ class FilterAmazon  extends FilterBase {
     $matches = [];
     $replacements = [];
     if (preg_match_all('`\[amazon(.*?)\]`', $text, $matches)) {
+      /** @var  \Drupal\Core\Render $renderer */
+      $renderer = \Drupal::service('renderer');
+
       foreach ($matches[1] as $index => $match) {
         $completeToken = $matches[0][$index];
         if (isset($replacements[$completeToken])) {
@@ -82,13 +85,13 @@ class FilterAmazon  extends FilterBase {
             // @TODO: quick fix to get this working. Needs caching and injection!
             $associatesId = \Drupal::config('amazon.settings')->get('associates_id');
             $amazon = new Amazon($associatesId);
-            $result = $amazon->lookup($asin);
-            if (!empty($result[0])) {
-              $result = $result[0];
-              $replacements[$completeToken] = new FormattableMarkup('<a href=":url">@item</a>', [
-                ':url' => $result->DetailPageURL,
-                '@item' => $result->ItemAttributes->Title,
-              ]);
+            $results = $amazon->lookup($asin);
+            if (!empty($results[0])) {
+              $build = [
+                '#theme' => 'amazon_inline',
+                '#results' => $results,
+              ];
+              $replacements[$completeToken] = $renderer->render($build);
             }
             break;
         }
