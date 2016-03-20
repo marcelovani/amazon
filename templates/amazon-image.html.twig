@@ -18,4 +18,4 @@
 {% if height is not empty %}
   {% set attributes = attributes.setAttribute('height', height) %}
 {% endif %}
-<a href="{{ url }}"><img{{ attributes }} src="{{ image_src }}" /></a>
+<a href="{{ url }}"><img{{ attributes.setAttribute('src', image_src) }}" /></a>
