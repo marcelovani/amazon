@@ -1,0 +1,25 @@
+#- Adminisration Menu -#
+amazon.api_settings:
+  path: '/admin/config/services/amazon'
+  defaults:
+    _form: '\Drupal\amazon\Form\AmazonSettingsForm'
+    _title: 'Amazon API'
+  requirements:
+    _permission: 'administer amazon'
+
+#- Tasks -#
+amazon.api_test:
+  path: '/admin/config/services/amazon/test'
+  defaults:
+    _form: '\Drupal\amazon\Form\AmazonTestForm'
+    _title: 'Amazon API Test'
+  requirements:
+    _permission: 'administer amazon'
+
+amazon.storage:
+  path: '/admin/config/services/amazon/storage'
+  defaults:
+    _form: '\Drupal\amazon\Form\AmazonCacheForm'
+    _title: 'Amazon API Storage Settings'
+  requirements:
+    _permission: 'administer amazon'

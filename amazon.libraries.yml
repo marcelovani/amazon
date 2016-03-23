@@ -1,0 +1,5 @@
+amazon.icons:
+  version: VERSION
+  css:
+    theme:
+      css/amazon.icons.css: {}

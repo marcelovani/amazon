@@ -1,0 +1,118 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the amazon module.
+ */
+
+function amazon_uninstall(){
+  \Drupal::configFactory()->getEditable('amazon.settings')->delete();
+}
+
+/**
+ * Implements hook_schema().
+ *
+ * @see hook_schema()
+ *
+ */
+function amazon_schema() {
+  $schema['amazon_item'] = array(
+    'description' => 'Stores Amazon API Product Information',
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'title' => array('type' => 'varchar', 'length' => 255, 'not null' => TRUE),
+      'features' => array('type' => 'text'),
+      'detailpageurl' => array('type' => 'text'),
+      'itemlinks' => array('type' => 'text'),
+      'brand' => array('type' => 'varchar', 'length' => 64),
+      'productgroup' => array('type' => 'varchar', 'length' => 255),
+      'producttypename' => array('type' => 'varchar', 'length' => 255),
+      'salesrank' => array('type' => 'int', 'unsigned' => TRUE),
+      'dimensions' => array('type' => 'varchar', 'length' => 64),
+      'package_dimensions' => array('type' => 'varchar', 'length' => 64),
+      'publisher' => array('type' => 'varchar', 'length' => 64),
+      'manufacturer' => array('type' => 'varchar', 'length' => 64),
+      'upc' => array('type' => 'varchar', 'length' => 64),
+      'mpn' => array('type' => 'varchar', 'length' => 255),
+      'studio' => array('type' => 'varchar', 'length' => 64),
+      'label' => array('type' => 'varchar', 'length' => 64),
+      'binding' => array('type' => 'varchar', 'length' => 64),
+      'releasedate' => array('type' => 'varchar', 'length' => 64),
+      'listpriceamount' => array('type' => 'numeric', 'not null' => FALSE, 'precision' => '10', 'scale' => '0'),
+      'listpricecurrencycode' => array('type' => 'varchar', 'length' => 32),
+      'listpriceformattedprice' => array('type' => 'varchar', 'length' => 32),
+      'lowestpriceamount' => array('type' => 'numeric', 'not null' => FALSE, 'precision' => '10', 'scale' => '0'),
+      'lowestpricecurrencycode' => array('type' => 'varchar', 'length' => 32),
+      'lowestpriceformattedprice' => array('type' => 'varchar', 'length' => 32),
+      'amazonpriceamount' => array('type' => 'numeric', 'not null' => FALSE, 'precision' => '10', 'scale' => '0'),
+      'amazonpricecurrencycode' => array('type' => 'varchar', 'length' => 32),
+      'amazonpriceformattedprice' => array('type' => 'varchar', 'length' => 32),
+      'customerreviews_iframe' => array('type' => 'varchar', 'length' => 255),
+      'invalid_asin' => array('type' => 'int', 'default' => 0),
+      'timestamp' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0),
+    ),
+    'primary key' => array('asin'),
+  );
+
+  $schema['amazon_item_participant'] = array(
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'type' => array('type' => 'varchar', 'length' => 128, 'not null' => TRUE),
+      'participant' => array('type' => 'varchar', 'length' => 128, 'not null' => TRUE),
+    ),
+    'indexes' => array(
+      'asin' => array('asin'),
+    ),
+  );
+
+  $schema['amazon_item_image'] = array(
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'size' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'url' => array('type' => 'varchar', 'length' => 128, 'not null' => TRUE),
+      'height' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'width' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+    ),
+    'primary key' => array('asin', 'size'),
+    'indexes' => array(
+      'asin' => array('asin'),
+    ),
+  );
+
+  $schema['amazon_item_image_gallery'] = array(
+    'fields' => array(
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'size' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'url' => array('type' => 'varchar', 'length' => 128, 'not null' => TRUE),
+      'height' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'width' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'category' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'image_order' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 1),
+    ),
+    'primary key' => array('asin', 'size', 'image_order'),
+    'indexes' => array(
+      'asin' => array('asin'),
+    ),
+  );
+
+  $schema['amazon_item_node'] = array(
+    'fields' => array(
+      'nid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'vid' => array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE),
+      'asin' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE),
+      'notes' => array('type' => 'text', 'not null' => FALSE),
+      'module' => array('type' => 'varchar', 'length' => 64, 'not null' => TRUE, 'default' => 'amazon'),
+      'delta' => array('type' => 'int', 'default' => 0),
+    ),
+    'primary key' => array('nid', 'asin', 'module'),
+    'indexes' => array(
+      'nid' => array('nid'),
+      'vid' => array('vid'),
+      'vid_module' => array('vid', 'module'),
+      'asin' => array('asin'),
+    ),
+  );
+  
+
+  return $schema;
+}

@@ -1,0 +1,25 @@
+/**
+ * Toolbar tab icon.
+ */
+.toolbar-bar .toolbar-icon-amazon:before {
+  background-image: url(../images/amazon--icon.png);
+}
+.toolbar-bar .toolbar-icon-amazon:active:before,
+.toolbar-bar .toolbar-icon-amazon.active:before {
+  background-image: url(../images/amazon--icon.png);
+}
+
+
+.toolbar-bar .toolbar-icon-amazon-settings:before {
+  background-image: url(../images/icon--padlock.png);
+}
+
+.toolbar-bar .toolbar-icon-amazon-test:before {
+  background-image: url(../images/icon--handshake.png);
+}
+
+.toolbar-bar .toolbar-icon-amazon-caching:before {
+  background-image: url(../images/icon--clock.png);
+}
+
+

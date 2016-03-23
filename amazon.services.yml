@@ -1,0 +1,11 @@
+services:
+    amazon.storage:
+        class: Drupal\amazon\AmazonStorage
+    amazon.schema:
+        class: Drupal\amazon\AmazonSchema
+    amazon.amazon_request:
+        class: Drupal\amazon\AmazonRequest
+    amazon.amazon_helpers:
+        class: Drupal\amazon\AmazonHelpers
+    amazon.amazon_locales:
+        class: Drupal\amazon\AmazonLocales

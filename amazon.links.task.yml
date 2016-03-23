@@ -1,0 +1,19 @@
+amazon.api_settings:
+  route_name: amazon.api_settings
+  title: "Settings"
+  description: "Amazon Product Advertisment API Settings"
+  base_route: amazon.api_settings
+
+amazon.api_test:
+  route_name: amazon.api_test
+  title: "AWS Test"
+  description: "Test Amazon API Settings"
+  base_route: amazon.api_settings
+  weight: 2
+
+amazon.storage:
+  route_name: amazon.storage
+  title: "Cache"
+  description: "Internal Cache Settings"
+  base_route: amazon.api_settings
+  weight: 3

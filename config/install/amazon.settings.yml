@@ -1,0 +1,11 @@
+id: amazon_settings
+label: 'Amazon Settings'
+module: amazon
+amazon_settings:
+amazon_aws_access_key: 
+amazon_aws_secret_access_key: 
+amazon_locale: ['US']
+amazon_associate_id: drupal-88
+amazon_schema: ['2011-08-01']
+amazon_participant_types: ['Author','Artist','Actor','Director','Creator']
+amazon_image_sizes: ['SmallImage','MediumImage','LargeImage']

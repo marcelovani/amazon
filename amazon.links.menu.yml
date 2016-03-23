@@ -1,0 +1,5 @@
+amazon.api_settings:
+  title: Amazon Product Advertisment API
+  description: " Manage Amazon API Settings"
+  route_name: amazon.api_settings
+  parent: system.admin_config_services

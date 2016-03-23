@@ -1,0 +1,120 @@
+<?php
+/**
+ * @file
+ * Module file for page_example_module.
+ */
+
+use Drupal\Core\Url;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ *
+ * @see hook_help()
+ */
+function amazon_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'amazon_help':
+      // Help text for the simple page registered for this path.
+      return t('This is help text for the simple page.');
+  }
+}
+
+function amazon_theme() {
+    $theme['amazon_product_full'] = [
+      'render element' => 'element',
+      'variables' => array(
+        'asin' => NULL,
+        'title' => NULL,
+      ),
+      'template' => 'amazon_product_full'
+    ];
+    $theme['amazon_product_teaser'] = [
+      'render element' => 'element',
+      'variables' => array(
+        'asin' => NULL,
+        'title' => NULL,
+      ),
+      'template' => 'amazon_product_teaser'
+    ];
+
+    return $theme;
+  }
+
+/**
+ * Implements hook_toolbar().
+ */
+function amazon_toolbar() {
+  $items['amazon'] = array(
+    '#type' => 'toolbar_item',
+    'tab' => array(
+      '#type' => 'link',
+      '#title' => t('Amazon API'),
+      '#url' => Url::fromRoute('amazon.api_settings'),
+      '#options' => array(
+        'attributes' => array(
+          'title' => t('Amazon Product Advertisment API'),
+          'class' => array('toolbar-icon', 'toolbar-item', 'toolbar-icon-amazon'),
+        ),
+      ),
+    ),
+    'tray' => array(
+      '#heading' => t('Storage'),
+      'shortcuts' => array(
+        '#theme' => 'links__toolbar_example',
+        '#links' => array(
+          'amazon_settings' => array(
+            'type' => 'link',
+            'title' => 'API Settings',
+            'url' => Url::fromRoute('amazon.api_settings'),
+            'attributes' => array(
+              'title' => t('Amazon Product Advertisment API'),
+              'class' => array('toolbar-icon', 'toolbar-icon-amazon-settings'),
+            ),
+          ),
+          'amazon_test' => array(
+            'type' => 'link',
+            'title' => 'AWS Test',
+            'url' => Url::fromRoute('amazon.api_test'),
+            'attributes' => array(
+              'title' => t('Amazon Product Advertisment API'),
+              'class' => array('toolbar-icon', 'toolbar-icon-amazon-test'),
+            ),
+          ),
+          'amazon_caching' => array(
+            'type' => 'link',
+            'title' => 'Cache',
+            'url' => Url::fromRoute('amazon.storage'),
+            'attributes' => array(
+              'title' => t('Amazon Product Advertisment API'),
+              'class' => array('toolbar-icon', 'toolbar-icon-amazon-caching'),
+            ),
+          ),
+        ),
+        '#attributes' => array(
+          'class' => array('toolbar-menu'),
+        ),
+      ),
+    ),
+    '#weight' => 20,
+    '#attached' => array(
+      'library' => array(
+        'amazon/amazon.icons',
+      ),
+    ),
+  );
+
+  return $items;
+}
+// /**
+//  * Implements hook_menu().
+//  */
+// function amazon_menu() {
+//   $items['admin/config/services/amazon'] = array(
+//     'title' => 'Amazon Product Advertisment API',
+//     'description' => "Configure Amazon API Settings",
+//     'route_name' => 'amazon.api_settings',
+//   );
+ 
+//   return $items;
+// }
