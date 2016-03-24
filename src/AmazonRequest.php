@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 /**
  * Controller routines for Amazon Product Advertisment API Requests 
  */
-class AmazonRequest implements AmazonRequestInterface {
+class AmazonRequest extends ControllerBase implements AmazonRequestInterface {
 
   /**
    * Stores the options used in this request.
