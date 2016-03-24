@@ -7,15 +7,10 @@
 
 namespace Drupal\amazon;
 
-use Drupal\Core\Url;
-use Drupal\Core\Controller\ControllerBase;
-use Drupal\amazon\AmazonHelpers;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-
 /**
  * Controller routines for Amazon Product Advertisment API Requests 
  */
-class AmazonLocales extends ControllerBase {
+class AmazonLocales {
 
   public function amazon_locales_available() {
     $locales = array();
@@ -344,48 +339,5 @@ class AmazonLocales extends ControllerBase {
 
     return $locales;  
   }
-
-   public function amazon_default_locales() {
-    $locales = array();
-    $locales['US'] = array(
-      'url'     => 'http://ecs.amazonaws.com/onca/xml',
-      'name'    => t('United States'),
-    );
-    $locales['UK'] = array(
-      'url'     => 'http://ecs.amazonaws.co.uk/onca/xml',
-      'name'    => t('United Kingdom'),
-    );
-    $locales['JP'] = array(
-      'url'     => 'http://ecs.amazonaws.jp/onca/xml',
-      'name'    => t('Japan'),
-    );
-    $locales['FR'] = array(
-      'url'     => 'http://ecs.amazonaws.fr/onca/xml',
-      'name'    => t('France'),
-    );
-    $locales['DE'] = array(
-      'url'     => 'http://ecs.amazonaws.de/onca/xml',
-      'name'    => t('Germany'),
-    );
-    $locales['CA'] = array(
-      'url'     => 'http://ecs.amazonaws.ca/onca/xml',
-      'name'    => t('Canada'),
-    );
-    $locales['CN'] = array(
-      'url' => 'http://webservices.amazon.cn/onca/xml',
-      'name' => t('China'),
-    );
-    $locales['IT'] = array(
-      'url' => 'http://webservices.amazon.it/onca/xml',
-      'name' => t('Italy'),
-    );
-    $locales['ES'] = array(
-      'url' => 'http://webservices.amazon.es/onca/xml',
-      'name' => t('Spain'),
-    );
-
-    return $locales;
-  }
-
 
 }
