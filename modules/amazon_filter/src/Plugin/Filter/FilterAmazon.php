@@ -31,7 +31,7 @@ class FilterAmazon  extends FilterBase {
   protected $defaultMaxAge;
 
   /**
-   * @inheritdoc
+   * {@inheritdoc}
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -42,7 +42,7 @@ class FilterAmazon  extends FilterBase {
     else {
       $this->defaultMaxAge = \Drupal::config('amazon.settings')->get('default_max_age');
       if (is_null($this->defaultMaxAge)) {
-        throw new \InvalidArgumentException('Missing amazon.settings config.');
+        throw new \InvalidArgumentException('Missing Amazon settings: default max age.');
       }
     }
   }
@@ -90,7 +90,7 @@ class FilterAmazon  extends FilterBase {
         }
 
         // Build a render array for this element. This allows us to easily
-        // override the layout but simply overriding the Twig template. It also
+        // override the layout by simply overriding the Twig template. It also
         // lets us set custom caching for each filter link.
         $build = [
           '#results' => $results,
