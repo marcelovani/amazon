@@ -6,9 +6,10 @@
 
 namespace Drupal\amazon;
 
-use Behat\Mink\Exception\Exception;
-use Drupal\Core\Url;
 use Drupal\amazon\AmazonRequest;
+use ApaiIO\ApaiIO;
+use ApaiIO\Configuration\GenericConfiguration;
+use ApaiIO\Operations\Lookup;
 
 /**
  * Provides methods that interfaces with the Amazon Product Advertising API.
@@ -25,23 +26,10 @@ class Amazon {
   const AMAZON_ACCESS_SECRET = 'AMAZON_ACCESS_SECRET';
 
   /**
-   * @var string
-   *   Cache for the Amazon access key.
+   * @var \ApaiIO\ApaiIO
+   *   The Amazon API object.
    */
-  protected $accessKey;
-
-  /**
-   * @var string
-   *   Cache for the Amazon access secret.
-   */
-  protected $accessSecret;
-
-  /**
-   * @var string
-   *   Cache for the Amazon Associates ID (aka tag).
-   */
-  protected $associatesId;
-
+  protected $apaiIO;
 
   /**
    * Provides an Amazon object for calling the Amazon API.
@@ -54,25 +42,39 @@ class Amazon {
    * @param string $accessSecret
    *   (optional) Access secret to use for all API requests. If not specified,
    *   the access key is determined from other system variables.
+   * @param string $locale
+   *   (optional) Which locale to run queries against. Valid values include: de,
+   *   com, co.uk, ca, fr, co.jp, it, cn, es, in.
    */
-  public function __construct($associatesId, $accessKey = '', $accessSecret = '') {
-    $this->associatesId = $associatesId;
+  public function __construct($associatesId, $accessKey = '', $accessSecret = '', $locale = 'com') {
     if (empty($accessKey)) {
-      $this->accessKey = self::getAccessKey();
-    }
-    else {
-      $this->accessKey = $accessKey;
+      $accessKey = self::getAccessKey();
+      if (!$accessKey) {
+        throw new \InvalidArgumentException('Configuration missing: Amazon access key.');
+      }
     }
     if (empty($accessSecret)) {
-      $this->accessSecret = self::getAccessSecret();
+      $accessSecret = self::getAccessSecret();
+      if (!$accessSecret) {
+        throw new \InvalidArgumentException('Configuration missing: Amazon access secret.');
+      }
     }
-    else {
-      $this->accessSecret = $accessKey;
-    }
+
+    $conf = new GenericConfiguration();
+    $conf
+      ->setCountry($locale)
+      ->setAccessKey($accessKey)
+      ->setSecretKey($accessSecret)
+      ->setAssociateTag($associatesId)
+      ->setResponseTransformer('\Drupal\amazon\LookupXmlToItemsArray');
+    $this->apaiIO = new ApaiIO($conf);
   }
 
   /**
    * Returns the secret key needed for API calls.
+   *
+   * @return string|bool
+   *   String on success, FALSE otherwise.
    */
   static public function getAccessSecret() {
     // Use credentials from environment variables, if available.
@@ -93,6 +95,9 @@ class Amazon {
 
   /**
    * Returns the access key needed for API calls.
+   *
+   * @return string|bool
+   *   String on success, FALSE otherwise.
    */
   static public function getAccessKey() {
     // Use credentials from environment variables, if available.
@@ -129,21 +134,16 @@ class Amazon {
     if (!is_array($items)) {
       $items = [$items];
     }
-    if (empty($this->accessKey) || empty($this->associatesId) || empty($this->accessSecret)) {
-      throw new \LogicException('Lookup called without valid access key, secret, or associates ID.');
-    }
 
     $results = [];
+    // Cannot ask for info from more than 10 items in a single call.
     foreach(array_chunk($items, 10) as $asins) {
-      $request = new AmazonRequest($this->accessSecret, $this->accessKey, $this->associatesId);
-      $request->setOptions([
-        'Service' => 'AWSECommerceService',
-        'ItemId' => implode(',', $asins),
-        'ResponseGroup' => 'Small,Images',
-        'Operation' => 'ItemLookup',
-      ]);
-      $results = array_merge($results, $request->execute()->getResults());
+      $lookup = new Lookup();
+      $lookup->setItemIds($asins);
+      $lookup->setResponseGroup(['Small', 'Images']);
+      $results = array_merge($results, $this->apaiIO->runOperation($lookup));
     }
+    dsm($results);
     return $results;
   }
 
