@@ -120,12 +120,11 @@ class Amazon {
    * Gets information about an item, or array of items, from Amazon.
    *
    * @param array|string $items
-   *   A string containing a single ASIN or an array of ASINs to look up.
+   *   A string containing a single ASIN, or an array of ASINs, to look up.
    *
    * @return array
-   *   An array in the form of asin => response.
-   *
-   * @TODO: Generalize beyond just ASINs.
+   *   An array of SimpleXMLElement objects representing the response from
+   *   Amazon.
    */
   public function lookup($items) {
     if (empty($items)) {
@@ -143,7 +142,6 @@ class Amazon {
       $lookup->setResponseGroup(['Small', 'Images']);
       $results = array_merge($results, $this->apaiIO->runOperation($lookup));
     }
-    dsm($results);
     return $results;
   }
 
