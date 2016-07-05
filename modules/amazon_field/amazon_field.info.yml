@@ -1,0 +1,7 @@
+name: Amazon Field
+type: module
+description: Allows the display of an Amazon product based on the entered ASIN.
+core: 8.x
+package: Amazon
+dependencies:
+  - amazon
