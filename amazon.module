@@ -28,7 +28,6 @@ function amazon_theme_suggestions_amazon(array $variables) {
     $suggestions = 'amazon_image__' . $variables['size'];
   }
 
-  dsm($variables, 'in suggestions');
   return $suggestions;
 }
 
