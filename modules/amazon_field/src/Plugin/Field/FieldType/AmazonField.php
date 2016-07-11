@@ -17,8 +17,8 @@ use Drupal\Core\TypedData\DataDefinition;
  *   id = "amazon_field",
  *   label = @Translation("Amazon field"),
  *   description = @Translation("Allows display of an Amazon product based on the ASIN"),
- *   default_widget = "amazon_widget",
- *   default_formatter = "amazon_formatter"
+ *   default_widget = "text_textfield",
+ *   default_formatter = "amazon_field_formatter"
  * )
  */
 class AmazonField extends FieldItemBase {
@@ -28,8 +28,8 @@ class AmazonField extends FieldItemBase {
    */
   public static function defaultStorageSettings() {
     return array(
-      'max_length' => 255,
-      'is_ascii' => FALSE,
+      'max_length' => 16,
+      'is_ascii' => TRUE,
       'case_sensitive' => FALSE,
     ) + parent::defaultStorageSettings();
   }
