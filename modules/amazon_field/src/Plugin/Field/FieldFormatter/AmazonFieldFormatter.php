@@ -52,7 +52,7 @@ class AmazonFieldFormatter extends FormatterBase {
 
     return array(
       'max_age' => $defaultMaxAge,
-      'template' => 'amazon_image_large',
+      'template' => 'image_large',
   ) + parent::defaultSettings();
   }
 
