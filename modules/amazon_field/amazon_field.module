@@ -16,7 +16,7 @@ function amazon_field_help($route_name, RouteMatchInterface $route_match) {
     case 'help.page.amazon_field':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Allows the display of an Amazon product based on the entered ASIN.') . '</p>';
+      $output .= '<p>' . t('Provides a field to enter Amazon ASIN\'s.') . '</p>';
       return $output;
 
     default:
