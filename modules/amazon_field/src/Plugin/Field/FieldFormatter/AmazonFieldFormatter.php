@@ -34,10 +34,10 @@ class AmazonFieldFormatter extends FormatterBase {
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
     $this->templateOptions = [
-      'amazon_inline' => $this->t('Item title'),
-      'amazon_image_small' => $this->t('Small image'),
-      'amazon_image_medium' => $this->t('Medium image'),
-      'amazon_image_large' => $this->t('Large image'),
+      'inline' => $this->t('Item title'),
+      'image_small' => $this->t('Small image'),
+      'image_medium' => $this->t('Medium image'),
+      'image_large' => $this->t('Large image'),
     ];
   }
 
@@ -97,76 +97,58 @@ class AmazonFieldFormatter extends FormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $elements = [];
+    $asins = [];
 
-    dsm($items);
     foreach ($items as $delta => $item) {
-      $elements[$delta] = ['#markup' => $this->viewValue($item)];
+      if (!$item->isEmpty()) {
+        $asins[$item->value] = $item->value;
+      }
+    }
+
+    $associatesId = \Drupal::config('amazon.settings')->get('associates_id');
+    $amazon = new Amazon($associatesId);
+    $results = $amazon->lookup($asins);
+
+    // No results from Amazon.
+    if (empty($results[0])) {
+      return $elements;
+    }
+
+    $max_age = $this->getSetting('max_age');
+    $basicBuild = [
+      '#max_age' => $max_age,
+    ];
+    // Use the correct Twig template based on the "template" specified.
+    switch (strtolower($this->getSetting('template'))) {
+      case 'inline':
+        $basicBuild['#theme'] = 'amazon_inline';
+        break;
+
+      case 'image_small':
+        $basicBuild['#theme'] = 'amazon_image';
+        $basicBuild['#size'] = 'small';
+        break;
+
+      case 'image_medium':
+        $basicBuild['#theme'] = 'amazon_image';
+        $basicBuild['#size'] = 'medium';
+        break;
+
+      case 'image_large':
+        $basicBuild['#theme'] = 'amazon_image';
+        $basicBuild['#size'] = 'large';
+        break;
+
+      default:
+        // Unknown template specified.
+        return $elements;
+    }
+
+    foreach ($results as $result) {
+      $elements[$delta] = $basicBuild + ['#results' => $result];
     }
 
     return $elements;
-  }
-
-  /**
-   * Generate the output appropriate for one field item.
-   *
-   * @param \Drupal\Core\Field\FieldItemInterface $item
-   *   One field item.
-   *
-   * @return string
-   *   The textual output generated.
-   */
-  protected function viewValue(FieldItemInterface $item) {
-    dsm($item);
-    //$associatesId = \Drupal::config('amazon.settings')->get('associates_id');
-    //$amazon = new Amazon($associatesId);
-    //$results = $amazon->lookup($asin);
-    //if (empty($results[0])) {
-    //  continue;
-    //}
-    //
-    //// Build a render array for this element. This allows us to easily
-    //// override the layout by simply overriding the Twig template. It also
-    //// lets us set custom caching for each filter link.
-    //$build = [
-    //  '#results' => $results,
-    //  '#max_age' => $maxAge,
-    //];
-    //
-    //// Use the correct Twig template based on the "type" specified.
-    //switch (strtolower($type)) {
-    //  case 'inline':
-    //    $build['#theme'] = 'amazon_inline';
-    //    break;
-    //
-    //  case 'small':
-    //  case 'thumbnail':
-    //    $build['#theme'] = 'amazon_image';
-    //    $build['#size'] = 'small';
-    //    break;
-    //
-    //  case 'medium':
-    //    $build['#theme'] = 'amazon_image';
-    //    $build['#size'] = 'medium';
-    //    break;
-    //
-    //  case 'large':
-    //  case 'full':
-    //    $build['#theme'] = 'amazon_image';
-    //    $build['#size'] = 'large';
-    //    break;
-    //
-    //  default:
-    //    continue;
-    //}
-
-
-
-
-
-
-    // The text value has no text format assigned to it, so the user input
-    // should equal the output, including newlines.
-    return nl2br(Html::escape($item->value));
   }
 
 }
