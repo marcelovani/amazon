@@ -22,13 +22,10 @@ use Drupal\Core\TypedData\DataDefinition;
  */
 class AmazonAsinField extends FieldItemBase {
 
-  /**
-   * {@inheritdoc}
-   */
   public static function defaultStorageSettings() {
     return array(
       'max_length' => 10,
-      'is_ascii' => TRUE,
+      'is_ascii' => FALSE,
       'case_sensitive' => FALSE,
     ) + parent::defaultStorageSettings();
   }
@@ -38,7 +35,7 @@ class AmazonAsinField extends FieldItemBase {
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
     // Prevent early t() calls by using the TranslatableMarkup.
-    $properties['asin'] = DataDefinition::create('string')
+    $properties['value'] = DataDefinition::create('string')
       ->setLabel(new TranslatableMarkup('Amazon ASIN'))
       ->setSetting('case_sensitive', $field_definition->getSetting('case_sensitive'))
       ->setRequired(TRUE);
@@ -52,7 +49,7 @@ class AmazonAsinField extends FieldItemBase {
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
     $schema = array(
       'columns' => array(
-        'asin' => array(
+        'value' => array(
           'type' => $field_definition->getSetting('is_ascii') === TRUE ? 'varchar_ascii' : 'varchar',
           'length' => (int) $field_definition->getSetting('max_length'),
           'binary' => $field_definition->getSetting('case_sensitive'),
@@ -72,7 +69,7 @@ class AmazonAsinField extends FieldItemBase {
     if ($max_length = $this->getSetting('max_length')) {
       $constraint_manager = \Drupal::typedDataManager()->getValidationConstraintManager();
       $constraints[] = $constraint_manager->create('ComplexData', array(
-        'asin' => array(
+        'value' => array(
           'Length' => array(
             'max' => $max_length,
             'maxMessage' => t('%name: may not be longer than @max characters.', array(
@@ -92,7 +89,7 @@ class AmazonAsinField extends FieldItemBase {
    */
   public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
     $random = new Random();
-    $values['asin'] = $random->word(mt_rand(1, $field_definition->getSetting('max_length')));
+    $values['value'] = $random->word(mt_rand(1, $field_definition->getSetting('max_length')));
     return $values;
   }
 
@@ -100,7 +97,7 @@ class AmazonAsinField extends FieldItemBase {
    * {@inheritdoc}
    */
   public function isEmpty() {
-    $value = $this->get('asin')->getValue();
+    $value = $this->get('value')->getValue();
     return $value === NULL || $value === '';
   }
 
