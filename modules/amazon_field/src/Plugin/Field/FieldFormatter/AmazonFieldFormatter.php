@@ -105,6 +105,11 @@ class AmazonFieldFormatter extends FormatterBase {
       }
     }
 
+    // Nothing to render.
+    if (empty($asins)) {
+      return $elements;
+    }
+
     $associatesId = \Drupal::config('amazon.settings')->get('associates_id');
     $amazon = new Amazon($associatesId);
     $results = $amazon->lookup($asins);
