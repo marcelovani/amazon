@@ -70,8 +70,6 @@ class AmazonFieldWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    $element = [];
-
     $element['value'] = $element + array(
       '#type' => 'textfield',
       '#default_value' => isset($items[$delta]->value) ? $items[$delta]->value : NULL,

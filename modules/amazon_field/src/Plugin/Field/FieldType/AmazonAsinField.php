@@ -15,7 +15,7 @@ use Drupal\Core\TypedData\DataDefinition;
  * @FieldType(
  *   id = "amazon_asin_field",
  *   label = @Translation("Amazon ASIN field"),
- *   description = @Translation("Displays an Amazon product based on the"),
+ *   description = @Translation("Displays an Amazon product based on the ASIN"),
  *   default_widget = "amazon_field_widget",
  *   default_formatter = "amazon_field_formatter"
  * )
