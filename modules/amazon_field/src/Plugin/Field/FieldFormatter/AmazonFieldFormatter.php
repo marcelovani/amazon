@@ -66,7 +66,7 @@ class AmazonFieldFormatter extends FormatterBase {
       '#type' => 'textfield',
       '#title' => $this->t('Max age for cached results'),
       '#description' => $this->t('The number of seconds that the system should cache the results from Amazon\'s servers. Leave blank to use the default max age set on the <a href=":url">Amazon settings page</a>, currently set at @default_max_age seconds.', [
-        ':url' => Url::fromRoute('amazon.settings_form'),
+        ':url' => Url::fromRoute('amazon.settings_form')->toString(),
         '@default_max_age' => $defaultMaxAge
       ]),
       '#default_value' => ($this->getSetting('max_age') == $defaultMaxAge) ? '' : $this->getSetting('max_age'),
