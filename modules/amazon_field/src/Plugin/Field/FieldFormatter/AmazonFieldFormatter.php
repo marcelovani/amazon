@@ -53,6 +53,9 @@ class AmazonFieldFormatter extends FormatterBase {
     return array(
       'max_age' => $defaultMaxAge,
       'template' => 'image_large',
+      'advanced' => [
+        'extraResponseGroups' => '',
+      ],
   ) + parent::defaultSettings();
   }
 
@@ -78,6 +81,21 @@ class AmazonFieldFormatter extends FormatterBase {
       '#options' => $this->templateOptions,
       '#default_value' => $this->getSetting('template'),
     ];
+    $form['advanced'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Advanced options'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+    ];
+    $form['advanced']['extraResponseGroups'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Additional response groups'),
+      '#description' => $this->t('Use this field to add additional <a href="@amazon_link">response groups</a> to the information supplied to templates. This is only needed if you are overwriting the Twig templates and want addition product information. One response group per line, response groups <em>Small</em> and <em>Images</em> are included by default.',
+        ['@amazon_link' => Url::fromUri('http://docs.aws.amazon.com/AWSECommerceService/latest/DG/CHAP_ResponseGroupsList.html')]
+      ),
+      '#default_value' => $this->getSettings()['advanced']['extraResponseGroups'],
+    ];
+
 
     return $form + parent::settingsForm($form, $form_state);
   }
@@ -87,8 +105,14 @@ class AmazonFieldFormatter extends FormatterBase {
    */
   public function settingsSummary() {
     $summary = [];
-    $summary[] = $this->t('Cache max age: @max_age', ['@max_age' => $this->getSetting('max_age')]);
-    $summary[] = $this->t('Display as: @template', ['@template' => $this->templateOptions[$this->getSetting('template')]]);
+    $settings = $this->getSettings();
+    $summary[] = $this->t('Display as: @template', ['@template' => $this->templateOptions[$settings['template']]]);
+    if (!empty($settings['max_age'])) {
+      $summary[] = $this->t('Cache max age: @max_age', ['@max_age' => $settings['max_age']]);
+    }
+    if (!empty($settings['advanced']['extraResponseGroups'])) {
+      $summary[] = $this->t('Includes extra response groups.');
+    }
     return $summary;
   }
 
@@ -112,7 +136,12 @@ class AmazonFieldFormatter extends FormatterBase {
 
     $associatesId = \Drupal::config('amazon.settings')->get('associates_id');
     $amazon = new Amazon($associatesId);
-    $results = $amazon->lookup($asins);
+    // Include Small and Images response groups along with any specified.
+    $responseGroups = ['Small', 'Images'];
+    if (!empty($this->getSettings()['advanced']['extraResponseGroups'])) {
+      $responseGroups = array_merge($responseGroups, explode("\n", $this->getSettings()['advanced']['extraResponseGroups']));
+    }
+    $results = $amazon->lookup($asins, $responseGroups);
 
     // No results from Amazon.
     if (empty($results[0])) {
@@ -149,7 +178,19 @@ class AmazonFieldFormatter extends FormatterBase {
         return $elements;
     }
 
-    foreach ($results as $result) {
+    // Add some template suggestions. Note these won't show up in the template
+    // debug code until https://www.drupal.org/node/2118743 is fixed.
+    $bundle = $this->fieldDefinition->getTargetBundle();
+    $field = $this->fieldDefinition->getName();
+    $baseTheme = $basicBuild['#theme'];
+    $basicBuild['#theme'] = [
+      $baseTheme . '__' . $bundle . '__' . $field,
+      $baseTheme . '__' . $field,
+      $baseTheme . '__' . $bundle,
+      $baseTheme,
+    ];
+
+    foreach ($results as $delta => $result) {
       $elements[$delta] = $basicBuild + ['#results' => $result];
     }
 
