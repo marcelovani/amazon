@@ -180,15 +180,8 @@ class AmazonFieldFormatter extends FormatterBase {
 
     // Add some template suggestions. Note these won't show up in the template
     // debug code until https://www.drupal.org/node/2118743 is fixed.
-    $bundle = $this->fieldDefinition->getTargetBundle();
-    $field = $this->fieldDefinition->getName();
-    $baseTheme = $basicBuild['#theme'];
-    $basicBuild['#theme'] = [
-      $baseTheme . '__' . $bundle . '__' . $field,
-      $baseTheme . '__' . $field,
-      $baseTheme . '__' . $bundle,
-      $baseTheme,
-    ];
+    $basicBuild['#bundle'] = $this->fieldDefinition->getTargetBundle();
+    $basicBuild['#field'] = $this->fieldDefinition->getName();
 
     foreach ($results as $delta => $result) {
       $elements[$delta] = $basicBuild + ['#results' => $result];
