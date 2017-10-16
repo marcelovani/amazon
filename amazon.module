@@ -351,7 +351,7 @@ function _amazon_item_classes($item) {
  */
 function amazon_http_request($operation, $parameters = array(), $locale = NULL) {
   if (!isset($locale)) {
-    $locale = variable_get('amazon_locale', 'US');
+    $locale = variable_get('amazon_default_locale', 'US');
   }
   $metadata = amazon_data_cache();
   $locale_data = $metadata['locales'][$locale];
