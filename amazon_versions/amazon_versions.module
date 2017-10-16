@@ -36,9 +36,9 @@ function amazon_versions_amazon_item_load($item) {
   $item_ids = array();
   $result =  db_query("SELECT asin, title, binding FROM {amazon_versions} WHERE item = :item ORDER BY delta ASC", array(':item' => $item['asin']));
 
-  while ($version = db_fetch_array($result)) {
+  foreach ($result as $version) {
     $alternates[] = $version;
-    $item_ids[] = $version['asin'];
+    $item_ids[] = $version->asin;
   }
 
   $additions['alternateversions'] = $alternates;
