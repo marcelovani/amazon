@@ -95,6 +95,13 @@ function amazon_storage_settings_form($form, &$form_state) {
     '#options' => $period
   );
 
+  $form['details']['amazon_refresh_cron_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Limit'),
+    '#description' => t('This will be the number of items processed each time cron runs.'),
+    '#default_value' => variable_get('amazon_refresh_cron_limit', 50),
+  );
+
   $form['details']['amazon_core_data'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Store extended product data'),

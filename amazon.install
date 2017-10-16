@@ -23,6 +23,7 @@ function amazon_uninstall() {
     'amazon_aws_access_key',
     'amazon_aws_secret_access_key',
     'amazon_refresh_schedule',
+    'amazon_refresh_cron_limit',
     'amazon_core_data',
   );
 	foreach ($vars as $var) {

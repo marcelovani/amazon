@@ -989,13 +989,12 @@ function amazon_get_associate_id($locale = NULL) {
 
 function amazon_cron() {
   // Here, we're going to chug through all the existing ASINs and update them.
-  // We'll grab 50 at a time to avoid thrashing things.
-  $per_cron_limit = 50;
   $needs_update_time = REQUEST_TIME - variable_get('amazon_refresh_schedule', 86400);
   $result = db_select('amazon_item', NULL, array('fetch' => PDO::FETCH_ASSOC))
             ->fields('amazon_item', array('asin'))
             ->condition('timestamp', $needs_update_time, '<')
-            ->range(0, $per_cron_limit)
+            ->orderBy('timestamp', 'ASC')
+            ->range(0, variable_get('amazon_refresh_cron_limit', 50))
             ->execute();
   $asins = $result->FetchCol();
   if (!empty($asins)) {
