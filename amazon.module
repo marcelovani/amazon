@@ -151,8 +151,6 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
 
   $variables['invalid_asin'] = !empty($item['invalid_asin']) ? 1 : 0;
 
-  $variables['detailpageurl'] = check_url($variables['detailpageurl']);
-
   if (!empty($variables['customerreviews'])) {
     foreach($variables['customerreviews'] as $key => $review) {
       $variables['customerreviews'][$key] = filter_xss($variables['customerreviews'][$key]);
@@ -646,7 +644,7 @@ function amazon_item_insert($item) {
     '%3A' => ':',
     '%2C' => ',',
     '%2F' => '/',
-    '%26' => '%',
+    '%26' => '&',
     '%3F' => '?',
   );
   if (isset($db_item['detailpageurl'])) {
