@@ -1,0 +1,34 @@
+<?php
+
+/**
+ * @file
+ * Tests for amazon.module.
+ */
+
+class AmazonTemplates extends DrupalWebTestCase {
+  protected $admin_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Amazon templates',
+      'description' => 'Tests that Amazon templates render correctly.',
+      'group' => 'Amazon',
+    );
+  }
+
+  protected function setUp() {
+    // Enable modules.
+    parent::setUp('amazon', 'field_ui', 'amazon_test');
+  }
+
+  /**
+   * Test the Amazon templates.
+   */
+  public function testAmazonTemplates() {
+    // Enable Amazon display on article content.
+    $this->drupalGet("admin/config/services/amazon/testing/templates");
+    $this->assertResponse(200);
+    $output_strings = $this->xpath("//div[contains(@class,'stickynote')]/text()");
+    $this->assertEqual((string) reset($output_strings), $view_own_content);
+  }
+}

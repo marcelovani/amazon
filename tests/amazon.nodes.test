@@ -1,0 +1,104 @@
+<?php
+
+/**
+ * @file
+ * Tests for amazon.module.
+ */
+
+class AmazonNodes extends DrupalWebTestCase {
+  protected $admin_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Amazon nodes',
+      'description' => 'Tests that Amazon nodes render correctly.',
+      'group' => 'Amazon',
+    );
+  }
+
+  protected function setUp() {
+    // Enable modules.
+    parent::setUp('amazon', 'field_ui', 'amazon_test');
+
+    // Create Admin user.
+    $this->admin_user = $this->drupalCreateUser(array(
+        'administer content types',
+        'administer nodes',
+        'edit any article content',
+        'administer fields',
+      )
+    );
+    $this->drupalLogin($this->admin_user);
+  }
+
+  /**
+   * Test the field formatters.
+   */
+  public function testFieldFormatters() {
+    // Login as an admin user.
+    $this->drupalLogin($this->admin_user);
+
+    // Add ASIN field to the content type.
+    _amazon_test_create_node_field_instances();
+
+    // Set the display of the field.
+
+    // Check UI
+    $this->drupalGet('admin/structure/types/manage/test/fields');
+    $this->drupalGet('admin/structure/types/manage/test/display');
+
+    // Create a node.
+    $node = $this->drupalCreateNode(array('type' => 'article'));
+
+    // Test that the markup is correct.
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertResponse(200);
+
+    // Change display of the field... repeat
+
+    return;
+
+
+
+    // Enable Amazon display on article content.
+    $this->drupalGet("admin/structure/types/manage/article/display");
+    $this->assertResponse(200);
+    $edit = ["view_modes_custom[amazon]" => '1'];
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    // Amazon version of node should be enabled by default.
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertResponse(200);
+    // Check amazonhtml link.
+    $this->assertRaw('<link rel="amazonhtml"');
+    // Visit amazon page.
+    $this->drupalGet('node/' . $node->nid, array('query' => array('amazon' => TRUE)));
+    $this->assertResponse(200);
+    $this->assertText($node->body[LANGUAGE_NONE][0]['value']);
+    // Check canonical link.
+    $pattern = '|<link rel="canonical" href="http(.*):\/\/(.*)node\/1"\s\/>|';
+    $this->assertPattern($pattern, 'Check that link rel="canonical" is present on the page.');
+
+    // Edit the node and turn off Amazon.
+    $this->drupalGet('node/' . $node->nid . '/edit');
+    $this->assertResponse(200);
+    $edit = [
+      'amazon_enabled' => FALSE,
+    ];
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    // View node.
+    $this->drupalGet('node/' . $node->nid);
+    $this->assertResponse(200);
+    // Check that amazonhtml link is not present.
+    $pattern = '|<link rel="amazonhtml" href="http(.*):\/\/(.*)node\/1\?.*amazon"|';
+    $this->assertNoPattern($pattern, 'Check that link rel="amazonhtml" is present on the page.');
+  }
+
+  /**
+   * Test the input filters.
+   */
+  public function testInputFilters() {
+  }
+
+}
