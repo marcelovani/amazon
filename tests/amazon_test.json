@@ -1,0 +1,179 @@
+{
+  "asin": "B00Y98VHGK",
+  "ean": "0888462108720",
+  "salesrank": 0,
+  "detailpageurl": "https:\/\/www.amazon.com\/Apple-MacBook-Pro-Retina-15\/dp\/B00Y98VHGK?SubscriptionId=foo&tag=test-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=B00Y98VHGK",
+  "binding": "Personal Computers",
+  "brand": "Apple",
+  "label": "Apple Computer",
+  "manufacturer": "Apple Computer",
+  "model": "MJLQ2B\/A",
+  "mpn": "MJLQ2B\/A",
+  "packagequantity": "1",
+  "partnumber": "MJLQ2B\/A",
+  "platform": "PowerMac",
+  "productgroup": "CE",
+  "producttypename": "NOTEBOOK_COMPUTER",
+  "publisher": "Apple Computer",
+  "studio": "Apple Computer",
+  "title": "Apple MacBook Pro Retina 15\"",
+  "upc": "888462108720",
+  "imagesets": {
+    "smallimage": {
+      "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41kK%2BEmVQJL._SL75_.jpg",
+      "height": 46,
+      "width": 75
+    },
+    "mediumimage": {
+      "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41kK%2BEmVQJL._SL160_.jpg",
+      "height": 99,
+      "width": 160
+    },
+    "largeimage": {
+      "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41kK%2BEmVQJL.jpg",
+      "height": 308,
+      "width": 500
+    }
+  },
+  "imagesets_gallery": {
+    "smallimage_gallery": {
+      "1": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41LQpAWNF1L._SL75_.jpg",
+        "category": "variant",
+        "height": 41,
+        "width": 75
+      },
+      "2": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41YHa%2B7kZ8L._SL75_.jpg",
+        "category": "variant",
+        "height": 40,
+        "width": 75
+      },
+      "3": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/31FCznKWFBL._SL75_.jpg",
+        "category": "variant",
+        "height": 20,
+        "width": 75
+      },
+      "4": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/21PwWTrvbSL._SL75_.jpg",
+        "category": "variant",
+        "height": 40,
+        "width": 75
+      },
+      "5": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41P3yAgQ1fL._SL75_.jpg",
+        "category": "variant",
+        "height": 40,
+        "width": 75
+      },
+      "6": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41yid9COGaL._SL75_.jpg",
+        "category": "variant",
+        "height": 41,
+        "width": 75
+      },
+      "7": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41kK%2BEmVQJL._SL75_.jpg",
+        "category": "primary",
+        "height": 46,
+        "width": 75
+      }
+    },
+    "mediumimage_gallery": {
+      "1": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41LQpAWNF1L._SL160_.jpg",
+        "category": "variant",
+        "height": 88,
+        "width": 160
+      },
+      "2": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41YHa%2B7kZ8L._SL160_.jpg",
+        "category": "variant",
+        "height": 86,
+        "width": 160
+      },
+      "3": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/31FCznKWFBL._SL160_.jpg",
+        "category": "variant",
+        "height": 44,
+        "width": 160
+      },
+      "4": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/21PwWTrvbSL._SL160_.jpg",
+        "category": "variant",
+        "height": 86,
+        "width": 160
+      },
+      "5": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41P3yAgQ1fL._SL160_.jpg",
+        "category": "variant",
+        "height": 86,
+        "width": 160
+      },
+      "6": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41yid9COGaL._SL160_.jpg",
+        "category": "variant",
+        "height": 87,
+        "width": 160
+      },
+      "7": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41kK%2BEmVQJL._SL160_.jpg",
+        "category": "primary",
+        "height": 99,
+        "width": 160
+      }
+    },
+    "largeimage_gallery": {
+      "1": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41LQpAWNF1L.jpg",
+        "category": "variant",
+        "height": 274,
+        "width": 500
+      },
+      "2": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41YHa%2B7kZ8L.jpg",
+        "category": "variant",
+        "height": 268,
+        "width": 500
+      },
+      "3": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/31FCznKWFBL.jpg",
+        "category": "variant",
+        "height": 136,
+        "width": 500
+      },
+      "4": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/21PwWTrvbSL.jpg",
+        "category": "variant",
+        "height": 268,
+        "width": 500
+      },
+      "5": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41P3yAgQ1fL.jpg",
+        "category": "variant",
+        "height": 268,
+        "width": 500
+      },
+      "6": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41yid9COGaL.jpg",
+        "category": "variant",
+        "height": 273,
+        "width": 500
+      },
+      "7": {
+        "url": "https:\/\/images-na.ssl-images-amazon.com\/images\/I\/41kK%2BEmVQJL.jpg",
+        "category": "primary",
+        "height": 308,
+        "width": 500
+      }
+    }
+  },
+  "editorialreviews": [
+    {
+      "source": "Product Description",
+      "content": "Apple MacBook Pro Retina 15\""
+    }
+  ],
+  "customerreviews_iframe": "https:\/\/www.amazon.com\/reviews\/iframe?akid=foo&alinkCode=xm2&asin=B00Y98VHGK&atag=test-20&exp=2017-10-22T00%3A08%3A18Z&v=2&sig=%252FHKtmOVn3afWmgZdRE4YGDfmz9te1RI%253D"
+}

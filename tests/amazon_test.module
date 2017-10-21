@@ -6,6 +6,15 @@
  */
 
 /**
+ * Implements hook_install();
+ */
+function amazon_test_install() {
+  // Pre-populate the db.
+  $item = _amazon_test_get_amazon_item();
+  amazon_item_insert($item);
+}
+
+/**
  * Implements hook_menu().
  */
 function amazon_test_menu() {
@@ -24,11 +33,10 @@ function amazon_test_menu() {
 function amazon_test_templates_page_callback() {
   $markup = '';
   $item = _amazon_test_get_amazon_item();
-  //$item = amazon_item_lookup_from_db(array('B00004SGFW'));
+  //$item = amazon_item_lookup_from_db(array('B00Y98VHGK'));
   $styles = _amazon_test_get_amazon_styles_test();
   foreach (array_keys($styles) as $style) {
-    var_dump($style);
-    $markup .= theme('amazon_item', array(
+    $markup .= $style . theme('amazon_item', array(
       'item' => $item,
       'style' => $style,
     ));
@@ -43,91 +51,104 @@ function amazon_test_templates_page_callback() {
  */
 function _amazon_test_get_amazon_styles_test() {
   return array(
-//    'amazon_inline_item' => array(
-//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
-//    ),
-    'detail' => array(
-      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+    'default' => array(
+      'label' => t('Thumbnail with title'),
+    ),
+    'default_gallery' => array(
+      'label' => t('Gallery with title'),
     ),
     'details' => array(
-      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+      'label' => t('Thumbnail with details'),
     ),
-    'default' => array(
-      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+    'details_gallery' => array(
+      'label' => t('Gallery with details'),
     ),
     'thumbnail' => array(
-      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+      'label' => t('Thumbnail image'),
+    ),
+    'thumbnail_gallery' => array(
+      'label' => t('Thumbnail Gallery Image(s)'),
     ),
     'medium' => array(
-      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+      'label' => t('Medium image'),
+    ),
+    'medium_gallery' => array(
+      'label' => t('Medium Gallery Image(s)'),
     ),
     'large' => array(
-      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+      'label' => t('Large image'),
     ),
-
-    //@todo Move to amazon_wysiwyg tests.
-    'buy_now_wide' => array(
-      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+    'large_gallery' => array(
+      'label' => t('Large Gallery Image(s)'),
     ),
-    'buy_now_medium' => array(
-      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+    'inline' => array(
+      'label' => t('Link to item'),
+    ),
+    'plain' => array(
+      'label' => t('ASIN as plain text'),
     ),
   );
+//  return array(
+////    'amazon_inline_item' => array(
+////      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+////    ),
+//    'detail' => array(
+//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+//    ),
+//    'details' => array(
+//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+//    ),
+//    'default' => array(
+//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+//    ),
+//    'thumbnail' => array(
+//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+//    ),
+//    'medium' => array(
+//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+//    ),
+//    'large' => array(
+//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+//    ),
+//
+//    //@todo Move to amazon_wysiwyg tests.
+//    'buy_now_wide' => array(
+//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+//    ),
+//    'buy_now_medium' => array(
+//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
+//    ),
+//  );
 }
 
 /**
  * Provides an Amazon item for testing.
  */
 function _amazon_test_get_amazon_item() {
-  // @todo: Use XML or similar as data source.
-  return array(
-    'asin' => 'B00004SGFW',
-    'title' => 'KitchenAid K45SS Classic Stand Mixer - White',
-    'detailpageurl' => 'https://www.amazon.co.uk/KitchenAid-K45SS-Classic-Stand-Mixer/dp/B00004SGFW?psc=1&SubscriptionId=AKIAJXIY36IRC3UVWHAQ&tag=experevi-21&linkCode=xm2&camp=2025&creative=165953&creativeASIN=B00004SGFW',
-    'salesrank' => '2408',
-    'brand' => 'KitchenAid',
-    'publisher' => 'Kitchen Aid',
-    'manufacturer' => 'Kitchen Aid',
-    'mpn' => 'K45SSWH',
-    'studio' => 'Kitchen Aid',
-    'label' => 'Kitchen Aid',
-    'binding' => 'Kitchen & Home',
-    'releasedate' => NULL,
-    'listpriceamount' => NULL,
-    'listpricecurrencycode' => NULL,
-    'listpriceformattedprice' => NULL,
-    'lowestpriceamount' => '34900',
-    'lowestpricecurrencycode' => 'GBP',
-    'lowestpriceformattedprice' => '£349.00',
-    'amazonpriceamount' => '34900',
-    'amazonpricecurrencycode' => 'GBP',
-    'amazonpriceformattedprice' => '£349.00',
-    'productgroup' => 'BISS',
-    'producttypename' => 'KITCHEN',
-    'customerreviews_iframe' => 'https://www.amazon.co.uk/reviews/iframe?akid=AKIAJXIY36IRC3UVWHAQ&alinkCode=xm2&asin=B00004SGFW&atag=experevi-21&exp=2017-10-18T11:00:02Z&v=2&sig=%252FpDAvNFmGl5rJg0SeYEefhgC3Hx2%252F58XortrzI91%252FQg%253D',
-    'invalid_asin' => '0',
-    'timestamp' => '0',
-  );
+  $source = drupal_get_path('module', 'amazon_test') . '/amazon_test.json';
+  $json = file_get_contents($source);
+
+  return json_decode($json, true);
 }
 
 /**
  * Helper function to create field instances and attach to articles content.
  */
-function _amazon_test_create_node_field_instances() {
+function _amazon_test_attach_fields() {
   include_once 'amazon_test.field_base.inc';
   include_once 'amazon_test.field_instance.inc';
 
   $field_bases = amazon_test_field_default_field_bases();
   $field_instances = amazon_test_field_default_field_instances();
 
-  if (!db_table_exists('field_data_field_asim')) {
-    field_create_field($field_bases['field_asim']);
+  if (!db_table_exists('field_data_field_asin')) {
+    field_create_field($field_bases['field_asin']);
   }
 
   // Create instance.
-  if (!field_read_instance('node', 'field_asim', 'article')) {
-    if ($field_info = field_info_field('field_asim')) {
-      $field_instance =$field_instances['field_asim'];
+  if (!field_read_instance('node', 'field_asin', 'article')) {
+    if ($field_info = field_info_field('field_asin')) {
+      $field_instance = $field_instances['node-article-field_asin'];
 
       if (!field_create_instance($field_instance)) {
         drupal_set_message(
@@ -143,4 +164,22 @@ function _amazon_test_create_node_field_instances() {
   }
 
   field_cache_clear();
+}
+
+/**
+ * Helper function to store random ids used by tests.
+ *
+ * @param string $id
+ *   The Id to be stored.
+ * @return string $id
+ *   The Id stored.
+ */
+function _amazon_test_random_id($id = NULL) {
+  static $store;
+
+  if (!is_null($id)) {
+    $store = $id;
+  }
+
+  return $store;
 }

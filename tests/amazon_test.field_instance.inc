@@ -7,11 +7,11 @@
 /**
  * Implements hook_field_default_field_instances().
  */
-function amazon_test_field_default_field_instances() {
+function amazon_test_field_default_field_instances($bundle = 'article') {
   $field_instances = array();
 
-  $field_instances['node-article-field_asim'] = array(
-    'bundle' => 'test',
+  $field_instances['node-' . $bundle . '-field_asin'] = array(
+    'bundle' => $bundle,
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -31,8 +31,8 @@ function amazon_test_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_asim',
-    'label' => 'ASIM',
+    'field_name' => 'field_asin',
+    'label' => 'ASIN',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,

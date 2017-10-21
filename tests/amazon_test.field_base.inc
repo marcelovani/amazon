@@ -10,13 +10,12 @@
 function amazon_test_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_asim'.
-  $field_bases['field_asim'] = array(
+  $field_bases['field_asin'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_asim',
+    'field_name' => 'field_asin',
     'indexes' => array(),
     'locked' => 0,
     'module' => 'asin',

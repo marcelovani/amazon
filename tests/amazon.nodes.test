@@ -4,7 +4,6 @@
  * @file
  * Tests for amazon.module.
  */
-
 class AmazonNodes extends DrupalWebTestCase {
   protected $admin_user;
 
@@ -18,7 +17,7 @@ class AmazonNodes extends DrupalWebTestCase {
 
   protected function setUp() {
     // Enable modules.
-    parent::setUp('amazon', 'field_ui', 'amazon_test');
+    parent::setUp('amazon', 'asin', 'node', 'field_ui', 'amazon_test');
 
     // Create Admin user.
     $this->admin_user = $this->drupalCreateUser(array(
@@ -29,6 +28,38 @@ class AmazonNodes extends DrupalWebTestCase {
       )
     );
     $this->drupalLogin($this->admin_user);
+
+    // Generate and store an Id.
+    $id = _amazon_test_random_id($this->randomString());
+
+    // Module settings.
+    variable_set('amazon_refresh_schedule', REQUEST_TIME + 3600);
+    variable_set('amazon_aws_access_key', $id);
+    variable_set('amazon_aws_secret_access_key', $id);
+    variable_set('amazon_default_locale', 'US');
+    variable_set('amazon_locale_US_associate_id', 'test-20');
+  }
+
+  /**
+   * Check that an element exists in HTML markup.
+   *
+   * @param       $xpath
+   *   An XPath expression.
+   * @param array $arguments
+   *   (optional) An associative array of XPath replacement tokens to pass to
+   *   DrupalWebTestCase::buildXPathQuery().
+   * @param       $message
+   *   The message to display along with the assertion.
+   * @param       $group
+   *   The type of assertion - examples are "Browser", "PHP".
+   *
+   * @return
+   *   TRUE if the assertion succeeded, FALSE otherwise.
+   */
+  protected function assertElementByXPath($xpath, array $arguments = array(), $message, $group = 'Other') {
+    $elements = $this->xpath($xpath, $arguments);
+
+    return $this->assertTrue(!empty($elements[0]), $message, $group);
   }
 
   /**
@@ -39,26 +70,58 @@ class AmazonNodes extends DrupalWebTestCase {
     $this->drupalLogin($this->admin_user);
 
     // Add ASIN field to the content type.
-    _amazon_test_create_node_field_instances();
-
-    // Set the display of the field.
+    _amazon_test_attach_fields();
 
     // Check UI
-    $this->drupalGet('admin/structure/types/manage/test/fields');
-    $this->drupalGet('admin/structure/types/manage/test/display');
-
+    $this->drupalGet('admin/structure/types/manage/article/fields');
+    $this->assertRaw('ASIN');
+    $this->assertRaw('field_asin');
+    $this->assertLink('Amazon item');
+    $this->assertLink('Amazon ASIN Text field');
+    $this->drupalGet('admin/structure/types/manage/article/display');
+    $this->assertRaw('ASIN');
     // Create a node.
-    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $amazon_item = _amazon_test_get_amazon_item();
+    $node = $this->drupalCreateNode(
+      array(
+        'type' => 'article',
+        'field_asin' => array(LANGUAGE_NONE => array(array('asin' => $amazon_item['asin'])))
+      )
+    );
 
-    // Test that the markup is correct.
-    $this->drupalGet('node/' . $node->nid);
-    $this->assertResponse(200);
+    $test_styles = _amazon_test_get_amazon_styles_test();
+    foreach ($test_styles as $style => $details) {
+
+      // Change the field format.
+      if ($instance = field_read_instance('node', 'field_asin', 'article')) {
+        $instance['display']['default']['type'] = 'asin_' . $style;
+        field_update_instance($instance);
+      }
+
+      // Test that the markup is correct.
+      $this->drupalGet('node/' . $node->nid);
+      $this->assertResponse(200);
+      $this->assertRaw('ASIN');
+
+      // Test markup.
+      $xpath = '//div[contains(@class, :container_class)' .
+        ' and contains(@class, :item_class)' .
+        ' and contains(@class, :style_class)]' .
+        '//a[text()=:link_text][contains(@href, :track_id)]';
+
+      $this->assertElementByXPath($xpath, array(
+        ':container_class' => 'amazon-product--container',
+        ':item_class' => 'amazon-item',
+        ':style_class' => "amazon-item-$style",
+        ':link_text' => 'Apple MacBook Pro Retina 15"',
+        ':track_id' => variable_get('amazon_locale_US_associate_id'),
+      ), "Style '$style'' was rendered correctly.");
+
+    }
 
     // Change display of the field... repeat
 
     return;
-
-
 
     // Enable Amazon display on article content.
     $this->drupalGet("admin/structure/types/manage/article/display");
@@ -100,5 +163,4 @@ class AmazonNodes extends DrupalWebTestCase {
    */
   public function testInputFilters() {
   }
-
 }
