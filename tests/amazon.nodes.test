@@ -16,9 +16,9 @@ class AmazonNodesTest extends AmazonBaseTest {
     );
   }
 
-  protected function setUp() {
+  protected function setUp($modules = array()) {
     // Enable modules.
-    parent::setUp();
+    parent::setUp($modules);
   }
 
   /**
@@ -40,7 +40,7 @@ class AmazonNodesTest extends AmazonBaseTest {
     $this->drupalGet('admin/structure/types/manage/article/display');
     $this->assertRaw('ASIN');
     // Create a node.
-    $amazon_item = _amazon_test_get_amazon_item();
+    $amazon_item = amazon_test_get_amazon_item();
     $node = $this->drupalCreateNode(
       array(
         'type' => 'article',

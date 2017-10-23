@@ -16,9 +16,9 @@ class AmazonTemplatesTest extends AmazonBaseTest {
     );
   }
 
-  protected function setUp() {
+  protected function setUp($modules = array()) {
     // Enable modules.
-    parent::setUp();
+    parent::setUp($modules);
   }
 
   /**

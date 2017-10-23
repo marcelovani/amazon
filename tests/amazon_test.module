@@ -10,7 +10,7 @@
  */
 function amazon_test_install() {
   // Pre-populate the db.
-  $item = _amazon_test_get_amazon_item();
+  $item = amazon_test_get_amazon_item();
   amazon_item_insert($item);
 }
 
@@ -32,7 +32,7 @@ function amazon_test_menu() {
  */
 function amazon_test_templates_page_callback() {
   $markup = '';
-  $item = _amazon_test_get_amazon_item();
+  $item = amazon_test_get_amazon_item();
   $styles = array_keys(amazon_theme());
   foreach ($styles as $style) {
     $markup .= $style . theme('amazon_item', array(
@@ -47,7 +47,7 @@ function amazon_test_templates_page_callback() {
 /**
  * Provides an Amazon item for testing.
  */
-function _amazon_test_get_amazon_item() {
+function amazon_test_get_amazon_item() {
   $source = drupal_get_path('module', 'amazon_test') . '/amazon_test.json';
   $json = file_get_contents($source);
 
