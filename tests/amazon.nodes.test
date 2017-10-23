@@ -48,8 +48,7 @@ class AmazonNodesTest extends AmazonBaseTest {
       )
     );
 
-    // @todo split into new function to be used by template test
-    $test_styles = _amazon_test_get_amazon_styles_test();
+    $test_styles = $this->amazon_test_get_amazon_styles();
     foreach ($test_styles as $style => $details) {
 
       // Change the field format.

@@ -33,129 +33,15 @@ function amazon_test_menu() {
 function amazon_test_templates_page_callback() {
   $markup = '';
   $item = _amazon_test_get_amazon_item();
-  //$item = amazon_item_lookup_from_db(array('B00Y98VHGK'));
-  $styles = _amazon_test_get_amazon_styles_test();
-  foreach (array_keys($styles) as $style) {
+  $styles = array_keys(amazon_theme());
+  foreach ($styles as $style) {
     $markup .= $style . theme('amazon_item', array(
         'item' => $item,
-        'style' => $style,
+        'style' => str_replace('amazon_item__', '', $style),
       ));
   }
 
   return $markup;
-}
-
-/**
- * Provides an list of styles to be tested.
- */
-function _amazon_test_get_amazon_styles_test() {
-  // Xpath to test title.
-  // i.e. //div[contains(@class, "amazon-product--container") and contains(@class, "amazon-item") and contains(@class, "amazon-item-default")]//a[text()='Apple MacBook Pro Retina 15"'][contains(@href, "test-20")]
-  $xpath_title = array(
-    'query' => '//div[contains(@class, :container_class)' .
-      ' and contains(@class, :item_class)' .
-      ' and contains(@class, :style_class)]' .
-      '//a[text()=:link_text][contains(@href, :track_id)]',
-    'values' => array(
-      ':container_class' => 'amazon-product--container',
-      ':item_class' => 'amazon-item',
-      ':style_class' => "amazon-item-default",
-      ':link_text' => 'Apple MacBook Pro Retina 15"',
-      ':track_id' => variable_get('amazon_locale_US_associate_id'),
-    ),
-  );
-
-  // Xpath to test gallery.
-  // i.e //div[contains(@class, 'amazon-product--container') and contains(@class, 'amazon-item')]//img[@height>1 and @width>1][contains(@alt, 'Image of Apple MacBook Pro Retina 15"')][contains(@title, 'Apple MacBook Pro Retina 15"')][contains(@src, 'images-amazon.com')]
-  $xpath_gallery = array(
-    'query' => '//div[contains(@class, :item_class)]' .
-      '//img[@height>1 and @width>1]' .
-      '[contains(@alt, :alt_text)]' .
-      '[contains(@title, :title_text)]' .
-      '[contains(@src, :src)]',
-    'values' => array(
-      ':container_class' => 'amazon-product--container',
-      ':item_class' => 'amazon-item',
-      ':alt_text' => 'Image of Apple MacBook Pro Retina 15"',
-      ':title_text' => 'Apple MacBook Pro Retina 15"',
-      ':src' => 'images-amazon.com/images',
-    ),
-  );
-
-  // Xpath to test inline items.
-  // i.e //span[contains(@class, 'amazon-item')][contains(@class, 'amazon-item-inline')]//a[text()='Apple MacBook Pro Retina 15"'][contains(@href, "test-20")]
-  $xpath_inline = array(
-    'query' => '//span[contains(@class, :item_class)]' .
-      '[contains(@class, :style_class)]' .
-      '//a[text()=:title_text]' .
-      '[contains(@href, :track_id)]',
-    'values' => array(
-      ':item_class' => 'amazon-item',
-      ':style_class' => "amazon-item-default",
-      ':title_text' => 'Apple MacBook Pro Retina 15"',
-      ':track_id' => variable_get('amazon_locale_US_associate_id'),
-    ),
-  );
-
-  // Xpath to test plain items.
-  // i.e //div[contains(@class, 'field-type-asin')]//div[contains(text(), "B00Y98VHGK")]
-  $xpath_plain = array(
-    'query' => '//div[contains(@class, :container_class)]' .
-      '//div[contains(text(), :asin)]',
-    'values' => array(
-      ':container_class' => 'field-type-asin',
-      ':asin' => 'B00Y98VHGK',
-    ),
-  );
-
-  return array(
-    'default' => array(
-      'xpath' => array($xpath_title, $xpath_gallery),
-    ),
-    'default_gallery' => array(
-      'xpath' => array($xpath_title, $xpath_gallery),
-    ),
-    'details' => array(
-      'xpath' => array($xpath_title, $xpath_gallery),
-    ),
-    'details_gallery' => array(
-      'xpath' => array($xpath_title, $xpath_gallery),
-    ),
-    'thumbnail' => array(
-      'xpath' => array($xpath_gallery),
-    ),
-    'thumbnail_gallery' => array(
-      'xpath' => array($xpath_gallery),
-    ),
-    'medium' => array(
-      'xpath' => array($xpath_gallery),
-    ),
-    'medium_gallery' => array(
-      'xpath' => array($xpath_gallery),
-    ),
-    'large' => array(
-      'xpath' => array($xpath_gallery),
-    ),
-    'large_gallery' => array(
-      'xpath' => array($xpath_gallery),
-    ),
-    'inline' => array(
-      'xpath' => array($xpath_inline),
-    ),
-    'plain' => array(
-      'xpath' => array($xpath_plain),
-    ),
-  );
-
-//
-//    //@todo Move to amazon_wysiwyg tests.
-//    'buy_now_wide' => array(
-//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
-//    ),
-//    'buy_now_medium' => array(
-//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
-//    ),
-//  );
 }
 
 /**
