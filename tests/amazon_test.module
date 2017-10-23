@@ -1,0 +1,109 @@
+<?php
+
+/**
+ * @file
+ * Contains amazon_test.module.
+ */
+
+/**
+ * Implements hook_install();
+ */
+function amazon_test_install() {
+  // Pre-populate the db.
+  $item = amazon_test_get_amazon_item();
+  amazon_item_insert($item);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function amazon_test_menu() {
+  $items['admin/config/services/amazon/testing/templates'] = array(
+    'page callback' => 'amazon_test_templates_page_callback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Menu callback for testing templates.
+ */
+function amazon_test_templates_page_callback() {
+  $markup = '';
+  $item = amazon_test_get_amazon_item();
+  $styles = array_keys(amazon_theme());
+  foreach ($styles as $style) {
+    $markup .= $style . theme('amazon_item', array(
+        'item' => $item,
+        'style' => str_replace('amazon_item__', '', $style),
+      ));
+  }
+
+  return $markup;
+}
+
+/**
+ * Provides an Amazon item for testing.
+ */
+function amazon_test_get_amazon_item() {
+  $source = drupal_get_path('module', 'amazon_test') . '/amazon_test.json';
+  $json = file_get_contents($source);
+
+  return json_decode($json, TRUE);
+}
+
+/**
+ * Helper function to create field instances and attach to articles content.
+ */
+function _amazon_test_attach_fields() {
+  include_once 'amazon_test.field_base.inc';
+  include_once 'amazon_test.field_instance.inc';
+
+  $field_bases = amazon_test_field_default_field_bases();
+  $field_instances = amazon_test_field_default_field_instances();
+
+  if (!db_table_exists('field_data_field_asin')) {
+    field_create_field($field_bases['field_asin']);
+  }
+
+  // Create instance.
+  if (!field_read_instance('node', 'field_asin', 'article')) {
+    if ($field_info = field_info_field('field_asin')) {
+      $field_instance = $field_instances['node-article-field_asin'];
+
+      if (!field_create_instance($field_instance)) {
+        drupal_set_message(
+          t('Error creating :label on :bundle.',
+            array(
+              ':label' => $field_instance['label'],
+              ':bundle' => 'article'
+            )
+          ), 'error'
+        );
+      }
+    }
+  }
+
+  field_cache_clear();
+}
+
+/**
+ * Helper function to store random ids used by tests.
+ *
+ * @param string $id
+ *   The Id to be stored.
+ *
+ * @return string $id
+ *   The Id stored.
+ */
+function _amazon_test_random_id($id = NULL) {
+  static $store;
+
+  if (!is_null($id)) {
+    $store = $id;
+  }
+
+  return $store;
+}

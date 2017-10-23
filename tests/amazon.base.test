@@ -1,0 +1,167 @@
+<?php
+
+/**
+ * @file
+ * Base tests for Amazon module.
+ */
+class AmazonBaseTest extends DrupalWebTestCase {
+  protected $admin_user;
+
+  protected function setUp($modules = array()) {
+
+    $modules = array_merge(
+      array(
+        'amazon',
+        'asin',
+        'node',
+        'field_ui',
+        'amazon_test'
+      ), $modules);
+    parent::setUp($modules);
+
+    // Create Admin user.
+    $this->admin_user = $this->drupalCreateUser(array(
+        'administer content types',
+        'administer nodes',
+        'edit any article content',
+        'administer fields',
+      )
+    );
+    $this->drupalLogin($this->admin_user);
+
+    // Generate and store an Id.
+    $id = _amazon_test_random_id($this->randomString());
+
+    // Module settings.
+    variable_set('amazon_refresh_schedule', REQUEST_TIME + 3600);
+    variable_set('amazon_aws_access_key', $id);
+    variable_set('amazon_aws_secret_access_key', $id);
+    variable_set('amazon_default_locale', 'US');
+    variable_set('amazon_locale_US_associate_id', 'test-20');
+  }
+
+  /**
+   * Check that an element exists in HTML markup.
+   *
+   * @param       $xpath
+   *   An XPath expression.
+   * @param array $arguments
+   *   (optional) An associative array of XPath replacement tokens to pass to
+   *   DrupalWebTestCase::buildXPathQuery().
+   * @param       $message
+   *   The message to display along with the assertion.
+   * @param       $group
+   *   The type of assertion - examples are "Browser", "PHP".
+   *
+   * @return
+   *   TRUE if the assertion succeeded, FALSE otherwise.
+   */
+  public function assertElementByXPath($xpath, array $arguments = array(), $message, $group = 'Other') {
+    $elements = $this->xpath($xpath, $arguments);
+
+    return $this->assertTrue(!empty($elements[0]), $message, $group);
+  }
+
+  /**
+   * Provides an list of styles to be tested.
+   */
+  public function amazon_test_get_amazon_styles() {
+    // Xpath to test title.
+    // i.e. //div[contains(@class, "amazon-product--container") and contains(@class, "amazon-item") and contains(@class, "amazon-item-default")]//a[text()='Apple MacBook Pro Retina 15"'][contains(@href, "test-20")]
+    $xpath_title = array(
+      'query' => '//div[contains(@class, :container_class)' .
+        ' and contains(@class, :item_class)' .
+        ' and contains(@class, :style_class)]' .
+        '//a[text()=:link_text][contains(@href, :track_id)]',
+      'values' => array(
+        ':container_class' => 'amazon-product--container',
+        ':item_class' => 'amazon-item',
+        ':style_class' => "amazon-item-default",
+        ':link_text' => 'Apple MacBook Pro Retina 15"',
+        ':track_id' => variable_get('amazon_locale_US_associate_id'),
+      ),
+    );
+
+    // Xpath to test gallery.
+    // i.e //div[contains(@class, 'amazon-product--container') and contains(@class, 'amazon-item')]//img[@height>1 and @width>1][contains(@alt, 'Image of Apple MacBook Pro Retina 15"')][contains(@title, 'Apple MacBook Pro Retina 15"')][contains(@src, 'images-amazon.com')]
+    $xpath_gallery = array(
+      'query' => '//div[contains(@class, :item_class)]' .
+        '//img[@height>1 and @width>1]' .
+        '[contains(@alt, :alt_text)]' .
+        '[contains(@title, :title_text)]' .
+        '[contains(@src, :src)]',
+      'values' => array(
+        ':container_class' => 'amazon-product--container',
+        ':item_class' => 'amazon-item',
+        ':alt_text' => 'Image of Apple MacBook Pro Retina 15"',
+        ':title_text' => 'Apple MacBook Pro Retina 15"',
+        ':src' => 'images-amazon.com/images',
+      ),
+    );
+
+    // Xpath to test inline items.
+    // i.e //span[contains(@class, 'amazon-item')][contains(@class, 'amazon-item-inline')]//a[text()='Apple MacBook Pro Retina 15"'][contains(@href, "test-20")]
+    $xpath_inline = array(
+      'query' => '//span[contains(@class, :item_class)]' .
+        '[contains(@class, :style_class)]' .
+        '//a[text()=:title_text]' .
+        '[contains(@href, :track_id)]',
+      'values' => array(
+        ':item_class' => 'amazon-item',
+        ':style_class' => "amazon-item-default",
+        ':title_text' => 'Apple MacBook Pro Retina 15"',
+        ':track_id' => variable_get('amazon_locale_US_associate_id'),
+      ),
+    );
+
+    // Xpath to test plain items.
+    // i.e //div[contains(@class, 'field-type-asin')]//div[contains(text(), "B00Y98VHGK")]
+    $xpath_plain = array(
+      'query' => '//div[contains(@class, :container_class)]' .
+        '//div[contains(text(), :asin)]',
+      'values' => array(
+        ':container_class' => 'field-type-asin',
+        ':asin' => 'B00Y98VHGK',
+      ),
+    );
+
+    return array(
+      'default' => array(
+        'xpath' => array($xpath_title, $xpath_gallery),
+      ),
+      'default_gallery' => array(
+        'xpath' => array($xpath_title, $xpath_gallery),
+      ),
+      'details' => array(
+        'xpath' => array($xpath_title, $xpath_gallery),
+      ),
+      'details_gallery' => array(
+        'xpath' => array($xpath_title, $xpath_gallery),
+      ),
+      'thumbnail' => array(
+        'xpath' => array($xpath_gallery),
+      ),
+      'thumbnail_gallery' => array(
+        'xpath' => array($xpath_gallery),
+      ),
+      'medium' => array(
+        'xpath' => array($xpath_gallery),
+      ),
+      'medium_gallery' => array(
+        'xpath' => array($xpath_gallery),
+      ),
+      'large' => array(
+        'xpath' => array($xpath_gallery),
+      ),
+      'large_gallery' => array(
+        'xpath' => array($xpath_gallery),
+      ),
+      'inline' => array(
+        'xpath' => array($xpath_inline),
+      ),
+      'plain' => array(
+        'xpath' => array($xpath_plain),
+      ),
+    );
+  }
+}

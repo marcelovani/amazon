@@ -256,16 +256,16 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
         // 0 - Add image the the end of the array.
         if ($image['category'] === 'primary') {
           // Primary Image :: Core Image Theme
-          $primary_image = theme('image', 
+          $primary_image = theme('image',
             array(
-              'path' => $image['url'], 
-              'alt' => t('Image of') . ' ' . strip_tags($item['title']), 
-              'title' => strip_tags($item['title']), 
+              'path' => $image['url'],
+              'alt' => t('Image of') . ' ' . strip_tags($item['title']),
+              'title' => strip_tags($item['title']),
               'attributes' => array(
-                'height' => $image['height'], 
+                'height' => $image['height'],
                 'width' => $image['width'],
                 'data-category' => $image['category']
-              ), 
+              ),
               'getsize' => FALSE));
 
           // Add Primary Image to beginning of Product Image Gallery array
@@ -273,16 +273,16 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
 
         } else {
           // Variant Image :: Core Image Theme
-          $variables[$key][$imageset_gallery_key] = theme('image', 
+          $variables[$key][$imageset_gallery_key] = theme('image',
             array(
-              'path' => $image['url'], 
-              'alt' => t('Image of') . ' ' . strip_tags($item['title']), 
-              'title' => strip_tags($item['title']), 
+              'path' => $image['url'],
+              'alt' => t('Image of') . ' ' . strip_tags($item['title']),
+              'title' => strip_tags($item['title']),
               'attributes' => array(
-                'height' => $image['height'], 
+                'height' => $image['height'],
                 'width' => $image['width'],
                 'data-category' => $image['category']
-              ), 
+              ),
               'getsize' => FALSE));
         }
       }
@@ -300,6 +300,8 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
   }
   if (!empty($variables['style'])) {
     $variables['classes'] = _amazon_item_classes($item) . ' amazon-item-' . check_plain($variables['style']);
+    $variables['classes_array'][] = _amazon_item_classes($item);
+    $variables['classes_array'][] = 'amazon-item-' . check_plain($variables['style']);
 
     // A set of more specific templates to use when displaying items.
     $variables['theme_hook_suggestions'][] = 'amazon_item__' . $variables['style'];
