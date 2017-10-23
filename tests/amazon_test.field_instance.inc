@@ -6,6 +6,9 @@
 
 /**
  * Implements hook_field_default_field_instances().
+ *
+ * @param $bundle
+ *   The bundle name.
  */
 function amazon_test_field_default_field_instances($bundle = 'article') {
   $field_instances = array();

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Tests for amazon.module.
+ * Template tests for Amazon module.
  */
 
 class AmazonTemplatesTest extends AmazonBaseTest {

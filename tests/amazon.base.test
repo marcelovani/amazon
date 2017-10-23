@@ -2,9 +2,8 @@
 
 /**
  * @file
- * Tests for amazon.module.
+ * Base tests for Amazon module.
  */
-
 class AmazonBaseTest extends DrupalWebTestCase {
   protected $admin_user;
 
@@ -156,16 +155,5 @@ class AmazonBaseTest extends DrupalWebTestCase {
         'xpath' => array($xpath_plain),
       ),
     );
-
-//
-//    //@todo Move to amazon_wysiwyg tests.
-//    'buy_now_wide' => array(
-//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
-//    ),
-//    'buy_now_medium' => array(
-//      'xpath' => '//div[contains(@class, "field-type-asin")]//a/text()',
-//    ),
-//  );
   }
-
 }
