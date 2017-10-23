@@ -5,7 +5,7 @@
  * Tests for amazon.module.
  */
 
-class AmazonTemplates extends DrupalWebTestCase {
+class AmazonTemplatesTest extends AmazonBaseTest {
   protected $admin_user;
 
   public static function getInfo() {

@@ -4,7 +4,8 @@
  * @file
  * Tests for amazon.module.
  */
-class AmazonNodes extends DrupalWebTestCase {
+
+class AmazonNodesTest extends AmazonBaseTest {
   protected $admin_user;
 
   public static function getInfo() {
@@ -15,52 +16,9 @@ class AmazonNodes extends DrupalWebTestCase {
     );
   }
 
-  //@todo move code to abvstrract class to be used by template test
   protected function setUp() {
     // Enable modules.
-    parent::setUp('amazon', 'asin', 'node', 'field_ui', 'amazon_test');
-
-    // Create Admin user.
-    $this->admin_user = $this->drupalCreateUser(array(
-        'administer content types',
-        'administer nodes',
-        'edit any article content',
-        'administer fields',
-      )
-    );
-    $this->drupalLogin($this->admin_user);
-
-    // Generate and store an Id.
-    $id = _amazon_test_random_id($this->randomString());
-
-    // Module settings.
-    variable_set('amazon_refresh_schedule', REQUEST_TIME + 3600);
-    variable_set('amazon_aws_access_key', $id);
-    variable_set('amazon_aws_secret_access_key', $id);
-    variable_set('amazon_default_locale', 'US');
-    variable_set('amazon_locale_US_associate_id', 'test-20');
-  }
-
-  /**
-   * Check that an element exists in HTML markup.
-   *
-   * @param       $xpath
-   *   An XPath expression.
-   * @param array $arguments
-   *   (optional) An associative array of XPath replacement tokens to pass to
-   *   DrupalWebTestCase::buildXPathQuery().
-   * @param       $message
-   *   The message to display along with the assertion.
-   * @param       $group
-   *   The type of assertion - examples are "Browser", "PHP".
-   *
-   * @return
-   *   TRUE if the assertion succeeded, FALSE otherwise.
-   */
-  protected function assertElementByXPath($xpath, array $arguments = array(), $message, $group = 'Other') {
-    $elements = $this->xpath($xpath, $arguments);
-
-    return $this->assertTrue(!empty($elements[0]), $message, $group);
+    parent::setUp();
   }
 
   /**
@@ -118,49 +76,5 @@ class AmazonNodes extends DrupalWebTestCase {
         $this->assertElementByXPath($xpath_query, $xpath_values, "Style '$style' was rendered correctly.");
       }
     }
-
-    // Change display of the field... repeat
-
-    return;
-
-    // Enable Amazon display on article content.
-    $this->drupalGet("admin/structure/types/manage/article/display");
-    $this->assertResponse(200);
-    $edit = ["view_modes_custom[amazon]" => '1'];
-    $this->drupalPost(NULL, $edit, t('Save'));
-
-    // Amazon version of node should be enabled by default.
-    $this->drupalGet('node/' . $node->nid);
-    $this->assertResponse(200);
-    // Check amazonhtml link.
-    $this->assertRaw('<link rel="amazonhtml"');
-    // Visit amazon page.
-    $this->drupalGet('node/' . $node->nid, array('query' => array('amazon' => TRUE)));
-    $this->assertResponse(200);
-    $this->assertText($node->body[LANGUAGE_NONE][0]['value']);
-    // Check canonical link.
-    $pattern = '|<link rel="canonical" href="http(.*):\/\/(.*)node\/1"\s\/>|';
-    $this->assertPattern($pattern, 'Check that link rel="canonical" is present on the page.');
-
-    // Edit the node and turn off Amazon.
-    $this->drupalGet('node/' . $node->nid . '/edit');
-    $this->assertResponse(200);
-    $edit = [
-      'amazon_enabled' => FALSE,
-    ];
-    $this->drupalPost(NULL, $edit, t('Save'));
-
-    // View node.
-    $this->drupalGet('node/' . $node->nid);
-    $this->assertResponse(200);
-    // Check that amazonhtml link is not present.
-    $pattern = '|<link rel="amazonhtml" href="http(.*):\/\/(.*)node\/1\?.*amazon"|';
-    $this->assertNoPattern($pattern, 'Check that link rel="amazonhtml" is present on the page.');
-  }
-
-  /**
-   * Test the input filters.
-   */
-  public function testInputFilters() {
   }
 }

@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @file
+ * Tests for amazon.module.
+ */
+
+class AmazonBaseTest extends DrupalWebTestCase {
+  protected $admin_user;
+
+  protected function setUp() {
+    // Enable modules.
+    parent::setUp('amazon', 'asin', 'node', 'field_ui', 'amazon_test');
+
+    // Create Admin user.
+    $this->admin_user = $this->drupalCreateUser(array(
+        'administer content types',
+        'administer nodes',
+        'edit any article content',
+        'administer fields',
+      )
+    );
+    $this->drupalLogin($this->admin_user);
+
+    // Generate and store an Id.
+    $id = _amazon_test_random_id($this->randomString());
+
+    // Module settings.
+    variable_set('amazon_refresh_schedule', REQUEST_TIME + 3600);
+    variable_set('amazon_aws_access_key', $id);
+    variable_set('amazon_aws_secret_access_key', $id);
+    variable_set('amazon_default_locale', 'US');
+    variable_set('amazon_locale_US_associate_id', 'test-20');
+  }
+
+  /**
+   * Check that an element exists in HTML markup.
+   *
+   * @param       $xpath
+   *   An XPath expression.
+   * @param array $arguments
+   *   (optional) An associative array of XPath replacement tokens to pass to
+   *   DrupalWebTestCase::buildXPathQuery().
+   * @param       $message
+   *   The message to display along with the assertion.
+   * @param       $group
+   *   The type of assertion - examples are "Browser", "PHP".
+   *
+   * @return
+   *   TRUE if the assertion succeeded, FALSE otherwise.
+   */
+  public function assertElementByXPath($xpath, array $arguments = array(), $message, $group = 'Other') {
+    $elements = $this->xpath($xpath, $arguments);
+
+    return $this->assertTrue(!empty($elements[0]), $message, $group);
+  }
+
+}
