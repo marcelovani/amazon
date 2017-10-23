@@ -7,9 +7,17 @@
 class AmazonBaseTest extends DrupalWebTestCase {
   protected $admin_user;
 
-  protected function setUp() {
-    // Enable modules.
-    parent::setUp('amazon', 'asin', 'node', 'field_ui', 'amazon_test');
+  protected function setUp($modules = array()) {
+
+    $modules = array_merge(
+      array(
+        'amazon',
+        'asin',
+        'node',
+        'field_ui',
+        'amazon_test'
+      ), $modules);
+    parent::setUp($modules);
 
     // Create Admin user.
     $this->admin_user = $this->drupalCreateUser(array(
