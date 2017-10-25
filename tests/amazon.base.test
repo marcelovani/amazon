@@ -25,6 +25,7 @@ class AmazonBaseTest extends DrupalWebTestCase {
         'administer nodes',
         'edit any article content',
         'administer fields',
+        'administer amazon',
       )
     );
     $this->drupalLogin($this->admin_user);
@@ -67,7 +68,7 @@ class AmazonBaseTest extends DrupalWebTestCase {
    */
   public function amazon_test_get_amazon_styles() {
     // Xpath to test title.
-    // i.e. //div[contains(@class, "amazon-product--container") and contains(@class, "amazon-item") and contains(@class, "amazon-item-default")]//a[text()='Apple MacBook Pro Retina 15"'][contains(@href, "test-20")]
+    // i.e. //div[contains(@class, "amazon-product--container") and contains(@class, "amazon-item") and contains(@class, "amazon-item-default")]//a[text()='The Complete Matrix Trilogy'][contains(@href, "test-20")]
     $xpath_title = array(
       'query' => '//div[contains(@class, :container_class)' .
         ' and contains(@class, :item_class)' .
@@ -77,13 +78,13 @@ class AmazonBaseTest extends DrupalWebTestCase {
         ':container_class' => 'amazon-product--container',
         ':item_class' => 'amazon-item',
         ':style_class' => "amazon-item-default",
-        ':link_text' => 'Apple MacBook Pro Retina 15"',
+        ':link_text' => 'The Complete Matrix Trilogy',
         ':track_id' => variable_get('amazon_locale_US_associate_id'),
       ),
     );
 
     // Xpath to test gallery.
-    // i.e //div[contains(@class, 'amazon-product--container') and contains(@class, 'amazon-item')]//img[@height>1 and @width>1][contains(@alt, 'Image of Apple MacBook Pro Retina 15"')][contains(@title, 'Apple MacBook Pro Retina 15"')][contains(@src, 'images-amazon.com')]
+    // i.e //div[contains(@class, 'amazon-product--container') and contains(@class, 'amazon-item')]//img[@height>1 and @width>1][contains(@alt, 'Image of The Complete Matrix Trilogy')][contains(@title, 'The Complete Matrix Trilogy')][contains(@src, 'images-amazon.com')]
     $xpath_gallery = array(
       'query' => '//div[contains(@class, :item_class)]' .
         '//img[@height>1 and @width>1]' .
@@ -93,14 +94,14 @@ class AmazonBaseTest extends DrupalWebTestCase {
       'values' => array(
         ':container_class' => 'amazon-product--container',
         ':item_class' => 'amazon-item',
-        ':alt_text' => 'Image of Apple MacBook Pro Retina 15"',
-        ':title_text' => 'Apple MacBook Pro Retina 15"',
+        ':alt_text' => 'Image of The Complete Matrix Trilogy',
+        ':title_text' => 'The Complete Matrix Trilogy',
         ':src' => 'images-amazon.com/images',
       ),
     );
 
     // Xpath to test inline items.
-    // i.e //span[contains(@class, 'amazon-item')][contains(@class, 'amazon-item-inline')]//a[text()='Apple MacBook Pro Retina 15"'][contains(@href, "test-20")]
+    // i.e //span[contains(@class, 'amazon-item')][contains(@class, 'amazon-item-inline')]//a[text()='The Complete Matrix Trilogy'][contains(@href, "test-20")]
     $xpath_inline = array(
       'query' => '//span[contains(@class, :item_class)]' .
         '[contains(@class, :style_class)]' .
@@ -109,19 +110,19 @@ class AmazonBaseTest extends DrupalWebTestCase {
       'values' => array(
         ':item_class' => 'amazon-item',
         ':style_class' => "amazon-item-default",
-        ':title_text' => 'Apple MacBook Pro Retina 15"',
+        ':title_text' => 'The Complete Matrix Trilogy',
         ':track_id' => variable_get('amazon_locale_US_associate_id'),
       ),
     );
 
     // Xpath to test plain items.
-    // i.e //div[contains(@class, 'field-type-asin')]//div[contains(text(), "B00Y98VHGK")]
+    // i.e //div[contains(@class, 'field-type-asin')]//div[contains(text(), "B001CEE1YE")]
     $xpath_plain = array(
       'query' => '//div[contains(@class, :container_class)]' .
         '//div[contains(text(), :asin)]',
       'values' => array(
         ':container_class' => 'field-type-asin',
-        ':asin' => 'B00Y98VHGK',
+        ':asin' => 'B001CEE1YE',
       ),
     );
 
