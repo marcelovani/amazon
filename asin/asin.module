@@ -150,6 +150,10 @@ function asin_field_formatter_info() {
  */
 function asin_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
+  $locale = NULL;
+  if (isset($instance['widget']['settings']['widget_settings']['locale'])) {
+    $locale = $instance['widget']['settings']['widget_settings']['locale'];
+  }
 
   foreach ($items as $delta => $value) {
     $asin = trim($value['asin']);
@@ -163,9 +167,9 @@ function asin_field_formatter_view($entity_type, $entity, $field, $instance, $la
       else {
 
         // Lookup :: Search the amazon_item table or request Amazon API information
-        $lookup = amazon_item_lookup($asin);
+        $lookup = amazon_item_lookup($asin, FALSE, $locale);
 
-        // If :: Check to see if Amazon Product was returned succesfully  
+        // If :: Check to see if Amazon Product was returned succesfully
         if (!empty($lookup) && $item = $lookup[$asin]) {
 
           // // TODO: kill off amazon_inline_item. There's no reason for it to clutter the earth.
@@ -220,40 +224,47 @@ function asin_field_widget_settings_form($field, $instance) {
   $cache = amazon_data_cache();
   $locale_options = array('' => '-- Select --');
   foreach ($cache['locales'] as $locale => $data) {
-    if (variable_get('amazon_locale_'. $locale .'_associate_id', '')) {
+    if (variable_get('amazon_locale_' . $locale . '_associate_id', '')) {
       $locale_options[$locale] = $data['name'];
     }
   }
 
-  if ($widget['type'] == 'asin_autocomplete') {
-    $form['widget_settings'] = array(
-      '#prefix' => '<div id="asin-autocomplete-widget-settings">',
-      '#suffix' => '</div>',
-    );
-    $form['widget_settings']['locale'] = array(
-      '#title'         => t('Amazon Locale'),
-      '#type'          => 'select',
-      '#options'       => $locale_options,
-      '#default_value' => isset($settings['widget_settings']['locale']) ? $settings['widget_settings']['locale'] : '',
-      '#required'      => TRUE,
-      '#ajax'          => array(
-        'wrapper'      => 'asin-autocomplete-widget-settings',
-        'callback'     => 'asin_widget_locale_product_group',
-        'method'       => 'replace',
-        'effect'       => 'fade',
-      ),
-    );
+  $form['widget_settings'] = array(
+    '#prefix' => '<div id="asin-autocomplete-widget-settings">',
+    '#suffix' => '</div>',
+  );
+  $form['widget_settings']['locale'] = array(
+    '#title' => t('Amazon Locale'),
+    '#type' => 'select',
+    '#options' => $locale_options,
+    '#default_value' => isset($settings['widget_settings']['locale']) ? $settings['widget_settings']['locale'] : '',
+    '#required' => TRUE,
+    '#ajax' => array(
+      'wrapper' => 'asin-autocomplete-widget-settings',
+      'callback' => 'asin_widget_locale_product_group',
+      'method' => 'replace',
+      'effect' => 'fade',
+    ),
+  );
 
-    if (isset($settings['widget_settings']['locale'])) {
-      $form['widget_settings']['productgroup'] = array(
-        '#title' => t('Search Index'),
-        '#type'  => 'select',
-        '#options' => $cache['locales'][$settings['widget_settings']['locale']]['search_indexes'],
-        '#default_value' => isset($settings['widget_settings']['productgroup']) ? $settings['widget_settings']['productgroup'] : 'All',
-      );
+  // Default value for the dropdown.
+  $productgroup_options = array('All' => 'All indexes');
+  if (isset($settings['widget_settings']['locale'])) {
+    if (isset($cache['locales'][$settings['widget_settings']['locale']]['search_indexes'])) {
+      // Populate list.
+      $productgroup_options = $cache['locales'][$settings['widget_settings']['locale']]['search_indexes'];
     }
-    return $form;
   }
+  if ($instance['widget']['type'] == 'asin_autocomplete') {
+    $form['widget_settings']['productgroup'] = array(
+      '#title' => t('Search Index'),
+      '#type' => 'select',
+      '#options' => $productgroup_options,
+      '#default_value' => isset($settings['widget_settings']['productgroup']) ? $settings['widget_settings']['productgroup'] : 'All',
+    );
+  }
+
+  return $form;
 }
 
 /**
@@ -295,7 +306,7 @@ function asin_field_widget_form(&$form, &$form_state, $field, $instance, $langco
 }
 
 /**
- * Widget validation function.
+ * Text callback for the asin_text widget.
  *
  * Checks to see if we can look up an ASIN, URL, or ISBN-13 using the
  * provided text. If we can, it's OK and we turn it into an ASIN.
@@ -306,11 +317,20 @@ function asin_field_widget_element_validate($element, &$form_state) {
   $langcode = $form_state['langcode'];
 
   foreach ($form_state['values'][$field_name][$langcode] as $delta => &$item) {
+    $locale = NULL;
+    if (isset($form_state['field'][$field_name][LANGUAGE_NONE]['instance']['widget']['settings']['widget_settings']['locale'])) {
+      $locale = $form_state['field'][$field_name][LANGUAGE_NONE]['instance']['widget']['settings']['widget_settings']['locale'];
+    }
+
     $asin = trim(amazon_convert_to_asin($item['asin']));
     if (!empty($asin) && is_numeric($delta)) {
-      $results = amazon_item_lookup(array($asin));
+      $results = amazon_item_lookup(array($asin), FALSE, $locale);
       if (empty($results)) {
-        form_set_error("{$field_name}][{$langcode}][{$delta}][asin", t('No Amazon product with the ASIN "%id" could be located.', array('%id' => $asin)));
+        form_set_error("{$field_name}][{$langcode}][{$delta}][asin",
+          t('No Amazon product with the ASIN "%id" could be located in %locale.',
+            array('%id' => $asin, '%locale' => $locale)
+          )
+        );
       }
       else {
         $item['asin'] = (string)key($results);
@@ -319,12 +339,10 @@ function asin_field_widget_element_validate($element, &$form_state) {
   }
 }
 
-
 /**
  * Autocomplete callback for the asin_autocomplete widget.
  */
 function asin_autocomplete_callback($entity_type, $bundle, $field_name, $string = '') {
-  $field = field_info_field($field_name);
   $instance = field_info_instance($entity_type, $field_name, $bundle);
 
   $items = $matches = array();
