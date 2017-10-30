@@ -38,7 +38,10 @@ class AmazonAdminUITest extends AmazonBaseTest {
       'fields[_add_new_field][widget_type]' => 'asin_text',
     ];
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $edit = [
+      'instance[widget][settings][widget_settings][locale]' => 'US',
+    ];
+    $this->drupalPost(NULL, $edit, t('Save field settings'));
     $this->drupalPost(NULL, array(), t('Save settings'));
 
     // Add ASIN UK Text field.
@@ -50,7 +53,10 @@ class AmazonAdminUITest extends AmazonBaseTest {
       'fields[_add_new_field][widget_type]' => 'asin_text',
     ];
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $edit = [
+      'instance[widget][settings][widget_settings][locale]' => 'UK',
+    ];
+    $this->drupalPost(NULL, $edit, t('Save field settings'));
     $this->drupalPost(NULL, array(), t('Save settings'));
 
     // Add ASIN US Autocomplete field.
