@@ -10,8 +10,9 @@
  */
 function amazon_test_install() {
   // Pre-populate the db.
-  $item = amazon_test_get_amazon_item();
-  amazon_item_insert($item);
+  $items = amazon_test_get_amazon_item();
+  amazon_item_insert($items[0]);
+  amazon_item_insert($items[1]);
 }
 
 /**
@@ -32,7 +33,7 @@ function amazon_test_menu() {
  */
 function amazon_test_templates_page_callback() {
   $markup = '';
-  $item = amazon_test_get_amazon_item();
+  $item = amazon_test_get_amazon_item()[0];
   $styles = array_keys(amazon_theme());
   foreach ($styles as $style) {
     $markup .= $style . theme('amazon_item', array(
