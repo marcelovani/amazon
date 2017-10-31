@@ -8,6 +8,11 @@
 class AmazonAdminUITest extends AmazonBaseTest {
   protected $admin_user;
 
+  /**
+   * @inheritdoc
+   *
+   * @return array
+   */
   public static function getInfo() {
     return array(
       'name' => 'Admin UI',
@@ -16,118 +21,112 @@ class AmazonAdminUITest extends AmazonBaseTest {
     );
   }
 
+  /**
+   * @inheritdoc
+   *
+   * @param array $modules
+   */
   protected function setUp($modules = array()) {
     // Enable modules.
     parent::setUp($modules);
   }
 
   /**
-   * Test the field formatters.
+   * Helper to create ASIN text fields.
+   *
+   * @param $widget
+   *   The widget: asin_text or asin_autocomplete.
+   * @param $locale
+   *   The locale.
+   */
+  protected function createAsinFieldInstance($widget, $locale) {
+    $this->drupalGet('admin/structure/types/manage/article');
+
+    $field_name = substr('asin_' . strtolower($locale) . '_' . $widget, 0, 26);
+    $field_label = 'ASIN ' . $locale . ' (' . $widget . ')';
+
+    $this->clickLink(t('Manage fields'));
+    $edit = [
+      'fields[_add_new_field][field_name]' => $field_name,
+      'fields[_add_new_field][label]' => $field_label,
+      'fields[_add_new_field][type]' => 'asin',
+      'fields[_add_new_field][widget_type]' => $widget,
+    ];
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->drupalPost(NULL, array(), t('Save field settings'));
+    $this->drupalGet('admin/structure/types/manage/article/fields/field_' . $field_name);
+    $edit = [
+      'instance[widget][settings][widget_settings][locale]' => $locale,
+    ];
+    $this->drupalPost(NULL, $edit, t('Save settings'));
+  }
+
+  /**
+   * Test the admin UI.
    */
   public function testAdminUI() {
     // Login as an admin user.
     $this->drupalLogin($this->admin_user);
-    $this->drupalGet('admin/structure/types/manage/article');
 
-    // Add ASIN US Text field.
-    $this->clickLink(t('Manage fields'));
+    // Create fields.
+    $this->createAsinFieldInstance('asin_text', 'US');
+    $this->createAsinFieldInstance('asin_text', 'UK');
+    $this->createAsinFieldInstance('asin_autocomplete', 'US');
+    $this->createAsinFieldInstance('asin_autocomplete', 'UK');
+
+    // Check that fields have been created;
+    $this->drupalGet('admin/structure/types/manage/article/fields');
+
+    $this->assertLink('Amazon ASIN Text field');
+
+    $this->assertRaw('ASIN US (asin_text)');
+    $this->assertRaw('field_asin_us_asin_text');
+
+    $this->assertRaw('ASIN UK (asin_text)');
+    $this->assertRaw('field_asin_uk_asin_text');
+
+    $this->assertLink('Product name autocomplete');
+
+    $this->assertRaw('ASIN US (asin_autocomplete)');
+    $this->assertRaw('field_asin_us_asin_autocomplete');
+
+    $this->assertRaw('ASIN UK (asin_autocomplete)');
+    $this->assertRaw('field_asin_uk_asin_autocomplete');
+
+    // Add new article and fill in the text fields.
+    $this->drupalGet('node/add/');
+    $this->drupalGet('node/add/article');
     $edit = [
-      'fields[_add_new_field][field_name]' => 'field_asin_us_text',
-      'fields[_add_new_field][label]' => 'ASIN US Text',
-      'fields[_add_new_field][type]' => 'asin',
-      'fields[_add_new_field][widget_type]' => 'asin_text',
+      'title' => 'Testing UK and US ASIN text fields',
+      'field_asin_us_asin_text[und][0][asin]' => 'B001CEE1YE',
+      'field_asin_uk_asin_text[und][0][asin]' => 'B001CEE1YE',
     ];
     $this->drupalPost(NULL, $edit, t('Save'));
-    $edit = [
-      'instance[widget][settings][widget_settings][locale]' => 'US',
-    ];
-    $this->drupalPost(NULL, $edit, t('Save field settings'));
-    $this->drupalPost(NULL, array(), t('Save settings'));
 
-    // Add ASIN UK Text field.
-    $this->clickLink(t('Manage fields'));
-    $edit = [
-      'fields[_add_new_field][field_name]' => 'field_asin_uk_text',
-      'fields[_add_new_field][label]' => 'ASIN UK Text',
-      'fields[_add_new_field][type]' => 'asin',
-      'fields[_add_new_field][widget_type]' => 'asin_text',
-    ];
-    $this->drupalPost(NULL, $edit, t('Save'));
-    $edit = [
-      'instance[widget][settings][widget_settings][locale]' => 'UK',
-    ];
-    $this->drupalPost(NULL, $edit, t('Save field settings'));
-    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->assertRaw('amazon-product--container amazon-item amazon-item-dvd amazon-item-default locale-us', t('All wrapper classes are present'));
+    $this->assertRaw('ASIN US (asin_text)', t('The field label is correct'));
+    $this->assertRaw('The Complete Matrix Trilogy', t('The item title is correct'));
 
-    // Add ASIN US Autocomplete field.
-    $this->clickLink(t('Manage fields'));
+    $this->assertRaw('amazon-product--container amazon-item amazon-item-dvd amazon-item-default locale-uk', t('All wrapper classes are present'));
+    $this->assertRaw('ASIN UK (asin_text)', t('The field label is correct'));
+    $this->assertRaw('Complete Matrix Trilogy [Blu-ray] [1999] [Region Free]', t('The item title is correct'));
+
+    // Add new article and fill in the autocomplete fields.
+    $this->drupalGet('node/add/article');
     $edit = [
-      'fields[_add_new_field][field_name]' => 'field_asin_us_auto',
-      'fields[_add_new_field][label]' => 'ASIN US Autocomplete',
-      'fields[_add_new_field][type]' => 'asin',
-      'fields[_add_new_field][widget_type]' => 'asin_autocomplete',
+      'title' => 'Testing UK and US ASIN autocomplete fields',
+      'field_asin_us_asin_autocomplete[und][0][asin]' => 'B001CEE1YE',
+      'field_asin_uk_asin_autocomplete[und][0][asin]' => 'B001CEE1YE',
     ];
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->drupalPost(NULL, array(), t('Save field settings'));
-    $edit = [
-      'instance[widget][settings][widget_settings][locale]' => 'US',
-    ];
-    $this->drupalPost(NULL, $edit, t('Save settings'));
 
-    // Add ASIN UK Autocomplete field.
-    $this->clickLink(t('Manage fields'));
-    $edit = [
-      'fields[_add_new_field][field_name]' => 'field_asin_uk_auto',
-      'fields[_add_new_field][label]' => 'ASIN UK Autocomplete',
-      'fields[_add_new_field][type]' => 'asin',
-      'fields[_add_new_field][widget_type]' => 'asin_autocomplete',
-    ];
-    $this->drupalPost(NULL, $edit, t('Save'));
-    $this->drupalPost(NULL, array(), t('Save field settings'));
-    $edit = [
-      'instance[widget][settings][widget_settings][locale]' => 'UK',
-    ];
-    $this->drupalPost(NULL, $edit, t('Save settings'));
+    $this->assertRaw('amazon-product--container amazon-item amazon-item-dvd amazon-item-default locale-us', t('All wrapper classes are present'));
+    $this->assertRaw('ASIN US (asin_autocomplete)', t('The field label is correct'));
+    $this->assertRaw('The Complete Matrix Trilogy', t('The item title is correct'));
 
-    return;
-
-
-
-    // Create a node.
-    $amazon_item = amazon_test_get_amazon_items()[0];
-    $node = $this->drupalCreateNode(
-      array(
-        'type' => 'article',
-        'field_asin' => array(LANGUAGE_NONE => array(array('asin' => $amazon_item['asin'])))
-      )
-    );
-
-    $test_styles = $this->amazon_test_get_amazon_styles();
-    foreach ($test_styles as $style => $details) {
-
-      // Change the field format.
-      if ($instance = field_read_instance('node', 'field_asin', 'article')) {
-        $instance['display']['default']['type'] = 'asin_' . $style;
-        field_update_instance($instance);
-      }
-
-      // Test that the markup is correct.
-      $this->drupalGet('node/' . $node->nid);
-      $this->assertResponse(200);
-      $this->assertRaw('ASIN:');
-
-      // Test markup.
-      $xpath = $details['xpath'];
-      foreach ($xpath as $item) {
-        $xpath_query = $item['query'];
-        $xpath_values = $item['values'];
-
-        // Fill in the value for style.
-        if (isset($xpath_values[':style_class'])) {
-          $xpath_values[':style_class'] = "amazon-item-$style";
-        }
-        $this->assertElementByXPath($xpath_query, $xpath_values, "Style '$style' was rendered correctly.");
-      }
-    }
+    $this->assertRaw('amazon-product--container amazon-item amazon-item-dvd amazon-item-default locale-uk', t('All wrapper classes are present'));
+    $this->assertRaw('ASIN UK (asin_autocomplete)', t('The field label is correct'));
+    $this->assertRaw('Complete Matrix Trilogy [Blu-ray] [1999] [Region Free]', t('The item title is correct'));
   }
+
 }

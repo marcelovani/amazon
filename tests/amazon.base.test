@@ -23,6 +23,7 @@ class AmazonBaseTest extends DrupalWebTestCase {
     $this->admin_user = $this->drupalCreateUser(array(
         'administer content types',
         'administer nodes',
+        'create article content',
         'edit any article content',
         'administer fields',
         'administer amazon',

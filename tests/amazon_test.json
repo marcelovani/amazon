@@ -1,6 +1,7 @@
 [
   {
     "asin": "B001CEE1YE",
+    "locale": "US",
     "ean": "7321900220453",
     "salesrank": 2860,
     "detailpageurl": "https:\/\/www.amazon.com\/Complete-Trilogy-Reloaded-Revolutions-Blu-ray\/dp\/B001CEE1YE?SubscriptionId=AKIAIA4L2B7M4QP56BXQ&tag=test-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=B001CEE1YE",
@@ -249,15 +250,16 @@
   },
   {
     "asin": "B001CEE1YE",
+    "locale": "UK",
     "ean": "7321900220453",
     "salesrank": 836,
     "detailpageurl": "https:\/\/www.amazon.co.uk\/Complete-Matrix-Trilogy-Blu-ray-Region\/dp\/B001CEE1YE?SubscriptionId=AKIAIA4L2B7M4QP56BXQ&tag=experevi-21&linkCode=xm2&camp=2025&creative=165953&creativeASIN=B001CEE1YE",
     "lowestpriceamount": 872,
     "lowestpricecurrencycode": "GBP",
-    "lowestpriceformattedprice": "\u00a38.72",
+    "lowestpriceformattedprice": "\u00A38.72",
     "amazonpriceamount": 931,
     "amazonpricecurrencycode": "GBP",
-    "amazonpriceformattedprice": "\u00a39.31",
+    "amazonpriceformattedprice": "\u00A39.31",
     "aspectratio": "16:9 - 2.40:1",
     "audiencerating": "Suitable for 15 years and over",
     "binding": "Blu-ray",
