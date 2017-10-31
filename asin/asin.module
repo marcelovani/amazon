@@ -559,7 +559,13 @@ function asin_preprocess_field(&$variables, $hook) {
     $bundle = $variables['element']['#bundle'];
     $entity_type = $variables['element']['#entity_type'];
     $field_instance = field_info_instance($entity_type, $field_name, $bundle);
-    $locale = $field_instance['widget']['settings']['widget_settings']['locale'];
+
+    if (isset($field_instance['widget']['settings']['widget_settings']['locale'])) {
+      $locale = $field_instance['widget']['settings']['widget_settings']['locale'];
+      }
+    else {
+      $locale = variable_get('amazon_default_locale');
+    }
     $variables['classes_array'][] = 'locale-' . strtolower($locale);
   }
 }
