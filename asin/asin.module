@@ -150,9 +150,11 @@ function asin_field_formatter_info() {
  */
 function asin_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
-  $locale = NULL;
   if (isset($instance['widget']['settings']['widget_settings']['locale'])) {
     $locale = $instance['widget']['settings']['widget_settings']['locale'];
+  }
+  else {
+    $locale = variable_get('amazon_default_locale');
   }
 
   foreach ($items as $delta => $value) {
@@ -184,7 +186,7 @@ function asin_field_formatter_view($entity_type, $entity, $field, $instance, $la
           $elements = array(
             '#theme' => $theme_function,
             '#style' => $style,
-            '#item' => $item
+            '#item' => $item,
           );
 
           $element[$delta] = array('#markup' => drupal_render($elements));
@@ -195,7 +197,6 @@ function asin_field_formatter_view($entity_type, $entity, $field, $instance, $la
   }
   return $element;
 }
-
 
 /**
  * Implementation of hook_field_widget_info().
@@ -546,4 +547,19 @@ function asin_form_devel_generate_content_form_alter(&$form, $form_state) {
 function asin_devel_generate_set_values($form, &$form_state) {
   variable_set('asin_devel_generate_keywords', $form_state['values']['asin_devel_generate_keywords']);
   variable_set('asin_devel_generate_search_index', $form_state['values']['asin_devel_generate_search_index']);
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function asin_preprocess_field(&$variables, $hook) {
+  // Add locale class to the Asin fields.
+  if ($variables['element']['#field_type'] == 'asin') {
+    $field_name = $variables['element']['#field_name'];
+    $bundle = $variables['element']['#bundle'];
+    $entity_type = $variables['element']['#entity_type'];
+    $field_instance = field_info_instance($entity_type, $field_name, $bundle);
+    $locale = $field_instance['widget']['settings']['widget_settings']['locale'];
+    $variables['classes_array'][] = 'locale-' . strtolower($locale);
+  }
 }
