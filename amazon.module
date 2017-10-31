@@ -1061,7 +1061,8 @@ function template_preprocess_amazon_views_view_row_item(&$vars) {
   $options = $vars['options'];
   $vars['amazon_item'] = ''; // make sure var is defined.
   $asin = $vars['row']->asin;
-  $items = amazon_item_lookup($asin);
+  $locale = $vars['row']->locale;
+  $items = amazon_item_lookup($asin, $locale);
   if (empty($items[$asin])) {
     return;
   }

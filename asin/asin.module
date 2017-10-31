@@ -354,7 +354,15 @@ function asin_autocomplete_callback($entity_type, $bundle, $field_name, $string 
     'SearchIndex' => $instance['widget']['settings']['widget_settings']['productgroup'],
     'Keywords' => $cleanstring,
   );
-  $results = amazon_http_request('ItemSearch', $parameters, $instance['widget']['settings']['widget_settings']['locale']);
+
+  if (isset($instance['widget']['settings']['widget_settings']['locale'])) {
+    $locale = $instance['widget']['settings']['widget_settings']['locale'];
+  }
+  else {
+    $locale = variable_get('amazon_default_locale', 'US');
+  }
+
+  $results = amazon_http_request('ItemSearch', $parameters, $locale);
   // Process the results.
   foreach($results->Items->Item as $xml) {
     $items[(string) $xml->ASIN] = (string) $xml->ItemAttributes->Title . ' (' . $xml->ItemAttributes->ProductGroup . ')';
@@ -491,6 +499,7 @@ function _asin_devel_generate($object, $field, $instance, $bundle) {
 
   $asins = variable_get('amazon_devel_generate_asins', array());
   $amazon_item_page = variable_get('amazon_devel_generate_item_page', 1);
+  $locale = variable_get('amazon_default_locale', 'US');
 
   if (empty($asins)) {
     $parameters = array(
@@ -501,7 +510,7 @@ function _asin_devel_generate($object, $field, $instance, $bundle) {
     );
     $amazon_item_page++;
 
-    $results = amazon_http_request('ItemSearch', $parameters);
+    $results = amazon_http_request('ItemSearch', $parameters, $locale);
     foreach ($results->Items->Item as $xml) {
       $item = amazon_item_clean_xml($xml);
       amazon_item_insert($item);
