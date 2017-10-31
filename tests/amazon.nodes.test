@@ -40,7 +40,7 @@ class AmazonNodesTest extends AmazonBaseTest {
     $this->drupalGet('admin/structure/types/manage/article/display');
     $this->assertRaw('ASIN');
     // Create a node.
-    $amazon_item = amazon_test_get_amazon_item()[0];
+    $amazon_item = amazon_test_get_amazon_items()[0];
     $node = $this->drupalCreateNode(
       array(
         'type' => 'article',

@@ -94,7 +94,7 @@ class AmazonAdminUITest extends AmazonBaseTest {
 
 
     // Create a node.
-    $amazon_item = amazon_test_get_amazon_item();
+    $amazon_item = amazon_test_get_amazon_items()[0];
     $node = $this->drupalCreateNode(
       array(
         'type' => 'article',
