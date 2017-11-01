@@ -46,18 +46,18 @@ class AmazonAdminUITest extends AmazonBaseTest {
     $field_label = 'ASIN ' . $locale . ' (' . $widget . ')';
 
     $this->clickLink(t('Manage fields'));
-    $edit = [
+    $edit = array(
       'fields[_add_new_field][field_name]' => $field_name,
       'fields[_add_new_field][label]' => $field_label,
       'fields[_add_new_field][type]' => 'asin',
       'fields[_add_new_field][widget_type]' => $widget,
-    ];
+    );
     $this->drupalPost(NULL, $edit, t('Save'));
     $this->drupalPost(NULL, array(), t('Save field settings'));
     $this->drupalGet('admin/structure/types/manage/article/fields/field_' . $field_name);
-    $edit = [
+    $edit = array(
       'instance[widget][settings][widget_settings][locale]' => $locale,
-    ];
+    );
     $this->drupalPost(NULL, $edit, t('Save settings'));
   }
 
@@ -96,11 +96,11 @@ class AmazonAdminUITest extends AmazonBaseTest {
     // Add new article and fill in the text fields.
     $this->drupalGet('node/add/');
     $this->drupalGet('node/add/article');
-    $edit = [
+    $edit = array(
       'title' => 'Testing UK and US ASIN text fields',
       'field_asin_us_asin_text[und][0][asin]' => 'B001CEE1YE',
       'field_asin_uk_asin_text[und][0][asin]' => 'B001CEE1YE',
-    ];
+    );
     $this->drupalPost(NULL, $edit, t('Save'));
 
     $this->assertRaw('amazon-product--container amazon-item amazon-item-dvd amazon-item-default locale-us', t('All wrapper classes are present'));
@@ -113,11 +113,11 @@ class AmazonAdminUITest extends AmazonBaseTest {
 
     // Add new article and fill in the autocomplete fields.
     $this->drupalGet('node/add/article');
-    $edit = [
+    $edit = array(
       'title' => 'Testing UK and US ASIN autocomplete fields',
       'field_asin_us_asin_autocomplete[und][0][asin]' => 'B001CEE1YE',
       'field_asin_uk_asin_autocomplete[und][0][asin]' => 'B001CEE1YE',
-    ];
+    );
     $this->drupalPost(NULL, $edit, t('Save'));
 
     $this->assertRaw('amazon-product--container amazon-item amazon-item-dvd amazon-item-default locale-us', t('All wrapper classes are present'));
