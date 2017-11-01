@@ -33,11 +33,11 @@ function amazon_test_menu() {
  */
 function amazon_test_templates_page_callback() {
   $markup = '';
-  $item = amazon_test_get_amazon_items()[0];
+  $items = amazon_test_get_amazon_items();
   $styles = array_keys(amazon_theme());
   foreach ($styles as $style) {
     $markup .= $style . theme('amazon_item', array(
-        'item' => $item,
+        'item' => $items[0],
         'style' => str_replace('amazon_item__', '', $style),
       ));
   }
