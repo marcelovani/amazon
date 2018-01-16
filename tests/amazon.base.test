@@ -23,6 +23,7 @@ class AmazonBaseTest extends DrupalWebTestCase {
     $this->admin_user = $this->drupalCreateUser(array(
         'administer content types',
         'administer nodes',
+        'create article content',
         'edit any article content',
         'administer fields',
         'administer amazon',
@@ -39,6 +40,7 @@ class AmazonBaseTest extends DrupalWebTestCase {
     variable_set('amazon_aws_secret_access_key', $id);
     variable_set('amazon_default_locale', 'US');
     variable_set('amazon_locale_US_associate_id', 'test-20');
+    variable_set('amazon_locale_UK_associate_id', 'test-21');
   }
 
   /**

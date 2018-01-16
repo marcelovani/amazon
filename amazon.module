@@ -302,6 +302,7 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
     $variables['classes'] = _amazon_item_classes($item) . ' amazon-item-' . check_plain($variables['style']);
     $variables['classes_array'][] = _amazon_item_classes($item);
     $variables['classes_array'][] = 'amazon-item-' . check_plain($variables['style']);
+    $variables['classes_array'][] = 'locale-' . check_plain(strtolower($variables['locale']));
 
     // A set of more specific templates to use when displaying items.
     $variables['theme_hook_suggestions'][] = 'amazon_item__' . $variables['style'];
@@ -407,6 +408,10 @@ function amazon_http_request($operation, $parameters = array(), $locale = NULL) 
   $results = drupal_http_request($url, array('method' => 'GET'));
   if ($results->code == 200) {
     $xml = new SimpleXMLElement($results->data);
+    for ($c = 0; $c < $xml->Items->Item->count(); $c++) {
+      // Add locale information.
+      $xml->Items->Item[$c]->addChild('locale', $locale);
+    }
     return $xml;
   }
   if ($results->code >= 400 && $results->code < 500) {
@@ -445,7 +450,7 @@ function amazon_item_lookup($item_ids = array(), $force_lookup = FALSE, $locale 
   }
   $items = array();
   if (!$force_lookup) {
-    $items = amazon_item_lookup_from_db($item_ids);
+    $items = amazon_item_lookup_from_db($item_ids, $locale);
   }
 
   $items_to_fetch = array();
@@ -455,7 +460,9 @@ function amazon_item_lookup($item_ids = array(), $force_lookup = FALSE, $locale 
     }
   }
   $items_from_web = amazon_item_lookup_from_web($items_to_fetch, $locale);
+
   $full_set = $items + $items_from_web;
+
   return $full_set;
 }
 
@@ -480,6 +487,7 @@ function amazon_item_lookup_from_web($item_ids = array(), $locale = NULL) {
       }
     }
   }
+
   return $results;
 }
 
@@ -512,6 +520,7 @@ function _amazon_item_batch_lookup_from_web($item_ids = array(), $locale = NULL)
     }
     return $items;
   }
+
   return array();
 }
 
@@ -545,20 +554,30 @@ function _amazon_item_batch_lookup_from_web_errors($errors) {
  * @return array
  *   Array of Amazon 'cleaned' data structures keyed by ASIN.
  */
-function amazon_item_lookup_from_db($item_ids = array()) {
+function amazon_item_lookup_from_db($item_ids = array(), $locale = NULL) {
   if (!empty($item_ids)) {
     $timestamp = REQUEST_TIME - variable_get('amazon_refresh_schedule', 86400);
-    $result = db_query('SELECT * from {amazon_item} WHERE asin IN (:asins) AND timestamp > :timestamp',
-      array(':asins' => $item_ids, ':timestamp' => $timestamp),
-      array('fetch' => PDO::FETCH_ASSOC));
+
+    $query = db_select('amazon_item', 'a')
+      ->fields('a')
+      ->condition('a.asin', $item_ids, 'IN')
+      ->condition('a.timestamp', $timestamp, '>');
+    if (!is_null($locale)) {
+      $query->condition('a.locale', $locale, '=');
+    }
+    $result = $query->execute();
+
     $items = array();
-    foreach ($result as $item) {
+    foreach ($result->fetchAll() as $item) {
+      $item = (array) $item;
       _amazon_load_child_data($item);
       $item += module_invoke_all('amazon_item_load', $item);
       $items["{$item['asin']}"] = $item;
     }
+
     return $items;
   }
+
   return array();
 }
 
@@ -613,10 +632,12 @@ function _amazon_load_child_data(&$item) {
  */
 function amazon_item_clean_xml($xml) {
   $metadata = amazon_data_cache();
+
   $item = array();
   // Pull the absolute basic information Amazon keeps at the top level
   // of the XML tree, cast to string, and move on.
   $item['asin'] = (string) $xml->ASIN;
+  $item['locale'] = (string) $xml->locale;
   if (!empty($xml->ItemAttributes->ISBN)) {
     $item['isbn'] = (string) $xml->ItemAttributes->ISBN;
   }
@@ -765,7 +786,7 @@ function amazon_item_insert($item) {
   }
   // We have boatloads of data to insert in here, so we're going to
   // cheat and blow away the old entries first.
-  amazon_item_delete($item['asin']);
+  amazon_item_delete($item['asin'], $item['locale']);
 
   $metadata = amazon_data_cache();
 
@@ -881,10 +902,11 @@ function amazon_item_insert($item) {
  *   ASIN to be deleted.
  * @return No return.
  */
-function amazon_item_delete($asin) {
+function amazon_item_delete($asin, $locale) {
   module_invoke_all('amazon_item_delete', $asin);
   db_delete('amazon_item')
   ->condition('asin', $asin)
+  ->condition('locale', $locale)
   ->execute();
   db_delete('amazon_item_participant')
   ->condition('asin', $asin)
@@ -971,13 +993,13 @@ function amazon_data_cache($reset = FALSE) {
 }
 
 function _amazon_default_locales() {
-  $locales = array();
   // Load default locales from includes/amazon.locales.inc
   require_once(drupal_get_path('module', 'amazon') .'/includes/amazon.locales.inc');
   $locales = _amazon_load_locales();
 
   // Fire hook_amazon_locales_alter() to allow modules to manipulate default locales.
   drupal_alter('amazon_locales', $locales);
+
   return $locales;
 }
 
@@ -990,24 +1012,34 @@ function amazon_get_associate_id($locale = NULL) {
 }
 
 function amazon_cron() {
-  // Here, we're going to chug through all the existing ASINs and update them.
-  $needs_update_time = REQUEST_TIME - variable_get('amazon_refresh_schedule', 86400);
-  $result = db_select('amazon_item', NULL, array('fetch' => PDO::FETCH_ASSOC))
-            ->fields('amazon_item', array('asin'))
-            ->condition('timestamp', $needs_update_time, '<')
-            ->orderBy('timestamp', 'ASC')
-            ->range(0, variable_get('amazon_refresh_cron_limit', 50))
-            ->execute();
-  $asins = $result->FetchCol();
-  if (!empty($asins)) {
-    if ($items = amazon_item_lookup_from_web($asins)) {
-      foreach ($items as $item) {
-        amazon_item_insert($item);
+  // Process all configured locales.
+  $amazon_data = amazon_data_cache();
+  $locales = $amazon_data['locales'];
+  foreach ($locales as $locale => $item) {
+    if (variable_get('amazon_locale_' . $locale . '_associate_id', '')) {
+      // Here, we're going to chug through all the existing ASINs and update them.
+      $needs_update_time = REQUEST_TIME - variable_get('amazon_refresh_schedule', 86400);
+
+      $result = db_select('amazon_item', NULL, array('fetch' => PDO::FETCH_ASSOC))
+        ->fields('amazon_item', array('asin'))
+        ->condition('timestamp', $needs_update_time, '<')
+        ->condition('locale', $locale, '=')
+        ->orderBy('timestamp', 'ASC')
+        ->range(0, variable_get('amazon_refresh_cron_limit', 50))
+        ->execute();
+
+      $asins = $result->FetchCol();
+      if (!empty($asins)) {
+        if ($items = amazon_item_lookup_from_web($asins, $locale)) {
+          foreach ($items as $item) {
+            amazon_item_insert($item);
+          }
+          watchdog('amazon', 'Amazon items were updated.');
+        }
+        else {
+          watchdog('amazon', 'Amazon items could not be updated.');
+        }
       }
-      watchdog('amazon', 'Amazon items were updated.');
-    }
-    else {
-      watchdog('amazon', 'Amazon items could not be updated.');
     }
   }
 }
@@ -1029,7 +1061,8 @@ function template_preprocess_amazon_views_view_row_item(&$vars) {
   $options = $vars['options'];
   $vars['amazon_item'] = ''; // make sure var is defined.
   $asin = $vars['row']->asin;
-  $items = amazon_item_lookup($asin);
+  $locale = $vars['row']->locale;
+  $items = amazon_item_lookup($asin, $locale);
   if (empty($items[$asin])) {
     return;
   }
