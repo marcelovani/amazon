@@ -189,6 +189,8 @@ function template_preprocess_amazon_item(&$variables, $theme_type) {
 
   $variables['type'] = _amazon_clean_type($item['producttypename']);
   $variables['detailpageurl'] = check_url($item['detailpageurl']);
+  // Since we use l() on templates to print links, we need to pass the decoded url to l().
+  $variables['detailpageurl'] = htmlspecialchars_decode($variables['detailpageurl']);
   $variables['editorialreview'] = !empty($item['editorialreviews']) ? filter_xss_admin($item['editorialreviews'][0]['content']) : '';
   $variables['customerreviews_iframe'] = !empty($item['customerreviews_iframe']) ? check_url($item['customerreviews_iframe']) : '';
 

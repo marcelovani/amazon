@@ -74,6 +74,11 @@ class AmazonNodesTest extends AmazonBaseTest {
         }
         $this->assertElementByXPath($xpath_query, $xpath_values, "Style '$style' was rendered correctly.");
       }
+
+      // Test that the urls are not double encoded.
+      $this->assertNoRaw('&amp;amp;tag=');
+      $this->assertNoRaw('&amp;amp;linkCode=');
+      $this->assertNoRaw('&amp;amp;creativeASIN=');
     }
   }
 }
