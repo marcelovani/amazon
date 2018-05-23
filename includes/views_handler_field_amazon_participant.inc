@@ -37,7 +37,7 @@ class views_handler_field_amazon_participant extends views_handler_field_prerend
     $this->field_alias = $this->aliases['asin'];
   }
 
-  function pre_render($values) {
+  function pre_render(&$values) {
     $this->items = array();
 
     $asins = array();
