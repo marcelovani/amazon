@@ -186,7 +186,7 @@ function amazon_test_form_validate($form, &$form_state) {
 
 function amazon_test_form_submit($form, &$form_state) {
   $item = $form_state['amazon_item'];
-  amazon_item_delete($item['asin']);
+  amazon_item_delete($item['asin'], $item['locale']);
   amazon_item_insert($item);
   $form_state['rebuild'] = TRUE;
 }
